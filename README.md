@@ -1,4 +1,1 @@
-Semestrální práce PT
---------------------
-Štěpán Faragula
-Mikuláš Mach
+## Semestrální práce PT

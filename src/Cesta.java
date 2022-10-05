@@ -14,4 +14,12 @@ public class Cesta {
     public AMisto getMistoB() {
         return mistoB;
     }
+
+    @Override
+    public String toString() {
+        return "Cesta{" +
+                "mistoA=" + mistoA +
+                ", mistoB=" + mistoB +
+                '}';
+    }
 }

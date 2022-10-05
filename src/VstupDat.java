@@ -1,4 +1,3 @@
-import java.nio.file.*;
 import java.util.*;
 import java.io.*;
 
@@ -12,8 +11,10 @@ public class VstupDat{
     private static final VstupDat INSTANCE = new VstupDat();
 
     /** Levá a pravá závora komentáře */
-    private final String LEVA_ZAVORA = "\uD83D\uDC2A";
-    private final String PRAVA_ZAVORA = "\uD83C\uDFDC";
+    private final int LEVA_ZAVORA_PRVNI = 55357;
+    private final int LEVA_ZAVORA_DRUHY = 56362;
+    private final int PRAVA_ZAVORA_PRVNI = 55356;
+    private final int PRAVA_ZAVORA_DRUHY = 57308;
 
     /** Načtená data */
     private List<String> validniData;
@@ -37,55 +38,75 @@ public class VstupDat{
      * data uloží jako pole Stringů
      * @param vstupniSoubor soubor ke čtení
      */
-    private void vyberValidniData(String vstupniSoubor) {
-        validniData = new ArrayList<>();
-        int pocetVnoreni = 0;
+     private void vyberValidniData(String vstupniSoubor){
+         validniData = new ArrayList<>();
+         StringBuilder builder = new StringBuilder();
 
-        try {
-            Path filePath = Paths.get(vstupniSoubor);
-            Scanner scanner = new Scanner(filePath);
+         int pocetVnoreni = 0;
+         boolean bylMinuleKomentar = false;
+         boolean bylMinuleKonecKomentare = false;
 
-            while (scanner.hasNext()) {
-                String nextString = scanner.next();
+         int readChar;
 
-                if(nextString.contains(LEVA_ZAVORA) || nextString.contains(PRAVA_ZAVORA)){
-                    // Kontrola leve zavory bez mezery
-                    // TODO
-                    if(pocetVnoreni == 0 && nextString.contains(LEVA_ZAVORA)){
-                        String[] splitString = nextString.split(LEVA_ZAVORA);
-                        if(splitString.length > 1 && !splitString[0].equals(PRAVA_ZAVORA) && !splitString[0].equals("")){
-                            validniData.add(nextString.split(LEVA_ZAVORA)[0]);
-                        }
-                    }
+         try {
+             FileReader fr = new FileReader(vstupniSoubor);
+             BufferedReader br = new BufferedReader(fr);
 
-                    // Aktualizace vnoreni
-                    int pocetLevychZavor = nextString.length() - nextString.replaceAll(LEVA_ZAVORA,"").length();
-                    int pocetPravychZavor = nextString.length() - nextString.replaceAll(PRAVA_ZAVORA,"").length();
-                    pocetVnoreni += (pocetLevychZavor - pocetPravychZavor);
+             while ((readChar = br.read()) != -1) {
+                 // Leva zavora komentare
+                 if(readChar == LEVA_ZAVORA_PRVNI) {
+                     bylMinuleKomentar = true;
+                     continue;
+                 }
+                 if(readChar == LEVA_ZAVORA_DRUHY && bylMinuleKomentar) {
+                     bylMinuleKomentar = false;
+                     pocetVnoreni += 1;
+                     continue;
+                 }
 
-                    // Kontrola prave zavory bez mezery
-                    // TODO
-                    if(pocetVnoreni == 0 && nextString.contains(PRAVA_ZAVORA)){
-                        String[] splitString = nextString.split(PRAVA_ZAVORA);
-                        if(splitString.length > 1){
-                            validniData.add(nextString.split(PRAVA_ZAVORA)[nextString.split(PRAVA_ZAVORA).length - 1]);
-                        }
-                    }
-                    continue;
-                }
+                 // Prava zavora komentare
+                 if(readChar == PRAVA_ZAVORA_PRVNI) {
+                     bylMinuleKomentar = true;
+                     continue;
+                 }
+                 if(readChar == PRAVA_ZAVORA_DRUHY && bylMinuleKomentar) {
+                     bylMinuleKomentar = false;
+                     bylMinuleKonecKomentare = true;
+                     pocetVnoreni -= 1;
+                     continue;
+                 }
 
-                if(pocetVnoreni == 0){
-                    validniData.add(nextString);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                 // Data mimo komentare
+                 if(pocetVnoreni == 0){
+                     String znak = Character.toString(readChar);
+                     if(znak.matches("\\s+")){
+                         if(builder.length() != 0) {
+                             validniData.add(builder.toString());
+                             builder = new StringBuilder();
+                         }
+                         continue;
+                     }
+                     if(bylMinuleKonecKomentare && builder.length() != 0){
+                         validniData.add(builder.toString());
+                         builder = new StringBuilder();
+                     }
+                     builder.append(znak);
+                 }
+                 bylMinuleKonecKomentare = false;
+             }
+             if(builder.length() != 0) {
+                 validniData.add(builder.toString());
+             }
+             br.close();
+         } catch (IOException e) {
+             e.printStackTrace();
+         }
      }
 
      public void vytvorObjekty(String vstupniSoubor){
         vyberValidniData(vstupniSoubor);
         validniData.forEach(System.out::println);
+
         sklady = new ArrayList<>();
         oazy = new ArrayList<>();
         cesty = new ArrayList<>();

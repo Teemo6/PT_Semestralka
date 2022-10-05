@@ -3,4 +3,11 @@ public class Oaza extends AMisto {
     public Oaza(IntVector2D pozice){
         this.pozice = pozice;
     }
+
+    @Override
+    public String toString() {
+        return "Oaza{" +
+                "pozice=" + pozice +
+                '}';
+    }
 }

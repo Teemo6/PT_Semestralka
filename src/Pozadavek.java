@@ -26,4 +26,14 @@ public class Pozadavek {
     public int getCasDoruceni() {
         return casDoruceni;
     }
+
+    @Override
+    public String toString() {
+        return "Pozadavek{" +
+                "casPozadavku=" + casPozadavku +
+                ", indexOazy=" + indexOazy +
+                ", pozadavekKosu=" + pozadavekKosu +
+                ", casDoruceni=" + casDoruceni +
+                '}';
+    }
 }

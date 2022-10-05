@@ -50,4 +50,18 @@ public class Velbloud {
     public double getPomer() {
         return pomer;
     }
+
+    @Override
+    public String toString() {
+        return "Velbloud{" +
+                "nazev='" + nazev + '\'' +
+                ", minRychlost=" + minRychlost +
+                ", maxRychlost=" + maxRychlost +
+                ", minVzdalenost=" + minVzdalenost +
+                ", maxVzdalenost=" + maxVzdalenost +
+                ", casNapit=" + casNapit +
+                ", maxKose=" + maxKose +
+                ", pomer=" + pomer +
+                '}';
+    }
 }

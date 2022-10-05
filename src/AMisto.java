@@ -4,4 +4,11 @@ public abstract class AMisto {
     public IntVector2D getPozice(){
         return this.pozice;
     }
+
+    @Override
+    public String toString() {
+        return "AMisto{" +
+                "pozice=" + pozice +
+                '}';
+    }
 }

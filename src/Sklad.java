@@ -21,4 +21,14 @@ public class Sklad extends AMisto{
     public int getCasPohybKosu() {
         return casPohybKosu;
     }
+
+    @Override
+    public String toString() {
+        return "Sklad{" +
+                "pozice=" + pozice +
+                ", pocetKosu=" + pocetKosu +
+                ", casPohybKosu=" + casPohybKosu +
+                ", casDoplneniTn=" + casDoplneniTn +
+                '}';
+    }
 }

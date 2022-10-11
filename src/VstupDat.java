@@ -4,7 +4,7 @@ import java.io.*;
 /**
  * Instance třídy {@code VstupDat} představuje jedináčka, který umí přečíst vstupní soubor a vybrat potřebná data
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.04 05-10-2022
+ * @version 1.05 11-10-2022
  */
 public class VstupDat{
     /** Instance jedináčka VstupDat */
@@ -20,12 +20,12 @@ public class VstupDat{
     private List<String> validniData;
 
     /** Vytvořené objekty */
-    private List<Sklad> sklady;
-    private List<Oaza> oazy;
-    private List<Cesta> cesty;
-    private List<Velbloud> velbloudi;
-    private List<Pozadavek> pozadavky;
-    private List<AMisto> misto;
+    private List<Sklad> sklady = new ArrayList<>();
+    private List<Oaza> oazy = new ArrayList<>();
+    private List<Cesta> cesty = new ArrayList<>();
+    private List<Velbloud> velbloudi = new ArrayList<>();
+    private List<Pozadavek> pozadavky = new ArrayList<>();
+    private List<AMisto> misto = new ArrayList<>();
 
     /**
      * @return instance jedináčka
@@ -107,12 +107,6 @@ public class VstupDat{
     public void vytvorObjekty(String vstupniSoubor){
         vyberValidniData(vstupniSoubor);
         //validniData.forEach(System.out::println);
-        sklady = new ArrayList<>();
-        oazy = new ArrayList<>();
-        cesty = new ArrayList<>();
-        velbloudi = new ArrayList<>();
-        pozadavky = new ArrayList<>();
-        misto = new ArrayList<>();
 
         int posledniIndexSkladu;
         int posledniIndexOazy;
@@ -120,29 +114,24 @@ public class VstupDat{
         int posledniIndexVeldblouda;
         int posledniIndexPozadavku;
 
-        int iterator = 0;
+        int index = 0;
 
         /*  ----------------------  */
         /*  Vytvoreni vsech skladu  */
         /*  ----------------------  */
 
-        posledniIndexSkladu = Integer.parseInt(validniData.get(iterator)) * 5;  // pocest skladu je nasoben poctem parametru pro vytvoreni objektu
-        iterator++;
+        posledniIndexSkladu = Integer.parseInt(validniData.get(index)) * 5;  // pocest skladu je nasoben poctem parametru pro vytvoreni objektu
+        index++;
 
-        for(posledniIndexSkladu = iterator + posledniIndexSkladu ; iterator < posledniIndexSkladu;) {
+        for(posledniIndexSkladu = index + posledniIndexSkladu ; index < posledniIndexSkladu ; index += 5) {
 
-            int x = Integer.parseInt(validniData.get(iterator));
-            iterator++;
-            int y = Integer.parseInt(validniData.get(iterator));
-            iterator++;
-            int pocetKosu = Integer.parseInt(validniData.get(iterator));
-            iterator++;
-            int dobaDoplneniTs = Integer.parseInt(validniData.get(iterator));
-            iterator++;
-            int dobaDoplneniTn = Integer.parseInt(validniData.get(iterator));
-            iterator++;
+            double x = Double.parseDouble(validniData.get(index));
+            double y = Double.parseDouble(validniData.get(index + 1));
+            int pocetKosu = Integer.parseInt(validniData.get(index + 2));
+            int dobaDoplneniTs = Integer.parseInt(validniData.get(index + 3));
+            int dobaDoplneniTn = Integer.parseInt(validniData.get(index + 4));
 
-            Sklad sklad = new Sklad(new IntVector2D(x, y), pocetKosu, dobaDoplneniTs, dobaDoplneniTn);
+            Sklad sklad = new Sklad(new DoubleVector2D(x, y), pocetKosu, dobaDoplneniTs, dobaDoplneniTn);
             sklady.add(sklad);
         }
 
@@ -150,17 +139,15 @@ public class VstupDat{
         /*  Vytvoreni vsech oaz  */
         /*  -------------------- */
 
-        posledniIndexOazy = Integer.parseInt(validniData.get(iterator)) * 2;    // pocest oaz je nasoben poctem parametru pro vytvoreni objektu
-        iterator++;
+        posledniIndexOazy = Integer.parseInt(validniData.get(index)) * 2;    // pocest oaz je nasoben poctem parametru pro vytvoreni objektu
+        index++;
 
+        for (posledniIndexOazy = index + posledniIndexOazy ; index < posledniIndexOazy ; index += 2){
 
-        for (posledniIndexOazy = iterator + posledniIndexOazy ; iterator < posledniIndexOazy;){
-            int x = Integer.parseInt(validniData.get(iterator));
-            iterator++;
-            int y = Integer.parseInt(validniData.get(iterator));
-            iterator++;
+            double x = Double.parseDouble(validniData.get(index));
+            double y = Double.parseDouble(validniData.get(index + 1));
 
-            Oaza oaza = new Oaza(new IntVector2D(x,y));
+            Oaza oaza = new Oaza(new DoubleVector2D(x,y));
             oazy.add(oaza);
 
         }
@@ -172,14 +159,13 @@ public class VstupDat{
         /*  Vytvoreni vsech cest  */
         /*  --------------------  */
 
-        posledniIndexCesty = Integer.parseInt(validniData.get(iterator)) * 2;   // pocest cest je nasoben poctem parametru pro vytvoreni objektu
-        iterator++;
+        posledniIndexCesty = Integer.parseInt(validniData.get(index)) * 2;   // pocest cest je nasoben poctem parametru pro vytvoreni objektu
+        index++;
 
-        for (posledniIndexCesty = iterator + posledniIndexCesty ; iterator < posledniIndexCesty;){
-            int zacatekCesty = Integer.parseInt(validniData.get(iterator)) -1;  //-1 protoze sklady a oazy jsou cislovany od 1 a ne od 0
-            iterator++;
-            int konecCesty = Integer.parseInt(validniData.get(iterator)) -1;
-            iterator++;
+        for (posledniIndexCesty = index + posledniIndexCesty ; index < posledniIndexCesty ; index += 2){
+
+            int zacatekCesty = Integer.parseInt(validniData.get(index)) -1;  //-1 protoze sklady a oazy jsou cislovany od 1 a ne od 0
+            int konecCesty = Integer.parseInt(validniData.get(index + 1)) -1;
 
             Cesta cesta = new Cesta(misto.get(zacatekCesty), misto.get(konecCesty));
             cesty.add(cesta);
@@ -190,26 +176,19 @@ public class VstupDat{
         /*  Vytvoreni vsech velbloudu  */
         /*  -------------------------  */
 
-        posledniIndexVeldblouda = Integer.parseInt(validniData.get(iterator)) * 8;  // pocest velbloudu je nasoben poctem parametru pro vytvoreni objektu
-        iterator++;
+        posledniIndexVeldblouda = Integer.parseInt(validniData.get(index)) * 8;  // pocest velbloudu je nasoben poctem parametru pro vytvoreni objektu
+        index++;
 
-        for (posledniIndexVeldblouda = iterator + posledniIndexVeldblouda ; iterator < posledniIndexVeldblouda;){
-            String nazev = validniData.get(iterator);
-            iterator++;
-            int minRychlost = Integer.parseInt(validniData.get(iterator));
-            iterator++;
-            int maxRychlost = Integer.parseInt(validniData.get(iterator));
-            iterator++;
-            int minVzdalenost = Integer.parseInt(validniData.get(iterator));
-            iterator++;
-            int maxVzdalenost = Integer.parseInt(validniData.get(iterator));
-            iterator++;
-            int dobaPiti = Integer.parseInt(validniData.get(iterator));
-            iterator++;
-            int maxZatizeni = Integer.parseInt(validniData.get(iterator));
-            iterator++;
-            double procentualniPomerDruhu = Double.parseDouble(validniData.get(iterator));
-            iterator++;
+        for (posledniIndexVeldblouda = index + posledniIndexVeldblouda ; index < posledniIndexVeldblouda ; index += 8){
+
+            String nazev = validniData.get(index);
+            int minRychlost = Integer.parseInt(validniData.get(index + 1));
+            int maxRychlost = Integer.parseInt(validniData.get(index + 2));
+            int minVzdalenost = Integer.parseInt(validniData.get(index + 3));
+            int maxVzdalenost = Integer.parseInt(validniData.get(index + 4));
+            int dobaPiti = Integer.parseInt(validniData.get(index + 5));
+            int maxZatizeni = Integer.parseInt(validniData.get(index + 6));
+            double procentualniPomerDruhu = Double.parseDouble(validniData.get(index + 7));
 
             Velbloud velbloud = new Velbloud(nazev, minRychlost, maxRychlost, minVzdalenost, maxVzdalenost, dobaPiti, maxZatizeni, procentualniPomerDruhu);
             velbloudi.add(velbloud);
@@ -220,18 +199,15 @@ public class VstupDat{
         /*  Vytvoreni vsech pozadavku  */
         /*  -------------------------  */
 
-        posledniIndexPozadavku = Integer.parseInt(validniData.get(iterator)) * 4;   // pocest pozadavku je nasoben poctem parametru pro vytvoreni objektu
-        iterator++;
+        posledniIndexPozadavku = Integer.parseInt(validniData.get(index)) * 4;   // pocest pozadavku je nasoben poctem parametru pro vytvoreni objektu
+        index++;
 
-        for (posledniIndexPozadavku = iterator + posledniIndexPozadavku ; iterator < posledniIndexPozadavku;){
-            int casPozadavku = Integer.parseInt(validniData.get(iterator));
-            iterator++;
-            int indexOazy = Integer.parseInt(validniData.get(iterator));
-            iterator++;
-            int pozadavekKosu = Integer.parseInt(validniData.get(iterator));
-            iterator++;
-            int casDoruceni = Integer.parseInt(validniData.get(iterator));
-            iterator++;
+        for (posledniIndexPozadavku = index + posledniIndexPozadavku ; index < posledniIndexPozadavku ; index += 4){
+
+            int casPozadavku = Integer.parseInt(validniData.get(index));
+            int indexOazy = Integer.parseInt(validniData.get(index + 1));
+            int pozadavekKosu = Integer.parseInt(validniData.get(index + 2));
+            int casDoruceni = Integer.parseInt(validniData.get(index + 3));
 
             Pozadavek pozadavek = new Pozadavek(casPozadavku, indexOazy, pozadavekKosu, casDoruceni);
             pozadavky.add(pozadavek);

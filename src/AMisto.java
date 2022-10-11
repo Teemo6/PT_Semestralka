@@ -1,7 +1,7 @@
 public abstract class AMisto {
-    protected IntVector2D pozice;
+    protected DoubleVector2D pozice;
 
-    public IntVector2D getPozice(){
+    public DoubleVector2D getPozice(){
         return this.pozice;
     }
 

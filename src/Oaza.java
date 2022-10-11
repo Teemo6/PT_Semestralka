@@ -1,6 +1,6 @@
 public class Oaza extends AMisto {
 
-    public Oaza(IntVector2D pozice){
+    public Oaza(DoubleVector2D pozice){
         this.pozice = pozice;
     }
 

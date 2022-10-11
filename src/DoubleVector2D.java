@@ -1,19 +1,19 @@
 /**
- * Instance třídy {@code IntVector2D} představuje přepravku pro souřadnice x, y
- * @author Štěpán Faragula 01-10-2022
- * @version 1.00
+ * Instance třídy {@code DoubleVector2D} představuje přepravku pro souřadnice x, y
+ * @author Štěpán Faragula, Mikuláš Mach
+ * @version 1.01 11-10-2022
  */
 
-public class IntVector2D {
-    private final int x;
-    private final int y;
+public class DoubleVector2D {
+    private final double x;
+    private final double y;
 
     /**
      * Nastaví atributy x, y
      * @param x x
      * @param y y
      */
-    public IntVector2D(int x, int y){
+    public DoubleVector2D(double x, double y){
         this.x = x;
         this.y = y;
     }
@@ -21,14 +21,14 @@ public class IntVector2D {
     /**
      * @return x
      */
-    public int getX() {
+    public double getX() {
         return x;
     }
 
     /**
      * @return y
      */
-    public int getY() {
+    public double getY() {
         return y;
     }
 

@@ -3,7 +3,7 @@ public class Sklad extends AMisto{
     private int casPohybKosu;
     private int casDoplneniTn;
 
-    public Sklad(IntVector2D pozice, int pocetKosu, int casPohybKosu, int casDoplneniTn){
+    public Sklad(DoubleVector2D pozice, int pocetKosu, int casPohybKosu, int casDoplneniTn){
         this.pozice = pozice;
         this.pocetKosu = pocetKosu;
         this.casPohybKosu = casPohybKosu;

@@ -4,7 +4,7 @@ import java.io.*;
 /**
  * Instance třídy {@code VstupDat} představuje jedináčka, který umí přečíst vstupní soubor a vybrat potřebná data
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.05 11-10-2022
+ * @version 1.06 17-10-2022
  */
 public class VstupDat{
     /** Instance jedináčka VstupDat */
@@ -108,6 +108,7 @@ public class VstupDat{
         vyberValidniData(vstupniSoubor);
         //validniData.forEach(System.out::println);
 
+        Matice matice = Matice.getInstance();
         int posledniIndexSkladu;
         int posledniIndexOazy;
         int posledniIndexCesty;
@@ -155,6 +156,8 @@ public class VstupDat{
         misto.addAll(sklady);
         misto.addAll(oazy);
 
+        matice.createMaticeSousednosti(misto.size());
+
         /*  --------------------  */
         /*  Vytvoreni vsech cest  */
         /*  --------------------  */
@@ -166,6 +169,8 @@ public class VstupDat{
 
             int zacatekCesty = Integer.parseInt(validniData.get(index)) -1;  //-1 protoze sklady a oazy jsou cislovany od 1 a ne od 0
             int konecCesty = Integer.parseInt(validniData.get(index + 1)) -1;
+
+            matice.addToMaticeSousednosti(misto.get(zacatekCesty), zacatekCesty, misto.get(konecCesty), konecCesty);
 
             Cesta cesta = new Cesta(misto.get(zacatekCesty), misto.get(konecCesty));
             cesty.add(cesta);
@@ -223,5 +228,15 @@ public class VstupDat{
         velbloudi.forEach(System.out::println);
         System.out.println();
         pozadavky.forEach(System.out::println);
+        System.out.println();
+
+        double[][] pole = matice.getMaticeSousednosti();
+
+        for (int x = 0; x < pole.length; x++){
+            for (int y = 0; y < pole.length; y++){
+                System.out.print(pole[x][y] + ", ");
+            }
+            System.out.println();
+        }
     }
 }

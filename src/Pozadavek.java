@@ -1,17 +1,17 @@
 public class Pozadavek {
-    private int casPozadavku;
+    private double casPozadavku;
     private int indexOazy;
     private int pozadavekKosu;
     private int casDoruceni;
 
-    public Pozadavek(int casPozadavku, int indexOazy, int pozadavekKosu, int casDoruceni){
+    public Pozadavek(double casPozadavku, int indexOazy, int pozadavekKosu, int casDoruceni){
         this.casPozadavku = casPozadavku;
         this.indexOazy = indexOazy;
         this.pozadavekKosu = pozadavekKosu;
         this.casDoruceni = casDoruceni;
     }
 
-    public int getCasPozadavku() {
+    public double getCasPozadavku() {
         return casPozadavku;
     }
 

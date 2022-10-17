@@ -1,14 +1,14 @@
 public class Velbloud {
     private String nazev;
-    private int minRychlost;
-    private int maxRychlost;
-    private int minVzdalenost;
-    private int maxVzdalenost;
+    private double minRychlost;
+    private double maxRychlost;
+    private double minVzdalenost;
+    private double maxVzdalenost;
     private int casNapit;
     private int maxKose;
     private double pomer;
 
-    public Velbloud(String nazev, int minRychlost, int maxRychlost, int minVzdalenost, int maxVzdalenost, int casNapit, int maxKose, double pomer){
+    public Velbloud(String nazev, double minRychlost, double maxRychlost, double minVzdalenost, double maxVzdalenost, int casNapit, int maxKose, double pomer){
         this.nazev = nazev;
         this.minRychlost = minRychlost;
         this.maxRychlost = maxRychlost;
@@ -23,19 +23,19 @@ public class Velbloud {
         return nazev;
     }
 
-    public int getMinRychlost() {
+    public double getMinRychlost() {
         return minRychlost;
     }
 
-    public int getMaxRychlost() {
+    public double getMaxRychlost() {
         return maxRychlost;
     }
 
-    public int getMinVzdalenost() {
+    public double getMinVzdalenost() {
         return minVzdalenost;
     }
 
-    public int getMaxVzdalenost() {
+    public double getMaxVzdalenost() {
         return maxVzdalenost;
     }
 

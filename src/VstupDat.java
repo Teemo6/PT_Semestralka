@@ -182,10 +182,10 @@ public class VstupDat{
         for (posledniIndexVeldblouda = index + posledniIndexVeldblouda ; index < posledniIndexVeldblouda ; index += 8){
 
             String nazev = validniData.get(index);
-            int minRychlost = Integer.parseInt(validniData.get(index + 1));
-            int maxRychlost = Integer.parseInt(validniData.get(index + 2));
-            int minVzdalenost = Integer.parseInt(validniData.get(index + 3));
-            int maxVzdalenost = Integer.parseInt(validniData.get(index + 4));
+            double minRychlost = Double.parseDouble(validniData.get(index + 1));
+            double maxRychlost = Double.parseDouble(validniData.get(index + 2));
+            double minVzdalenost = Double.parseDouble(validniData.get(index + 3));
+            double maxVzdalenost = Double.parseDouble(validniData.get(index + 4));
             int dobaPiti = Integer.parseInt(validniData.get(index + 5));
             int maxZatizeni = Integer.parseInt(validniData.get(index + 6));
             double procentualniPomerDruhu = Double.parseDouble(validniData.get(index + 7));
@@ -204,7 +204,7 @@ public class VstupDat{
 
         for (posledniIndexPozadavku = index + posledniIndexPozadavku ; index < posledniIndexPozadavku ; index += 4){
 
-            int casPozadavku = Integer.parseInt(validniData.get(index));
+            double casPozadavku = Double.parseDouble(validniData.get(index));
             int indexOazy = Integer.parseInt(validniData.get(index + 1));
             int pozadavekKosu = Integer.parseInt(validniData.get(index + 2));
             int casDoruceni = Integer.parseInt(validniData.get(index + 3));
@@ -213,5 +213,15 @@ public class VstupDat{
             pozadavky.add(pozadavek);
 
         }
+
+        sklady.forEach(System.out::println);
+        System.out.println();
+        oazy.forEach(System.out::println);
+        System.out.println();
+        cesty.forEach(System.out::println);
+        System.out.println();
+        velbloudi.forEach(System.out::println);
+        System.out.println();
+        pozadavky.forEach(System.out::println);
     }
 }

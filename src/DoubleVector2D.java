@@ -19,6 +19,18 @@ public class DoubleVector2D {
     }
 
     /**
+     * Vrátí vzdálenost dvou instancí {@code DoubleVector2D}
+     * @param otherVector instance jiného vektoru
+     * @return vzdálenost mezi touto instancí {@code DoubleVector2D} a jinou instancí {@code DoubleVector2D}
+     */
+    public double computeDistance(DoubleVector2D otherVector){
+        double posXDiff = otherVector.getX() - this.x;
+        double posYDiff = otherVector.getY() - this.y;
+        return Math.sqrt(posXDiff * posXDiff + posYDiff * posYDiff);
+    }
+
+
+    /**
      * @return x
      */
     public double getX() {

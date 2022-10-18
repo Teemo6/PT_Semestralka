@@ -20,12 +20,13 @@ public class VstupDat{
     private List<String> validniData;
 
     /** Vytvořené objekty */
-    private List<Sklad> sklady = new ArrayList<>();
-    private List<Oaza> oazy = new ArrayList<>();
-    private List<Cesta> cesty = new ArrayList<>();
-    private List<Velbloud> velbloudi = new ArrayList<>();
-    private List<Pozadavek> pozadavky = new ArrayList<>();
-    private List<AMisto> misto = new ArrayList<>();
+    private List<Sklad> sklady;
+    private List<Oaza> oazy;
+    private List<Cesta> cesty;
+    private List<Velbloud> velbloudi;
+    private List<Pozadavek> pozadavky;
+    private List<AMisto> misto;
+    private Matice maticeSousednosti;
 
     /**
      * @return instance jedináčka
@@ -108,11 +109,17 @@ public class VstupDat{
         vyberValidniData(vstupniSoubor);
         //validniData.forEach(System.out::println);
 
-        Matice matice = Matice.getInstance();
+        sklady = new ArrayList<>();
+        oazy = new ArrayList<>();
+        cesty = new ArrayList<>();
+        velbloudi = new ArrayList<>();
+        pozadavky = new ArrayList<>();
+        misto = new ArrayList<>();
+
         int posledniIndexSkladu;
         int posledniIndexOazy;
         int posledniIndexCesty;
-        int posledniIndexVeldblouda;
+        int posledniIndexVelblouda;
         int posledniIndexPozadavku;
 
         int index = 0;
@@ -156,7 +163,7 @@ public class VstupDat{
         misto.addAll(sklady);
         misto.addAll(oazy);
 
-        matice.createMaticeSousednosti(misto.size());
+        maticeSousednosti = new Matice(misto.size());
 
         /*  --------------------  */
         /*  Vytvoreni vsech cest  */
@@ -170,8 +177,10 @@ public class VstupDat{
             int zacatekCesty = Integer.parseInt(validniData.get(index)) -1;  //-1 protoze sklady a oazy jsou cislovany od 1 a ne od 0
             int konecCesty = Integer.parseInt(validniData.get(index + 1)) -1;
 
-            matice.addToMaticeSousednosti(misto.get(zacatekCesty), zacatekCesty, misto.get(konecCesty), konecCesty);
+            maticeSousednosti.vyplnNekonecnem();
+            maticeSousednosti.pridejObsah(misto.get(zacatekCesty), zacatekCesty, misto.get(konecCesty), konecCesty);
 
+            // Potom se odstrani ?
             Cesta cesta = new Cesta(misto.get(zacatekCesty), misto.get(konecCesty));
             cesty.add(cesta);
 
@@ -181,10 +190,10 @@ public class VstupDat{
         /*  Vytvoreni vsech velbloudu  */
         /*  -------------------------  */
 
-        posledniIndexVeldblouda = Integer.parseInt(validniData.get(index)) * 8;  // pocest velbloudu je nasoben poctem parametru pro vytvoreni objektu
+        posledniIndexVelblouda = Integer.parseInt(validniData.get(index)) * 8;  // pocest velbloudu je nasoben poctem parametru pro vytvoreni objektu
         index++;
 
-        for (posledniIndexVeldblouda = index + posledniIndexVeldblouda ; index < posledniIndexVeldblouda ; index += 8){
+        for (posledniIndexVelblouda = index + posledniIndexVelblouda ; index < posledniIndexVelblouda ; index += 8){
 
             String nazev = validniData.get(index);
             double minRychlost = Double.parseDouble(validniData.get(index + 1));
@@ -197,7 +206,6 @@ public class VstupDat{
 
             Velbloud velbloud = new Velbloud(nazev, minRychlost, maxRychlost, minVzdalenost, maxVzdalenost, dobaPiti, maxZatizeni, procentualniPomerDruhu);
             velbloudi.add(velbloud);
-
         }
 
         /*  -------------------------  */
@@ -218,7 +226,7 @@ public class VstupDat{
             pozadavky.add(pozadavek);
 
         }
-
+/*
         sklady.forEach(System.out::println);
         System.out.println();
         oazy.forEach(System.out::println);
@@ -229,14 +237,35 @@ public class VstupDat{
         System.out.println();
         pozadavky.forEach(System.out::println);
         System.out.println();
+        maticeSousednosti.printMatice();
+*/
+     }
 
-        double[][] pole = matice.getMaticeSousednosti();
+    public List<Sklad> getSklady() {
+        return sklady;
+    }
 
-        for (int x = 0; x < pole.length; x++){
-            for (int y = 0; y < pole.length; y++){
-                System.out.print(pole[x][y] + ", ");
-            }
-            System.out.println();
-        }
+    public List<Oaza> getOazy() {
+        return oazy;
+    }
+
+    public List<Cesta> getCesty() {
+        return cesty;
+    }
+
+    public List<Velbloud> getVelbloudi() {
+        return velbloudi;
+    }
+
+    public List<Pozadavek> getPozadavky() {
+        return pozadavky;
+    }
+
+    public List<AMisto> getMisto() {
+        return misto;
+    }
+
+    public Matice getMaticeSousednosti() {
+        return maticeSousednosti;
     }
 }

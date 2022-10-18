@@ -1,5 +1,5 @@
 public class Main {
-    private static final String VSTUP_SOUBORU = "data2/centre_large.txt";
+    private static final String VSTUP_SOUBORU = "data/tutorial.txt";
 
     private static final VstupDat VSTUP_DAT = VstupDat.getInstance();
     private static final Simulace SIMULACE = Simulace.getInstance();

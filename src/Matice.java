@@ -2,19 +2,13 @@ import java.util.Arrays;
 
 /**
  * Instance třídy {@code Matice} představuje jedináčka, která obsahuje matici sousednosti
- * @author Mikuláš Mach
+ * @author Mikuláš Mach, Štěpán Faragula
  * @version 1.00 17-10-2022
  */
 public class Matice {
     private int velikostX;
     private int velikostY;
     private double[][] obsahMatice;
-
-    public Matice(int velikostX, int velikostY){
-        this.velikostX = velikostX;
-        this.velikostY = velikostY;
-        obsahMatice = new double[velikostX][velikostY];
-    }
 
     public Matice(int velikost){
         this.velikostX = velikost;
@@ -28,10 +22,13 @@ public class Matice {
         }
     }
 
-    public void pridejObsah(AMisto bod1, int idX, AMisto bod2, int idY){
-        double vzdalenost = bod1.getPozice().computeDistance(bod2.getPozice());
-        obsahMatice[idX][idY] = vzdalenost;
-        obsahMatice[idY][idX] = vzdalenost;
+    public void setCisloXY(int x, int y, double cislo){
+        obsahMatice[x][y] = cislo;
+        obsahMatice[y][x] = cislo;
+    }
+
+    public double getCisloXY(int x, int y){
+        return obsahMatice[x][y];
     }
 
     public int getVelikostX() {
@@ -49,6 +46,10 @@ public class Matice {
     public void printMatice(){
         for (int x = 0; x < velikostX; x++){
             for (int y = 0; y < velikostY; y++){
+                if(obsahMatice[x][y] == Double.MAX_VALUE){
+                    System.out.print("INF, ");
+                    continue;
+                }
                 System.out.print(obsahMatice[x][y] + ", ");
             }
             System.out.println();

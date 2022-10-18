@@ -164,6 +164,7 @@ public class VstupDat{
         misto.addAll(oazy);
 
         maticeSousednosti = new Matice(misto.size());
+        maticeSousednosti.vyplnNekonecnem();
 
         /*  --------------------  */
         /*  Vytvoreni vsech cest  */
@@ -177,13 +178,11 @@ public class VstupDat{
             int zacatekCesty = Integer.parseInt(validniData.get(index)) -1;  //-1 protoze sklady a oazy jsou cislovany od 1 a ne od 0
             int konecCesty = Integer.parseInt(validniData.get(index + 1)) -1;
 
-            maticeSousednosti.vyplnNekonecnem();
-            maticeSousednosti.pridejObsah(misto.get(zacatekCesty), zacatekCesty, misto.get(konecCesty), konecCesty);
-
-            // Potom se odstrani ?
             Cesta cesta = new Cesta(misto.get(zacatekCesty), misto.get(konecCesty));
             cesty.add(cesta);
 
+            double vzdalenost = cesta.vypoctiVzdalenost();
+            maticeSousednosti.setCisloXY(zacatekCesty, konecCesty, vzdalenost);
         }
 
         /*  -------------------------  */

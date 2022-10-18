@@ -7,6 +7,10 @@ public class Cesta {
         this.mistoB = mistoB;
     }
 
+    public double vypoctiVzdalenost(){
+        return mistoA.getPozice().computeDistance(mistoB.getPozice());
+    }
+
     public AMisto getMistoA() {
         return mistoA;
     }

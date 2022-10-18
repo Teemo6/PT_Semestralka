@@ -1,7 +1,7 @@
 /**
- * Instance třídy {@code DoubleVector2D} představuje přepravku pro souřadnice x, y
+ * Instance třídy {@code DoubleVector2D} představuje přepravku pro souřadnice x, y typu double
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.01 11-10-2022
+ * @version 1.10 18-10-2022
  */
 
 public class DoubleVector2D {
@@ -19,13 +19,13 @@ public class DoubleVector2D {
     }
 
     /**
-     * Vrátí vzdálenost dvou instancí {@code DoubleVector2D}
-     * @param otherVector instance jiného vektoru
+     * Vrátí vzdálenost mezi dvěmi body {@code DoubleVector2D}
+     * @param otherVector instance druhého vektoru
      * @return vzdálenost mezi touto instancí {@code DoubleVector2D} a jinou instancí {@code DoubleVector2D}
      */
     public double computeDistance(DoubleVector2D otherVector){
-        double posXDiff = otherVector.getX() - this.x;
-        double posYDiff = otherVector.getY() - this.y;
+        double posXDiff = otherVector.getX() - x;
+        double posYDiff = otherVector.getY() - y;
         return Math.sqrt(posXDiff * posXDiff + posYDiff * posYDiff);
     }
 

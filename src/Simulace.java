@@ -21,7 +21,7 @@ public class Simulace {
     }
 
     /**
-     * Spustí simulace
+     * Spustí simulaci
      * @param vstupDat Vstupní data
      */
     public void spustSimulaci(VstupDat vstupDat){
@@ -36,30 +36,35 @@ public class Simulace {
      */
     public Matice vytvorDistancniMatici(){
         Matice distancniMatice = vstupDat.getMaticeSousednosti();
+/*
+        distancniMatice = new Matice(9);
+        distancniMatice.vyplnNekonecnem();
 
-        /*
-        distancniMatice.setCisloNaSouradnice(0, 1, 1);
-        distancniMatice.setCisloNaSouradnice(0, 2, 2);
-        distancniMatice.setCisloNaSouradnice(0, 3, 3);
-        distancniMatice.setCisloNaSouradnice(0, 4, 4);
-        distancniMatice.setCisloNaSouradnice(0, 5, 5);
-        distancniMatice.setCisloNaSouradnice(0, 6, 6);
-        distancniMatice.setCisloNaSouradnice(0, 7, 7);
-        distancniMatice.setCisloNaSouradnice(0, 8, 8);
+        distancniMatice.setCisloXY(0, 1, 1);
+        distancniMatice.setCisloXY(0, 2, 2);
+        distancniMatice.setCisloXY(0, 3, 3);
+        distancniMatice.setCisloXY(0, 4, 4);
+        distancniMatice.setCisloXY(0, 5, 5);
+        distancniMatice.setCisloXY(0, 6, 6);
+        distancniMatice.setCisloXY(0, 7, 7);
+        distancniMatice.setCisloXY(0, 8, 8);
 
-        distancniMatice.setCisloNaSouradnice(1, 0, 1);
-        distancniMatice.setCisloNaSouradnice(2, 0, 2);
-        distancniMatice.setCisloNaSouradnice(3, 0, 3);
-        distancniMatice.setCisloNaSouradnice(4, 0, 4);
-        distancniMatice.setCisloNaSouradnice(5, 0, 5);
-        distancniMatice.setCisloNaSouradnice(6, 0, 6);
-        distancniMatice.setCisloNaSouradnice(7, 0, 7);
-        distancniMatice.setCisloNaSouradnice(8, 0, 8);
+        distancniMatice.setCisloXY(1, 0, 1);
+        distancniMatice.setCisloXY(2, 0, 2);
+        distancniMatice.setCisloXY(3, 0, 3);
+        distancniMatice.setCisloXY(4, 0, 4);
+        distancniMatice.setCisloXY(5, 0, 5);
+        distancniMatice.setCisloXY(6, 0, 6);
+        distancniMatice.setCisloXY(7, 0, 7);
+        distancniMatice.setCisloXY(8, 0, 8);
 */
+        // Potřeba optimalizovat
+        // sparse_bit_large, MaticeSymetricka -> 415351 ms -> 6,9 minut :(
+        // sparse_bit_large, Matice -> 103746 ms -> 1,7 minut
 
         for(int k = 0; k < distancniMatice.getVelikostX(); k++){
             for(int i = 0; i < distancniMatice.getVelikostX(); i++){
-                for(int j = 0; j < distancniMatice.getVelikostX(); j++){
+                for(int j = i; j < distancniMatice.getVelikostX(); j++){
                     if(i == j){
                         distancniMatice.setCisloXY(i, j, 0);
                         continue;

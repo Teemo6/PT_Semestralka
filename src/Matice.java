@@ -44,13 +44,17 @@ public class Matice {
     }
 
     public void printMatice(){
-        for (int x = 0; x < velikostX; x++){
-            for (int y = 0; y < velikostY; y++){
-                if(obsahMatice[x][y] == Double.MAX_VALUE){
-                    System.out.print("INF, ");
-                    continue;
+        for(int i = 0; i < velikostX; i++){
+            for(int j = 0; j < velikostY; j++){
+                double cislo = obsahMatice[i][j];
+                if(cislo == Double.MAX_VALUE){
+                    System.out.print("INF");
+                } else {
+                    System.out.print(cislo);
                 }
-                System.out.print(obsahMatice[x][y] + ", ");
+                if(j != velikostX - 1){
+                    System.out.print(" - ");
+                }
             }
             System.out.println();
         }

@@ -26,7 +26,10 @@ public class VstupDat{
     private List<Velbloud> velbloudi;
     private List<Pozadavek> pozadavky;
     private List<AMisto> misto;
+
+    // Clash of the stars
     private Matice maticeSousednosti;
+    private MaticeSymetricka maticeSymetricka;
 
     /**
      * @return instance jedináčka
@@ -105,6 +108,10 @@ public class VstupDat{
          }
      }
 
+    /**
+     * Z validních dat načte parametry pro strukturu programu
+     * @param vstupniSoubor soubor ke čtení, předává se privátní metodě
+     */
     public void vytvorObjekty(String vstupniSoubor){
         vyberValidniData(vstupniSoubor);
         //validniData.forEach(System.out::println);

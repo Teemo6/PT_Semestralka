@@ -34,48 +34,55 @@ public class Simulace {
      * Využití Floyd-Warshall algoritmu
      * @return distanční matice
      */
-    public Matice vytvorDistancniMatici(){
-        Matice distancniMatice = vstupDat.getMaticeSousednosti();
+    public IMaticeSymetricka vytvorDistancniMatici(){
+        IMaticeSymetricka distancniMatice = vstupDat.getMaticeSousednosti();
+        //distancniMatice.printMatice();
 /*
-        distancniMatice = new Matice(9);
+        distancniMatice = new MaticeCtvercova(9);
         distancniMatice.vyplnNekonecnem();
+        distancniMatice.vyplnNulyNaDiagonalu();
 
-        distancniMatice.setCisloXY(0, 1, 1);
-        distancniMatice.setCisloXY(0, 2, 2);
-        distancniMatice.setCisloXY(0, 3, 3);
-        distancniMatice.setCisloXY(0, 4, 4);
-        distancniMatice.setCisloXY(0, 5, 5);
-        distancniMatice.setCisloXY(0, 6, 6);
-        distancniMatice.setCisloXY(0, 7, 7);
-        distancniMatice.setCisloXY(0, 8, 8);
-
-        distancniMatice.setCisloXY(1, 0, 1);
-        distancniMatice.setCisloXY(2, 0, 2);
-        distancniMatice.setCisloXY(3, 0, 3);
-        distancniMatice.setCisloXY(4, 0, 4);
-        distancniMatice.setCisloXY(5, 0, 5);
-        distancniMatice.setCisloXY(6, 0, 6);
-        distancniMatice.setCisloXY(7, 0, 7);
-        distancniMatice.setCisloXY(8, 0, 8);
+        distancniMatice.setCislo(0, 1, 1);
+        distancniMatice.setCislo(0, 2, 2);
+        distancniMatice.setCislo(0, 3, 3);
+        distancniMatice.setCislo(0, 4, 4);
+        distancniMatice.setCislo(0, 5, 5);
+        distancniMatice.setCislo(0, 6, 6);
+        distancniMatice.setCislo(0, 7, 7);
+        distancniMatice.setCislo(0, 8, 8);
 */
         // Potřeba optimalizovat
-        // sparse_bit_large, MaticeSymetricka -> 415351 ms -> 6,9 minut :(
-        // sparse_bit_large, Matice -> 103746 ms -> 1,7 minut
+        // sparse_bit_large, MaticeTrojuhelnikova -> 415351 ms -> 6,9 minut :(
+        // sparse_bit_large, MaticeCtvercova -> 130283 ms -> 2.1 minuty
 
-        for(int k = 0; k < distancniMatice.getVelikostX(); k++){
-            for(int i = 0; i < distancniMatice.getVelikostX(); i++){
-                for(int j = i; j < distancniMatice.getVelikostX(); j++){
-                    if(i == j){
-                        distancniMatice.setCisloXY(i, j, 0);
-                        continue;
-                    }
-                    if(distancniMatice.getCisloXY(i, j) > distancniMatice.getCisloXY(i, k) + distancniMatice.getCisloXY(k ,j)){
-                        double velikost = distancniMatice.getCisloXY(i, k) + distancniMatice.getCisloXY(k, j);
-                        distancniMatice.setCisloXY(i, j, velikost);
+        int velikostMatice = distancniMatice.getVelikost();
+
+        MaticeInteger maticePredchudcu = new MaticeInteger(velikostMatice);
+        maticePredchudcu.vyplnNekonecnem();
+
+        // TODO zatim to nic nedělá :(
+        for (int i = 0; i < velikostMatice; i++) {
+            for (int j = 0; j < velikostMatice; j++) {
+                if (distancniMatice.getCislo(i, j) != Double.MAX_VALUE){
+                    maticePredchudcu.setCislo(i, j, i);
+                }
+            }
+        }
+        maticePredchudcu.printMatice();
+
+        for(int k = 0; k < velikostMatice; k++){
+            for(int i = 0; i < velikostMatice; i++){
+                for(int j = 0; j < velikostMatice; j++){
+                    double cesta = distancniMatice.getCislo(i, k) + distancniMatice.getCislo(k, j);
+                    if(distancniMatice.getCislo(i, j) > cesta){
+                        distancniMatice.setCislo(i, j, cesta);
                     }
                 }
             }
         }
+        System.out.println("\n----------\n");
+        maticePredchudcu.printMatice();
+        System.out.println("\n----------\n");
         return distancniMatice;
     }
 }

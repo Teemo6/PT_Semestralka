@@ -1,60 +1,67 @@
 import java.util.Arrays;
 
 /**
- * Instance třídy {@code MaticeSymetricka} představuje symetrickou matici s lepším využitím paměti
+ * Instance třídy {@code MaticeCtvercova} představuje jedináčka, která obsahuje matici sousednosti
  * @author Mikuláš Mach, Štěpán Faragula
- * @version 1.10 18-10-2022
+ * @version 1.11 18-10-2022
  */
-public class MaticeSymetricka {
+public class MaticeCtvercova implements IMaticeSymetricka{
     private int velikost;
-    private double[] obsahMatice;
+    private double[][] obsahMatice;
 
-    /**
-     * @param n velikost čtvercové matice
-     */
-    public MaticeSymetricka(int n){
-        velikost = n;
-        obsahMatice = new double[n*(n+1)/2];
+    public MaticeCtvercova(int velikost){
+        this.velikost = velikost;
+        obsahMatice = new double[velikost][velikost];
     }
 
     /**
      * Nastaví všechny hodnoty na INF
      */
     public void vyplnNekonecnem(){
-        Arrays.fill(obsahMatice, Double.MAX_VALUE);
+        for (double[] x : obsahMatice) {
+            Arrays.fill(x, Double.MAX_VALUE);
+        }
     }
 
     /**
-     * Vrátí index v 1D poli podle souřadnic X, Y
-     * @param x x
-     * @param y y
-     * @return index v 1D poli
+     * Nastaví všechny hodnoty na INF
      */
-    public int getIndex(int x, int y){
-        if (x <= y) {
-            return x * velikost - (x - 1) * ((x - 1) + 1) / 2 + y - x;
+    public void vyplnNulyNaDiagonalu(){
+        for(int x = 0; x < velikost; x++){
+            setCislo(x, 0);
         }
-        return y * velikost - (y-1)*((y-1) + 1)/2 + x - y;
     }
 
     /**
      * Nastaví číslo podle souřadnic X, Y
+     * matice je symetrická, nastaví stejné číslo na Y, X
      * @param x x
      * @param y y
      * @param cislo hodnota
      */
-    public void setCisloXY(int x, int y, double cislo){
-        obsahMatice[getIndex(x, y)] = cislo;
+    public void setCislo(int x, int y, double cislo){
+        obsahMatice[x][y] = cislo;
+        obsahMatice[y][x] = cislo;
+    }
+
+    /**
+     * Nastaví číslo na diagonálu X, X
+     * @param x x
+     * @param cislo hodnota
+     */
+    public void setCislo(int x, double cislo){
+        obsahMatice[x][x] = cislo;
     }
 
     /**
      * Vrátí číslo na souřadnicích X, Y
+     * matice je symetrická, vrátí stejné číslo z Y, X
      * @param x x
      * @param y y
      * @return hodnota
      */
-    public double getCisloXY(int x, int y){
-        return obsahMatice[getIndex(x, y)];
+    public double getCislo(int x, int y){
+        return obsahMatice[x][y];
     }
 
     /**
@@ -63,7 +70,7 @@ public class MaticeSymetricka {
     public void printMatice(){
         for(int i = 0; i < velikost; i++){
             for(int j = 0; j < velikost; j++){
-                double cislo = obsahMatice[getIndex(i, j)];
+                double cislo = obsahMatice[i][j];
                 if(cislo == Double.MAX_VALUE){
                     System.out.print("INF");
                 } else {
@@ -85,12 +92,7 @@ public class MaticeSymetricka {
         return velikost;
     }
 
-    /**
-     * Vrátí array matice
-     * @return 1D pole
-     */
-    public double[] getObsahMatice() {
+    public double[][] getObsahMatice() {
         return obsahMatice;
     }
-
 }

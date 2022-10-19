@@ -27,9 +27,8 @@ public class VstupDat{
     private List<Pozadavek> pozadavky;
     private List<AMisto> misto;
 
-    // Clash of the stars
-    private Matice maticeSousednosti;
-    private MaticeSymetricka maticeSymetricka;
+    /** Druh čtvercové matice */
+    private IMaticeSymetricka maticeSousednosti;
 
     /**
      * @return instance jedináčka
@@ -114,7 +113,6 @@ public class VstupDat{
      */
     public void vytvorObjekty(String vstupniSoubor){
         vyberValidniData(vstupniSoubor);
-        //validniData.forEach(System.out::println);
 
         sklady = new ArrayList<>();
         oazy = new ArrayList<>();
@@ -170,8 +168,9 @@ public class VstupDat{
         misto.addAll(sklady);
         misto.addAll(oazy);
 
-        maticeSousednosti = new Matice(misto.size());
+        maticeSousednosti = new MaticeCtvercova(misto.size());
         maticeSousednosti.vyplnNekonecnem();
+        maticeSousednosti.vyplnNulyNaDiagonalu();
 
         /*  --------------------  */
         /*  Vytvoreni vsech cest  */
@@ -189,7 +188,7 @@ public class VstupDat{
             cesty.add(cesta);
 
             double vzdalenost = cesta.vypoctiVzdalenost();
-            maticeSousednosti.setCisloXY(zacatekCesty, konecCesty, vzdalenost);
+            maticeSousednosti.setCislo(zacatekCesty, konecCesty, vzdalenost);
         }
 
         /*  -------------------------  */
@@ -271,7 +270,7 @@ public class VstupDat{
         return misto;
     }
 
-    public Matice getMaticeSousednosti() {
+    public IMaticeSymetricka getMaticeSousednosti() {
         return maticeSousednosti;
     }
 }

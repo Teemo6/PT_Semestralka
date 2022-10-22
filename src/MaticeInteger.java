@@ -19,6 +19,15 @@ public class MaticeInteger {
         }
 
         /**
+         * Nastaví všechny hodnoty na diagonále na 0
+        */
+        public void vyplnNulyNaDiagonalu(){
+            for(int i = 0; i < velikost; i++){
+                setCislo(i, i,  0);
+            }
+         }
+
+        /**
          * Nastaví číslo podle souřadnic X, Y
          * @param x x
          * @param y y

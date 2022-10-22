@@ -1,18 +1,18 @@
 public class Pozadavek {
-    private double casPozadavku;
+    private double casPrichodu;
     private int indexOazy;
     private int pozadavekKosu;
-    private int casDoruceni;
+    private int deadline;
 
-    public Pozadavek(double casPozadavku, int indexOazy, int pozadavekKosu, int casDoruceni){
-        this.casPozadavku = casPozadavku;
+    public Pozadavek(double casPrichodu, int indexOazy, int pozadavekKosu, int deadline){
+        this.casPrichodu = casPrichodu;
         this.indexOazy = indexOazy;
         this.pozadavekKosu = pozadavekKosu;
-        this.casDoruceni = casDoruceni;
+        this.deadline = deadline;
     }
 
-    public double getCasPozadavku() {
-        return casPozadavku;
+    public double getCasPrichodu() {
+        return casPrichodu;
     }
 
     public int getIndexOazy() {
@@ -23,17 +23,17 @@ public class Pozadavek {
         return pozadavekKosu;
     }
 
-    public int getCasDoruceni() {
-        return casDoruceni;
+    public int getDeadline() {
+        return deadline;
     }
 
     @Override
     public String toString() {
         return "Pozadavek{" +
-                "casPozadavku=" + casPozadavku +
+                "casPozadavku=" + casPrichodu +
                 ", indexOazy=" + indexOazy +
                 ", pozadavekKosu=" + pozadavekKosu +
-                ", casDoruceni=" + casDoruceni +
+                ", casDoruceni=" + deadline +
                 '}';
     }
 }

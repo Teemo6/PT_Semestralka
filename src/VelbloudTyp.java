@@ -1,4 +1,4 @@
-public class Velbloud {
+public class VelbloudTyp {
     private String nazev;
     private double minRychlost;
     private double maxRychlost;
@@ -8,7 +8,7 @@ public class Velbloud {
     private int maxKose;
     private double pomer;
 
-    public Velbloud(String nazev, double minRychlost, double maxRychlost, double minVzdalenost, double maxVzdalenost, int casNapit, int maxKose, double pomer){
+    public VelbloudTyp(String nazev, double minRychlost, double maxRychlost, double minVzdalenost, double maxVzdalenost, int casNapit, int maxKose, double pomer){
         this.nazev = nazev;
         this.minRychlost = minRychlost;
         this.maxRychlost = maxRychlost;

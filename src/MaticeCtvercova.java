@@ -24,11 +24,11 @@ public class MaticeCtvercova implements IMaticeSymetricka{
     }
 
     /**
-     * Nastaví všechny hodnoty na INF
+     * Nastaví všechny hodnoty na diagonále na 0
      */
     public void vyplnNulyNaDiagonalu(){
-        for(int x = 0; x < velikost; x++){
-            setCislo(x, 0);
+        for(int i = 0; i < velikost; i++){
+            setCislo(i, i, 0);
         }
     }
 
@@ -41,16 +41,18 @@ public class MaticeCtvercova implements IMaticeSymetricka{
      */
     public void setCislo(int x, int y, double cislo){
         obsahMatice[x][y] = cislo;
-        obsahMatice[y][x] = cislo;
     }
 
     /**
-     * Nastaví číslo na diagonálu X, X
+     * Nastaví číslo podle souřadnic X, Y
+     * matice je symetrická, nastaví stejné číslo na Y, X
      * @param x x
+     * @param y y
      * @param cislo hodnota
      */
-    public void setCislo(int x, double cislo){
-        obsahMatice[x][x] = cislo;
+    public void setCisloSymetricky(int x, int y, double cislo){
+        obsahMatice[x][y] = cislo;
+        obsahMatice[y][x] = cislo;
     }
 
     /**

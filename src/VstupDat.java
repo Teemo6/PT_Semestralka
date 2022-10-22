@@ -4,13 +4,13 @@ import java.io.*;
 /**
  * Instance třídy {@code VstupDat} představuje jedináčka, který umí přečíst vstupní soubor a vybrat potřebná data
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.06 17-10-2022
+ * @version 1.12 21-10-2022
  */
 public class VstupDat{
     /** Instance jedináčka VstupDat */
     private static final VstupDat INSTANCE = new VstupDat();
 
-    /** Levá a pravá závora komentáře */
+    /** Levá a pravá závora znaku komentáře ve vstupním souboru */
     private final int LEVA_ZAVORA_PRVNI = 55357;
     private final int LEVA_ZAVORA_DRUHY = 56362;
     private final int PRAVA_ZAVORA_PRVNI = 55356;
@@ -22,15 +22,13 @@ public class VstupDat{
     /** Vytvořené objekty */
     private List<Sklad> sklady;
     private List<Oaza> oazy;
-    private List<Cesta> cesty;
-    private List<Velbloud> velbloudi;
+    private HashSet<Cesta> cesty;
+    private List<VelbloudTyp> velbloudi;
     private List<Pozadavek> pozadavky;
-    private List<AMisto> misto;
-
-    /** Druh čtvercové matice */
-    private IMaticeSymetricka maticeSousednosti;
+    private HashMap<Integer, AMisto> mista;
 
     /**
+     * Vrátí jedináčka
      * @return instance jedináčka
      */
     public static VstupDat getInstance(){
@@ -98,6 +96,8 @@ public class VstupDat{
                  }
                  bylMinuleKonecKomentare = false;
              }
+
+             // Zapis posledni slovo
              if(builder.length() != 0) {
                  validniData.add(builder.toString());
              }
@@ -109,17 +109,17 @@ public class VstupDat{
 
     /**
      * Z validních dat načte parametry pro strukturu programu
-     * @param vstupniSoubor soubor ke čtení, předává se privátní metodě
+     * @param vstupniSoubor soubor ke čtení, předává se privátní metodě vyberValidniData()
      */
     public void vytvorObjekty(String vstupniSoubor){
         vyberValidniData(vstupniSoubor);
 
         sklady = new ArrayList<>();
         oazy = new ArrayList<>();
-        cesty = new ArrayList<>();
+        cesty = new HashSet<>();
         velbloudi = new ArrayList<>();
         pozadavky = new ArrayList<>();
-        misto = new ArrayList<>();
+        mista = new HashMap<>();
 
         int posledniIndexSkladu;
         int posledniIndexOazy;
@@ -162,15 +162,11 @@ public class VstupDat{
 
             Oaza oaza = new Oaza(new DoubleVector2D(x,y));
             oazy.add(oaza);
-
         }
 
-        misto.addAll(sklady);
-        misto.addAll(oazy);
-
-        maticeSousednosti = new MaticeCtvercova(misto.size());
-        maticeSousednosti.vyplnNekonecnem();
-        maticeSousednosti.vyplnNulyNaDiagonalu();
+        // Napln HashMap mista
+        sklady.forEach(s -> mista.put(s.getID(), s));
+        oazy.forEach(o -> mista.put(o.getID(), o));
 
         /*  --------------------  */
         /*  Vytvoreni vsech cest  */
@@ -181,14 +177,11 @@ public class VstupDat{
 
         for (posledniIndexCesty = index + posledniIndexCesty ; index < posledniIndexCesty ; index += 2){
 
-            int zacatekCesty = Integer.parseInt(validniData.get(index)) -1;  //-1 protoze sklady a oazy jsou cislovany od 1 a ne od 0
-            int konecCesty = Integer.parseInt(validniData.get(index + 1)) -1;
+            int zacatekCesty = Integer.parseInt(validniData.get(index));
+            int konecCesty = Integer.parseInt(validniData.get(index + 1));
 
-            Cesta cesta = new Cesta(misto.get(zacatekCesty), misto.get(konecCesty));
+            Cesta cesta = new Cesta(mista.get(zacatekCesty), mista.get(konecCesty));
             cesty.add(cesta);
-
-            double vzdalenost = cesta.vypoctiVzdalenost();
-            maticeSousednosti.setCislo(zacatekCesty, konecCesty, vzdalenost);
         }
 
         /*  -------------------------  */
@@ -209,8 +202,8 @@ public class VstupDat{
             int maxZatizeni = Integer.parseInt(validniData.get(index + 6));
             double procentualniPomerDruhu = Double.parseDouble(validniData.get(index + 7));
 
-            Velbloud velbloud = new Velbloud(nazev, minRychlost, maxRychlost, minVzdalenost, maxVzdalenost, dobaPiti, maxZatizeni, procentualniPomerDruhu);
-            velbloudi.add(velbloud);
+            VelbloudTyp velbloudTyp = new VelbloudTyp(nazev, minRychlost, maxRychlost, minVzdalenost, maxVzdalenost, dobaPiti, maxZatizeni, procentualniPomerDruhu);
+            velbloudi.add(velbloudTyp);
         }
 
         /*  -------------------------  */
@@ -229,7 +222,6 @@ public class VstupDat{
 
             Pozadavek pozadavek = new Pozadavek(casPozadavku, indexOazy, pozadavekKosu, casDoruceni);
             pozadavky.add(pozadavek);
-
         }
 /*
         sklady.forEach(System.out::println);
@@ -242,8 +234,14 @@ public class VstupDat{
         System.out.println();
         pozadavky.forEach(System.out::println);
         System.out.println();
-        maticeSousednosti.printMatice();
+
+        for (Integer ID : mista.keySet()) {
+            String key = ID.toString();
+            String value = mista.get(ID).toString();
+            System.out.println(key + " " + value);
+        }
 */
+
      }
 
     public List<Sklad> getSklady() {
@@ -254,11 +252,11 @@ public class VstupDat{
         return oazy;
     }
 
-    public List<Cesta> getCesty() {
+    public HashSet<Cesta> getCesty() {
         return cesty;
     }
 
-    public List<Velbloud> getVelbloudi() {
+    public List<VelbloudTyp> getVelbloudi() {
         return velbloudi;
     }
 
@@ -266,11 +264,7 @@ public class VstupDat{
         return pozadavky;
     }
 
-    public List<AMisto> getMisto() {
-        return misto;
-    }
-
-    public IMaticeSymetricka getMaticeSousednosti() {
-        return maticeSousednosti;
+    public Map<Integer, AMisto> getMista() {
+        return mista;
     }
 }

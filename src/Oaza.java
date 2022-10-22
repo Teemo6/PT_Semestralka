@@ -7,7 +7,9 @@ public class Oaza extends AMisto {
     @Override
     public String toString() {
         return "Oaza{" +
-                "pozice=" + pozice +
+                "ID=" + ID +
+                ", pozice=" + pozice +
+                ", seznamVelbloudu=" + seznamVelbloudu +
                 '}';
     }
 }

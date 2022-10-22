@@ -1,21 +1,27 @@
+/**
+ * Semestrální práce PT
+ * @author Štěpán Faragula, Mikuláš Mach
+ * @version 1.12 21-10-2022
+ */
 public class Main {
-    private static final String VSTUP_SOUBORU = "data2/sparse_slightly_medium.txt";
+    // Testovací spuštění
+    private static final String VSTUP_SOUBORU = "data/tutorial.txt";
 
     private static final VstupDat VSTUP_DAT = VstupDat.getInstance();
     private static final Simulace SIMULACE = Simulace.getInstance();
 
+    /**
+     * Načte data a spustí simulaci
+     * @param args vstupní data
+     */
     public static void main(String[] args) {
-        long a, b;
-        a = System.currentTimeMillis();
+        long a = System.currentTimeMillis();
 
+        //VSTUP_DAT.nactiData(args[0]);
         VSTUP_DAT.vytvorObjekty(VSTUP_SOUBORU);
-
-        b = System.currentTimeMillis();
-        System.out.println("\nData nactena v case: " + (b - a) + " ms.");
+        System.out.println("\nData nactena v case: " + (System.currentTimeMillis() - a) + " ms.");
 
         SIMULACE.spustSimulaci(VSTUP_DAT);
-
-        b = System.currentTimeMillis();
-        System.out.println("\nRuntime: " + (b - a) + " ms.");
+        System.out.println("\nRuntime: " + (System.currentTimeMillis() - a) + " ms.");
     }
 }

@@ -24,11 +24,13 @@ public interface IMaticeSymetricka {
     void setCislo(int x, int y, double cislo);
 
     /**
-     * Nastaví číslo na diagonálu X, X
+     * Nastaví číslo podle souřadnic X, Y
+     * matice je symetrická, nastaví stejné číslo na Y, X
      * @param x x
+     * @param y y
      * @param cislo hodnota
      */
-    void setCislo(int x, double cislo);
+    void setCisloSymetricky(int x, int y, double cislo);
 
     /**
      * Vrátí číslo na souřadnicích X, Y

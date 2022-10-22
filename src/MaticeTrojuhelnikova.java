@@ -1,10 +1,7 @@
 import java.util.Arrays;
 
-/**
- * Instance třídy {@code MaticeTrojuhelnikova} představuje symetrickou matici s lepším využitím paměti
- * @author Mikuláš Mach, Štěpán Faragula
- * @version 1.10 18-10-2022
- */
+// Pokus na optimalizaci matice
+
 public class MaticeTrojuhelnikova implements IMaticeSymetricka {
     private int velikost;
     private double[] obsahMatice;
@@ -60,13 +57,17 @@ public class MaticeTrojuhelnikova implements IMaticeSymetricka {
         obsahMatice[getIndex(x, y)] = cislo;
     }
 
+    public void setCisloSymetricky(int x, int y, double cislo){
+        setCislo(x, y, cislo);
+    }
+
     /**
      * Nastaví číslo na diagonálu X, X
-     * @param x x
+     * @param i x
      * @param cislo hodnota
      */
-    public void setCislo(int x, double cislo){
-        obsahMatice[getIndex(x, x)] = cislo;
+    public void setCislo(int i, double cislo){
+        obsahMatice[getIndex(i, i)] = cislo;
     }
 
     /**

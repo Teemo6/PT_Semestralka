@@ -1,34 +1,49 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Sklad extends AMisto{
+    private int pocetPrirustek;
+    private int casDoplneniSkladu;
+    private int casNalozeni;
+
     private int pocetKosu;
-    private int casPohybKosu;
-    private int casDoplneniTn;
 
-    public Sklad(DoubleVector2D pozice, int pocetKosu, int casPohybKosu, int casDoplneniTn){
+    public Sklad(DoubleVector2D pozice, int pocetPrirustek, int casDoplneniSkladu, int casNalozeni){
         this.pozice = pozice;
-        this.pocetKosu = pocetKosu;
-        this.casPohybKosu = casPohybKosu;
-        this.casDoplneniTn = casDoplneniTn;
+        this.pocetPrirustek = pocetPrirustek;
+        this.casDoplneniSkladu = casDoplneniSkladu;
+        this.casNalozeni = casNalozeni;
+
+        this.pocetKosu = pocetPrirustek;
     }
 
-    public int getCasDoplneniTn() {
-        return casDoplneniTn;
+    public void doplnSklad(){
+        pocetKosu += pocetPrirustek;
     }
 
-    public int getPocetKosu() {
-        return pocetKosu;
+    public int getPocetKosu(){return pocetKosu;}
+
+    public int getCasNalozeni() {
+        return casNalozeni;
     }
 
-    public int getCasPohybKosu() {
-        return casPohybKosu;
+    public int getPocetPrirustek() {
+        return pocetPrirustek;
+    }
+
+    public int getCasDoplneniSkladu() {
+        return casDoplneniSkladu;
     }
 
     @Override
     public String toString() {
         return "Sklad{" +
-                "pozice=" + pozice +
-                ", pocetKosu=" + pocetKosu +
-                ", casPohybKosu=" + casPohybKosu +
-                ", casDoplneniTn=" + casDoplneniTn +
+                "ID=" + ID +
+                ", pozice=" + pozice +
+                ", pocetKosu=" + pocetPrirustek +
+                ", casPohybKosu=" + casDoplneniSkladu +
+                ", casDoplneniTn=" + casNalozeni +
+                ", seznamVelbloudu=" + seznamVelbloudu +
                 '}';
     }
 }

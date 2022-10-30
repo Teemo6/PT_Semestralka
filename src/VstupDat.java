@@ -4,20 +4,11 @@ import java.io.*;
 /**
  * Instance třídy {@code VstupDat} představuje jedináčka, který umí přečíst vstupní soubor a vybrat potřebná data
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.12 21-10-2022
+ * @version 1.13 30-10-2022
  */
 public class VstupDat{
     /** Instance jedináčka VstupDat */
     private static final VstupDat INSTANCE = new VstupDat();
-
-    /** Levá a pravá závora znaku komentáře ve vstupním souboru */
-    private final int LEVA_ZAVORA_PRVNI = 55357;
-    private final int LEVA_ZAVORA_DRUHY = 56362;
-    private final int PRAVA_ZAVORA_PRVNI = 55356;
-    private final int PRAVA_ZAVORA_DRUHY = 57308;
-
-    /** Načtená data */
-    private List<String> validniData;
 
     /** Vytvořené objekty */
     private List<Sklad> sklady;
@@ -40,8 +31,14 @@ public class VstupDat{
      * data uloží jako pole Stringů
      * @param vstupniSoubor soubor ke čtení
      */
-     private void vyberValidniData(String vstupniSoubor){
-         validniData = new ArrayList<>();
+     private ArrayList<String> vyberValidniData(String vstupniSoubor){
+         // Levá a pravá závora znaku komentáře ve vstupním souboru
+         int LEVA_ZAVORA_PRVNI = 55357;
+         int LEVA_ZAVORA_DRUHY = 56362;
+         int PRAVA_ZAVORA_PRVNI = 55356;
+         int PRAVA_ZAVORA_DRUHY = 57308;
+
+         ArrayList<String> validniData = new ArrayList<>();
          StringBuilder builder = new StringBuilder();
 
          int pocetVnoreni = 0;
@@ -105,6 +102,7 @@ public class VstupDat{
          } catch (IOException e) {
              e.printStackTrace();
          }
+         return validniData;
      }
 
     /**
@@ -112,7 +110,7 @@ public class VstupDat{
      * @param vstupniSoubor soubor ke čtení, předává se privátní metodě vyberValidniData()
      */
     public void vytvorObjekty(String vstupniSoubor){
-        vyberValidniData(vstupniSoubor);
+        ArrayList<String> validniData = vyberValidniData(vstupniSoubor);
 
         sklady = new ArrayList<>();
         oazy = new ArrayList<>();

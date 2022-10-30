@@ -1,17 +1,12 @@
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Instance třídy {@code AMisto} představuje abstraktní třídu libovolného místa v mapě
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.12 21-10-2022
+ * @version 1.13 30-10-2022
  */
 public abstract class AMisto {
     protected DoubleVector2D pozice;
     protected static int pocet;
     protected int ID;
-
-    protected List<VelbloudSimulace> seznamVelbloudu;
 
     /**
      * Při vytvoření místa začíná ID od 1 podle zadání
@@ -19,23 +14,6 @@ public abstract class AMisto {
     public AMisto(){
         pocet++;
         this.ID = pocet;
-        this.seznamVelbloudu = new ArrayList<>();
-    }
-
-    /**
-     * Přidá velblouda do seznamu
-     * @param velbloud velbloud na přidání
-     */
-    public void pridejVelblouda(VelbloudSimulace velbloud){
-        seznamVelbloudu.add(velbloud);
-    }
-
-    /**
-     * Odebere požadovaného velblouda ze seznamu
-     * @param velbloud velbloud na odebrání
-     */
-    public void odeberVelblouda(VelbloudSimulace velbloud){
-        seznamVelbloudu.remove(velbloud);
     }
 
     /**
@@ -59,7 +37,6 @@ public abstract class AMisto {
         return "AMisto{" +
                 "pozice=" + pozice +
                 ", ID=" + ID +
-                ", seznamVelbloudu=" + seznamVelbloudu +
                 '}';
     }
 }

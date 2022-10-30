@@ -1,10 +1,11 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 /**
  * Instance třídy {@code Simulace} představuje jedináčka ve kterém běží celá simulace
  * @author Mikuláš Mach, Štěpán Faragula
- * @version 1.12 21-10-2022
+ * @version 1.13 30-10-2022
  */
 public class Simulace {
     /** Instance jedináčka Simulace */
@@ -36,23 +37,20 @@ public class Simulace {
         vytvorPotrebneMatice();
         System.out.println("Matice nacteny");
 
-        VelbloudSimulace vel = vytvorVelblouda(data.getVelbloudi().get(0));
         AMisto zacatek = data.getMista().get(3);
         AMisto konec = data.getMista().get(2);
         ArrayList<Cesta> cesta = najdiNejkratsiCestu(zacatek, konec);
-        zacatek.pridejVelblouda(vel);
 
-        System.out.println("----------------");
-        System.out.println(zacatek);
-        System.out.println(konec);
+        VelbloudSimulace vel = vytvorVelblouda(data.getVelbloudi().get(0), zacatek);
+
+        System.out.println(vel);
 
         for(Cesta c : cesta){
-            vysliVelbloudaNaCestu(vel, c);
+            premistiVelblouda(vel, c);
         }
 
-        System.out.println("----------------");
-        System.out.println(zacatek);
-        System.out.println(konec);
+        System.out.println("-------");
+        System.out.println(vel);
     }
 
     /**
@@ -143,14 +141,14 @@ public class Simulace {
      * @param typ typ velblouda
      * @return entita
      */
-    public VelbloudSimulace vytvorVelblouda(VelbloudTyp typ){
+    public VelbloudSimulace vytvorVelblouda(VelbloudTyp typ, AMisto pozice){
         double rychlost = random.nextDouble() * (typ.getMaxRychlost() - typ.getMinRychlost()) + typ.getMinRychlost();
 
         double stredniHodnota = (typ.getMinVzdalenost() + typ.getMaxVzdalenost()) / 2;          // podle zadání
         double smerodatnaOdchylka = (typ.getMaxVzdalenost() - typ.getMinVzdalenost()) / 4;      // podle zadání
         double vzdalenost = random.nextGaussian() * smerodatnaOdchylka + stredniHodnota;
 
-        return new VelbloudSimulace(rychlost, vzdalenost, typ.getCasNapit(), typ.getMaxKose());
+        return new VelbloudSimulace(pozice, rychlost, vzdalenost, typ.getCasNapit(), typ.getMaxKose());
     }
 
     /**
@@ -158,13 +156,11 @@ public class Simulace {
      * @param velbloud jaký velbloud se má přemístit
      * @param cesta cesta kam jde
      */
-    public void vysliVelbloudaNaCestu(VelbloudSimulace velbloud, Cesta cesta){
+    public void premistiVelblouda(VelbloudSimulace velbloud, Cesta cesta){
         // Vzdálenost se vypočítá když se zrovna potřebuje
         // Distanční matice je zbytečná??
         double vzdalenost = cesta.getVzdalenost();
-
         velbloud.setEnergie(velbloud.getEnergie() - vzdalenost);
-        cesta.getMistoA().odeberVelblouda(velbloud);
-        cesta.getMistoB().pridejVelblouda(velbloud);
+        velbloud.setPozice(cesta.getMistoB());
     }
 }

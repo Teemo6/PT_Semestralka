@@ -9,7 +9,6 @@ public class Oaza extends AMisto {
         return "Oaza{" +
                 "ID=" + ID +
                 ", pozice=" + pozice +
-                ", seznamVelbloudu=" + seznamVelbloudu +
                 '}';
     }
 }

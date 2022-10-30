@@ -1,6 +1,3 @@
-import java.util.ArrayList;
-import java.util.List;
-
 public class Sklad extends AMisto{
     private int pocetPrirustek;
     private int casDoplneniSkladu;
@@ -43,7 +40,6 @@ public class Sklad extends AMisto{
                 ", pocetKosu=" + pocetPrirustek +
                 ", casPohybKosu=" + casDoplneniSkladu +
                 ", casDoplneniTn=" + casNalozeni +
-                ", seznamVelbloudu=" + seznamVelbloudu +
                 '}';
     }
 }

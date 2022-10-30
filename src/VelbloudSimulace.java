@@ -1,4 +1,5 @@
 public class VelbloudSimulace{
+    private AMisto pozice;
     private double rychlost;
     private double maxVzdalenost;
     private double dobaPiti;
@@ -11,7 +12,8 @@ public class VelbloudSimulace{
     private static int pocet;
     private int ID;
 
-    public VelbloudSimulace(double rychlost, double maxVzdalenost, double dobaPiti, int maxPocetKosu){
+    public VelbloudSimulace(AMisto pozice, double rychlost, double maxVzdalenost, double dobaPiti, int maxPocetKosu){
+        this.pozice = pozice;
         this.rychlost = rychlost;
         this.maxVzdalenost = maxVzdalenost;
         this.dobaPiti = dobaPiti;
@@ -24,8 +26,16 @@ public class VelbloudSimulace{
         this.ID = pocet;
     }
 
+    public void setPozice(AMisto pozice){
+        this.pozice = pozice;
+    }
+
     public void setEnergie(double energie){
         this.energie = energie;
+    }
+
+    public AMisto getPozice() {
+        return pozice;
     }
 
     public double getRychlost() {
@@ -64,6 +74,7 @@ public class VelbloudSimulace{
     public String toString() {
         return "VelbloudSimulace{" +
                 "ID=" + ID +
+                ", pozice=" + pozice.getID() +
                 ", rychlost=" + rychlost +
                 ", maxVzdalenost=" + maxVzdalenost +
                 ", dobaPiti=" + dobaPiti +

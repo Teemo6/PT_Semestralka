@@ -306,32 +306,39 @@ public class VelbloudSimulace{
     }
 
     private void vypisNakladani(){
-
-            System.out.println("Cas: " + casNaAkci +", Velbloud:" + ID + ", Sklad: " + domovskySklad.getID() + ", Nalozeno kosu: " + pocetKosu +", Odchod v: " + casOdchodu );
+        int zaokrouhlenyCas = (int)Math.round(casNaAkci);
+        int zaokrouhlenyOdchod = (int)Math.round(casOdchodu);
+        System.out.println("Velbloud naklada - Cas: " + zaokrouhlenyCas +", Velbloud:" + ID + ", Sklad: " + domovskySklad.getID() + ", Nalozeno kosu: " + pocetKosu +", Odchod v: " + zaokrouhlenyOdchod );
 
     }
 
     private void vypisVykladani(){
-        System.out.println("Cas: " + casNaAkci + ", Velbloud: "+ ID + ", Oaza: "+ pozice.getID() + ", Vylozeno kosu: "+ vylozenoKosu + ", Vylozeno v: " + konecVykladani + ", Casova rezerva: " + (konecVykladani - frontaPozadavku.peek().getPozadavek().getDeadline()));
+        int zaokrouhlenyCas = (int)Math.round(casNaAkci);
+        int zaokrouhlenyVykladani = (int)Math.round(konecVykladani);
+        int zaokrouhlenaRezerva = (int)Math.round(frontaPozadavku.peek().getPozadavek().getDeadline() - konecVykladani);
+        System.out.println("Velbloud vyklada - Cas: " + zaokrouhlenyCas + ", Velbloud: "+ ID + ", Oaza: "+ pozice.getID() + ", Vylozeno kosu: "+ vylozenoKosu + ", Vylozeno v: " + zaokrouhlenyVykladani + ", Casova rezerva: " + zaokrouhlenaRezerva);
     }
 
     private void vypisPiti(AMisto pozice){
-
+        int zaokrouhlenyCas = (int)Math.round(casNaAkci);
+        int zaokrouhlenyOdchod = (int)Math.round(casNaAkci + dobaPiti);
         if(pozice instanceof Oaza){
-            System.out.println("Cas: " + casNaAkci + ", Velbloud: " + ID + ", Oaza: " + pozice.getID() + ", Ziznivy " + typ.getNazev() + ", Pokracovani mozne v: " + (casNaAkci + dobaPiti));
+            System.out.println("Velbloud pije - Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Oaza: " + pozice.getID() + ", Ziznivy " + typ.getNazev() + ", Pokracovani mozne v: " + zaokrouhlenyOdchod);
         }
         else {
-            System.out.println("Cas: " + casNaAkci + ", Velbloud: " + ID + ", Sklad: " + pozice.getID() + ", Ziznivy " + typ.getNazev() + ", Pokracovani mozne v: " + (casNaAkci + dobaPiti));
+            System.out.println("Velbloud pije - Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Sklad: " + pozice.getID() + ", Ziznivy " + typ.getNazev() + ", Pokracovani mozne v: " + zaokrouhlenyOdchod);
         }
 
     }
 
     private void vypisNavratu(){
-        System.out.println("Cas: " + casNaAkci + ", Velbloud: " + ID + ", Navrat do skladu: " + domovskySklad);
+        int zaokrouhlenyCas = (int)Math.round(casNaAkci);
+        System.out.println("Velbloud se vratil - Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Navrat do skladu: " + domovskySklad.getID());
     }
 
     private void vypisPruchodu(){
-        System.out.println("Cas: " + casNaAkci + ", Velbloud: " + ID + ", Oaza: " + pozice + ", Kuk na velblouda");
+        int zaokrouhlenyCas = (int)Math.round(casNaAkci);
+        System.out.println("Kuk na velblouda - Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Oaza: " + pozice.getID() + ", Kuk na velblouda");
     }
 
     public void setCasNaAkci(double casNaAkci) {

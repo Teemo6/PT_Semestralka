@@ -79,30 +79,37 @@ public class Simulace {
             if(dalsiSklad != null){
                 casSklad = dalsiSklad.getCasDoplneniSkladu();
             } else {
-                casPozadavek = Double.MAX_VALUE;
+                casSklad = Double.MAX_VALUE;
             }
             if(dalsiVel != null){
                 casVel = dalsiVel.getCasNaAkci();
             } else {
-                casPozadavek = Double.MAX_VALUE;
+                casVel = Double.MAX_VALUE;
             }
 
             // Zkontroluj jestli už je možné provést akci
             if(casPozadavek <= simulacniCas){
                 priradPozadavkyVelbloudum();
                 casovaFrontaPozadavku.removeIf(f->false);
+                continue;
             }
             if(casSklad <= simulacniCas){
                 naplnSklady();
                 casovaFrontaPozadavku.removeIf(f->false);
+                continue;
             }
             if(casVel <= simulacniCas){
                 dalsiVel.vykonejDalsiAkci();
                 casovaFrontaPozadavku.removeIf(f->false);
+                continue;
             }
 
             // Zkontroluj jestli nemá jeden požadavek po deadline
             Pozadavek neobslouzeny = neobslouzenyPozadavek();
+            if(neobslouzeny != null){
+                ukonciSimulaci(neobslouzeny.getOaza());
+            }
+
             if(neobslouzeny != null){
                 ukonciSimulaci(neobslouzeny.getOaza());
             }
@@ -114,7 +121,9 @@ public class Simulace {
                 simulacniCas = casPozadavek;
             }
 
-            System.out.println(simulacniCas + " -> " + casPozadavek + " " + casSklad + " " + casVel);
+            if(vsechnyPozadavkyObslouzeny()){
+                simulaceBezi = false;
+            }
         }
     }
 
@@ -259,8 +268,9 @@ public class Simulace {
             if (!pozadavekPrirazen) {
                 System.out.println("Požadavek nepůjde obsloužit, pokračujem v simulaci");
             }
-            System.out.println("Prichod pozadavku - Cas: " + simulacniCas + ", Pozadavek: " + dalsiPozadavek.getID() + ", Oaza: " + ((Oaza) dalsiPozadavek.getOaza()).getIDOaza() + ", Pocet kosu: " + dalsiPozadavek.getPozadavekKosu() + ", Deadline: " + dalsiPozadavek.getDeadline());
-            casovaFrontaPozadavku.remove();
+            int zaokrouhlenyCas = (int)Math.round(simulacniCas);
+            int zaokrouhlenaDeadline = (int)Math.round(dalsiPozadavek.getDeadline());
+            System.out.println("Prichod pozadavku - Cas: " + zaokrouhlenyCas + ", Pozadavek: " + dalsiPozadavek.getID() + ", Oaza: " + ((Oaza) dalsiPozadavek.getOaza()).getIDOaza() + ", Pocet kosu: " + dalsiPozadavek.getPozadavekKosu() + ", Deadline: " + zaokrouhlenaDeadline);
         }
     }
 
@@ -291,8 +301,17 @@ public class Simulace {
         return null;
     }
 
+    public boolean vsechnyPozadavkyObslouzeny(){
+        for(Pozadavek p : data.getPozadavky()){
+            if(!p.jeSplnen()){
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void ukonciSimulaci(AMisto oaza){
-        System.out.println("Cas: "+ simulacniCas +", Oaza: "+ ((Oaza)oaza).getIDOaza() +", Vsichni vymreli, Harpagon zkrachoval, Konec simulace");
+        System.out.println("Cas: "+ (int)simulacniCas +", Oaza: "+ ((Oaza)oaza).getIDOaza() +", Vsichni vymreli, Harpagon zkrachoval, Konec simulace");
         System.exit(1);
     }
 }

@@ -1,0 +1,3 @@
+public enum VelbloudAkce {
+    VOLNY, NAKLADANI, CESTA, CESTAZPATKY, VYKLADANI
+}

@@ -5,6 +5,8 @@
  */
 public abstract class AMisto {
     protected DoubleVector2D pozice;
+    protected int pocetKosu = 0;
+
     protected static int pocet;
     protected int ID;
 
@@ -30,6 +32,22 @@ public abstract class AMisto {
      */
     public int getID(){
         return ID;
+    }
+
+    public int getPocetKosu(){
+        return pocetKosu;
+    }
+
+    public void pridejKose(int pocet){
+        pocetKosu += pocet;
+    }
+
+    public boolean uberKose(int pocet){
+        if(pocetKosu >= pocet) {
+            pocetKosu -= pocet;
+            return true;
+        }
+        return false;
     }
 
     @Override

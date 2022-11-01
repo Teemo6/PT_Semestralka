@@ -4,7 +4,7 @@ import java.io.*;
 /**
  * Instance třídy {@code VstupDat} představuje jedináčka, který umí přečíst vstupní soubor a vybrat potřebná data
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.13 30-10-2022
+ * @version 1.14 01-11-2022
  */
 public class VstupDat{
     /** Instance jedináčka VstupDat */
@@ -13,7 +13,7 @@ public class VstupDat{
     /** Vytvořené objekty */
     private List<Sklad> sklady;
     private List<Oaza> oazy;
-    private HashSet<Cesta> cesty;
+    private HashSet<CestaSymetricka> cesty;
     private List<VelbloudTyp> velbloudi;
     private List<Pozadavek> pozadavky;
     private HashMap<Integer, AMisto> mista;
@@ -139,8 +139,8 @@ public class VstupDat{
             double x = Double.parseDouble(validniData.get(index));
             double y = Double.parseDouble(validniData.get(index + 1));
             int pocetKosu = Integer.parseInt(validniData.get(index + 2));
-            int dobaDoplneniTs = Integer.parseInt(validniData.get(index + 3));
-            int dobaDoplneniTn = Integer.parseInt(validniData.get(index + 4));
+            double dobaDoplneniTs = Double.parseDouble(validniData.get(index + 3));
+            double dobaDoplneniTn = Double.parseDouble(validniData.get(index + 4));
 
             Sklad sklad = new Sklad(new DoubleVector2D(x, y), pocetKosu, dobaDoplneniTs, dobaDoplneniTn);
             sklady.add(sklad);
@@ -178,7 +178,7 @@ public class VstupDat{
             int zacatekCesty = Integer.parseInt(validniData.get(index));
             int konecCesty = Integer.parseInt(validniData.get(index + 1));
 
-            Cesta cesta = new Cesta(mista.get(zacatekCesty), mista.get(konecCesty));
+            CestaSymetricka cesta = new CestaSymetricka(mista.get(zacatekCesty), mista.get(konecCesty));
             cesty.add(cesta);
         }
 
@@ -216,30 +216,18 @@ public class VstupDat{
             double casPozadavku = Double.parseDouble(validniData.get(index));
             int indexOazy = Integer.parseInt(validniData.get(index + 1));
             int pozadavekKosu = Integer.parseInt(validniData.get(index + 2));
-            int casDoruceni = Integer.parseInt(validniData.get(index + 3));
+            double casDoruceni = Double.parseDouble(validniData.get(index + 3));
 
-            Pozadavek pozadavek = new Pozadavek(casPozadavku, indexOazy, pozadavekKosu, casDoruceni);
+            AMisto oaza = getOazy().get(indexOazy - 1);
+
+            Pozadavek pozadavek = new Pozadavek(casPozadavku, oaza, pozadavekKosu, casDoruceni);
             pozadavky.add(pozadavek);
         }
-/*
-        sklady.forEach(System.out::println);
-        System.out.println();
-        oazy.forEach(System.out::println);
-        System.out.println();
-        cesty.forEach(System.out::println);
-        System.out.println();
-        velbloudi.forEach(System.out::println);
-        System.out.println();
-        pozadavky.forEach(System.out::println);
-        System.out.println();
 
-        for (Integer ID : mista.keySet()) {
-            String key = ID.toString();
-            String value = mista.get(ID).toString();
-            System.out.println(key + " " + value);
-        }
-*/
+        // Sežazení sestupně podle poměru, hloupé
+        // TODO
 
+        velbloudi.sort(Comparator.comparingDouble(VelbloudTyp::getPomer).reversed());
      }
 
     public List<Sklad> getSklady() {
@@ -250,7 +238,7 @@ public class VstupDat{
         return oazy;
     }
 
-    public HashSet<Cesta> getCesty() {
+    public HashSet<CestaSymetricka> getCesty() {
         return cesty;
     }
 

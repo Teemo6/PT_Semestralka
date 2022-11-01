@@ -1,9 +1,14 @@
+import java.util.LinkedList;
+import java.util.Queue;
+
 public class VelbloudSimulace{
     private AMisto pozice;
-    private double rychlost;
-    private double maxVzdalenost;
-    private double dobaPiti;
-    private int maxPocetKosu;
+    private final Sklad domovskySklad;
+    private final double rychlost;
+    private final double maxVzdalenost;
+    private final double dobaPiti;
+    private final int maxPocetKosu;
+    private final VelbloudTyp typ;
 
     private double energie;
     private int pocetKosu;
@@ -20,10 +25,11 @@ public class VelbloudSimulace{
     private double konecVykladani;
     private int vylozenoKosu;
     private static int pocet;
-    private int ID;
+    private final int ID;
 
     public VelbloudSimulace(Sklad pozice, double rychlost, double maxVzdalenost, VelbloudTyp typ){
         this.pozice = pozice;
+        this.domovskySklad = pozice;
         this.rychlost = rychlost;
         this.maxVzdalenost = maxVzdalenost;
         this.typ = typ;

@@ -31,15 +31,15 @@
 Pomaly 1 1 1000 1000 0 1 0.5
 Ziznivy 10 10 1 1 10 1 0.5
 Zilinbznivy 10 10 1 1 10 1 0.2
-Zizni\sdavy 10 10 1 1 10 1 0.3
+Ziznisdavy 10 10 1 1 10 1 0.3
 🐪 Pocet pozadavku P: 🏜
 8
 🐪 Definice pozadavku (kazda oaza chce jeden kos, moc na to nespechaji) 🏜
-0 1 1 10000
-0 2 1 10000
-0 3 1 10000
-0 4 1 10000
-0 5 1 10000
-0 6 1 10000
-0 7 1 10000
-0 8 1 10000
+0 1 1 1
+0 2 1 1
+0 3 1 1
+0 4 1 1
+0 5 1 1
+0 6 1 1
+0 7 1 1
+0 8 1 1

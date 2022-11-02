@@ -3,15 +3,21 @@ import java.util.ArrayList;
 public class VelbloudPozadavek {
     private Pozadavek pozadavek;
     private ArrayList<Cesta> cestaPoCastech;
+
+    private double celkovaVzdalenostCesty;
     private int splnenoKosu;
     private final int pocetPotrebnychKosu;
 
-    public VelbloudPozadavek(Pozadavek p, ArrayList<Cesta> c){
-        pozadavek = p;
-        cestaPoCastech = c;
+    public VelbloudPozadavek(Pozadavek po, ArrayList<Cesta> ce){
+        pozadavek = po;
+        cestaPoCastech = ce;
 
+        celkovaVzdalenostCesty = 0;
+        for(Cesta c : ce){
+            celkovaVzdalenostCesty += c.getVzdalenost();
+        }
         splnenoKosu = 0;
-        pocetPotrebnychKosu = p.getPozadavekKosu();
+        pocetPotrebnychKosu = po.getPozadavekKosu();
     }
 
     public boolean zkontrolujSplnenyPozadavek(){
@@ -24,6 +30,10 @@ public class VelbloudPozadavek {
 
     public Pozadavek getPozadavek() {
         return pozadavek;
+    }
+
+    public double getCelkovaVzdalenostCesty() {
+        return celkovaVzdalenostCesty;
     }
 
     public void setPozadavek(Pozadavek pozadavek) {

@@ -77,7 +77,7 @@ public class Simulace {
                 casPozadavek = Double.MAX_VALUE;
             }
             if(dalsiSklad != null){
-                casSklad = dalsiSklad.getCasDoplneniSkladu();
+                casSklad = dalsiSklad.getCasDalsiAkce();
             } else {
                 casSklad = Double.MAX_VALUE;
             }
@@ -247,9 +247,10 @@ public class Simulace {
 
             // Zkus přiřadit požadavek existujícímu velbloudovi
             for (VelbloudSimulace v : casovaFrontaVelbloudu) {
-                double casPozadavku = v.jakDlouhoBudeTrvatCesta(celkovaVzdalenost, dalsiPozadavek.getPozadavekKosu());
+                double casNovehoPozadavku = v.jakDlouhoBudeTrvatCesta(celkovaVzdalenost, dalsiPozadavek.getPozadavekKosu());
+                double casPozadavkuVelblouda = v.jakDlouhoBudeTrvatSplnitVsechnyPozadavky();
 
-                if (dalsiPozadavek.getDeadline() - casPozadavku - simulacniCas > 0) {
+                if (dalsiPozadavek.getDeadline() - casNovehoPozadavku - simulacniCas - casPozadavkuVelblouda > 0) {
                     pozadavekPrirazen = true;
                     v.priradPozadavek(new VelbloudPozadavek(dalsiPozadavek, cestaCasti), simulacniCas);
                     break;

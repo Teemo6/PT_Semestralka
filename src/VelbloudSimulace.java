@@ -249,6 +249,14 @@ public class VelbloudSimulace{
         return casStravenyCestou + casStravenyManipulaci + casStravenyPitim;
     }
 
+    public double jakDlouhoBudeTrvatSplnitVsechnyPozadavky(){
+        double casVsechPozadavku = 0;
+        for(VelbloudPozadavek vp : frontaPozadavku){
+            casVsechPozadavku += jakDlouhoBudeTrvatCesta(vp.getCelkovaVzdalenostCesty(), vp.getPocetPotrebnychKosu());
+        }
+        return casVsechPozadavku;
+    }
+
     public void setPozice(AMisto pozice){
         this.pozice = pozice;
     }

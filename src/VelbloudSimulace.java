@@ -94,6 +94,7 @@ public class VelbloudSimulace{
                 if((pocetKosu < frontaPozadavku.peek().getPozadavek().getPozadavekKosu() || pocetKosu < maxPocetKosu) && domovskySklad.getPocetKosu() > 0){
 
                     if(pocetKosu == 0){
+
                         zacatekNakladani = casNaAkci;
                         casOdchodu = zacatekNakladani + domovskySklad.getCasNalozeni() * (Math.min(maxPocetKosu, frontaPozadavku.peek().getPozadavek().getPozadavekKosu()));
                     }
@@ -136,7 +137,10 @@ public class VelbloudSimulace{
                     pozice = frontaPozadavku.peek().getCestaPoCastech().get(aktualniUsek).getMistoB();
                     casNaAkci += frontaPozadavku.peek().getCestaPoCastech().get(aktualniUsek).getVzdalenost() / rychlost;
 
-                    vypisPruchodu();
+
+                    if(pozice != domovskySklad && pozice != frontaPozadavku.peek().getPozadavek().getOaza()){
+                        vypisPruchodu();
+                    }
 
                     aktualniUsek++;
 
@@ -169,8 +173,8 @@ public class VelbloudSimulace{
                 vylozenoKosu++;
 
                 if(frontaPozadavku.peek().zkontrolujSplnenyPozadavek()){
-                    frontaPozadavku.remove();
                     vypisVykladani();
+                    frontaPozadavku.remove();
                     vylozenoKosu = 0;
                 }
 
@@ -204,7 +208,9 @@ public class VelbloudSimulace{
                     pozice = frontaPozadavku.peek().getCestaPoCastech().get(aktualniUsek).getMistoA();
                     casNaAkci += frontaPozadavku.peek().getCestaPoCastech().get(aktualniUsek).getVzdalenost() / rychlost;
 
-                    vypisPruchodu();
+                    if(pozice != domovskySklad){
+                        vypisPruchodu();
+                    }
 
                     aktualniUsek--;
 
@@ -249,10 +255,25 @@ public class VelbloudSimulace{
         return casStravenyCestou + casStravenyManipulaci + casStravenyPitim;
     }
 
-    public double jakDlouhoBudeTrvatSplnitVsechnyPozadavky(){
+    public double jakDlouhoBudeTrvatSplnitPozadavekVeFronteKdyzSeMaVelbloudVratit(double celkovaVzdalenostCesty, int pocetKosuObsluha){
+        int pocetCestSemTam = (int)Math.ceil(pocetKosuObsluha/(maxPocetKosu + 0.0));
+
+        double casStravenyCestou = (celkovaVzdalenostCesty * pocetCestSemTam * 2) / rychlost;
+        double casStravenyManipulaci = pocetKosuObsluha * casManipulaceKose * 2;
+        double casStravenyPitim = Math.ceil(celkovaVzdalenostCesty/(maxVzdalenost + 0.0)) * dobaPiti;
+
+        return casStravenyCestou + casStravenyManipulaci + casStravenyPitim;
+    }
+
+
+    /**
+     * Vypočítá jak dlouho bude trvat splnit všechn požadavky, když se má velbloud vrátit
+     * @return
+     */
+    public double jakDlouhoBudeTrvatSplnitVsechnyPozadavkyKdyzSeMaVelbloudVratit(){
         double casVsechPozadavku = 0;
         for(VelbloudPozadavek vp : frontaPozadavku){
-            casVsechPozadavku += jakDlouhoBudeTrvatCesta(vp.getCelkovaVzdalenostCesty(), vp.getPocetPotrebnychKosu());
+            casVsechPozadavku += jakDlouhoBudeTrvatSplnitPozadavekVeFronteKdyzSeMaVelbloudVratit(vp.getCelkovaVzdalenostCesty(), vp.getPocetPotrebnychKosu());
         }
         return casVsechPozadavku;
     }
@@ -316,37 +337,38 @@ public class VelbloudSimulace{
     private void vypisNakladani(){
         int zaokrouhlenyCas = (int)Math.round(casNaAkci);
         int zaokrouhlenyOdchod = (int)Math.round(casOdchodu);
-        System.out.println("Velbloud naklada - Cas: " + zaokrouhlenyCas +", Velbloud:" + ID + ", Sklad: " + domovskySklad.getID() + ", Nalozeno kosu: " + pocetKosu +", Odchod v: " + zaokrouhlenyOdchod );
+        System.out.println("Velbloud naklada \t Cas: " + zaokrouhlenyCas +", Velbloud:" + ID + ", Sklad: " + domovskySklad.getID() + ", Nalozeno kosu: " + pocetKosu +", Odchod v: " + zaokrouhlenyOdchod );
 
     }
 
     private void vypisVykladani(){
+
         int zaokrouhlenyCas = (int)Math.round(casNaAkci);
         int zaokrouhlenyVykladani = (int)Math.round(konecVykladani);
         int zaokrouhlenaRezerva = (int)Math.round(frontaPozadavku.peek().getPozadavek().getDeadline() - konecVykladani);
-        System.out.println("Velbloud vyklada - Cas: " + zaokrouhlenyCas + ", Velbloud: "+ ID + ", Oaza: "+ pozice.getID() + ", Vylozeno kosu: "+ vylozenoKosu + ", Vylozeno v: " + zaokrouhlenyVykladani + ", Casova rezerva: " + zaokrouhlenaRezerva);
+        System.out.println("Velbloud vyklada \t Cas: " + zaokrouhlenyCas + ", Velbloud: "+ ID + ", Oaza: "+ pozice.getID() + ", Vylozeno kosu: "+ vylozenoKosu + ", Vylozeno v: " + zaokrouhlenyVykladani + ", Casova rezerva: " + zaokrouhlenaRezerva);
     }
 
     private void vypisPiti(AMisto pozice){
         int zaokrouhlenyCas = (int)Math.round(casNaAkci);
         int zaokrouhlenyOdchod = (int)Math.round(casNaAkci + dobaPiti);
         if(pozice instanceof Oaza){
-            System.out.println("Velbloud pije - Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Oaza: " + pozice.getID() + ", Ziznivy " + typ.getNazev() + ", Pokracovani mozne v: " + zaokrouhlenyOdchod);
+            System.out.println("Velbloud pije \t Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Oaza: " + pozice.getID() + ", Ziznivy " + typ.getNazev() + ", Pokracovani mozne v: " + zaokrouhlenyOdchod);
         }
         else {
-            System.out.println("Velbloud pije - Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Sklad: " + pozice.getID() + ", Ziznivy " + typ.getNazev() + ", Pokracovani mozne v: " + zaokrouhlenyOdchod);
+            System.out.println("Velbloud pije \t Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Sklad: " + pozice.getID() + ", Ziznivy " + typ.getNazev() + ", Pokracovani mozne v: " + zaokrouhlenyOdchod);
         }
 
     }
 
     private void vypisNavratu(){
         int zaokrouhlenyCas = (int)Math.round(casNaAkci);
-        System.out.println("Velbloud se vratil - Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Navrat do skladu: " + domovskySklad.getID());
+        System.out.println("Velbloud se vratil \t Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Navrat do skladu: " + domovskySklad.getID());
     }
 
     private void vypisPruchodu(){
         int zaokrouhlenyCas = (int)Math.round(casNaAkci);
-        System.out.println("Kuk na velblouda - Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Oaza: " + pozice.getID() + ", Kuk na velblouda");
+        System.out.println("Kuk na velblouda \t Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Oaza: " + pozice.getID() + ", Kuk na velblouda");
     }
 
     public void setCasNaAkci(double casNaAkci) {
@@ -357,6 +379,7 @@ public class VelbloudSimulace{
     public String toString() {
         return "VelbloudSimulace{" +
                 "ID=" + ID +
+                ", casAkce=" + casNaAkci +
                 ", pozice=" + pozice.getID() +
                 ", rychlost=" + rychlost +
                 ", maxVzdalenost=" + maxVzdalenost +

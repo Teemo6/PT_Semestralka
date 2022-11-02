@@ -12,8 +12,13 @@ public class Sklad extends AMisto{
         this.casDoplneniSkladu = casDoplneniSkladu;
         this.casNalozeni = casNalozeni;
 
-        this.pocetKosu = pocetPrirustek;
-        this.casDalsiAkce = casNalozeni;
+        if(casNalozeni <= 0){
+            this.pocetKosu = Integer.MAX_VALUE;
+            this.casDalsiAkce = Double.MAX_VALUE;
+        } else {
+            this.pocetKosu = pocetPrirustek;
+            this.casDalsiAkce = casNalozeni;
+        }
     }
 
     public void doplnSklad(){

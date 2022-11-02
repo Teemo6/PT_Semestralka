@@ -65,6 +65,10 @@ public class Simulace {
         double casSklad = Double.MAX_VALUE;
         double casVel = Double.MAX_VALUE;
 
+        boolean pouzilSeCasPozadavku = false;
+        boolean pouzilSeCasSkladu = false;
+        boolean pouzilSeCasVel = false;
+
         while(simulaceBezi){
             dalsiPozadavek = casovaFrontaPozadavku.peek();
             dalsiSklad = casovaFrontaSkladu.peek();
@@ -95,12 +99,13 @@ public class Simulace {
             }
             if(casSklad <= simulacniCas){
                 naplnSklady();
-                casovaFrontaPozadavku.removeIf(f->false);
+                casovaFrontaSkladu.removeIf(f->false);
                 continue;
             }
             if(casVel <= simulacniCas){
-                dalsiVel.vykonejDalsiAkci();
-                casovaFrontaPozadavku.removeIf(f->false);
+                VelbloudSimulace docasny = casovaFrontaVelbloudu.poll();
+                docasny.vykonejDalsiAkci();
+                casovaFrontaVelbloudu.add(docasny);
                 continue;
             }
 
@@ -125,6 +130,9 @@ public class Simulace {
                 simulaceBezi = false;
             }
         }
+        System.out.println();
+        System.out.println("Pocet splnenych pozadavku: " + data.getPozadavky().size());
+        System.out.println("Pocet vyuzitych velbloudu: " + casovaFrontaVelbloudu.size());
     }
 
     /**
@@ -248,7 +256,7 @@ public class Simulace {
             // Zkus přiřadit požadavek existujícímu velbloudovi
             for (VelbloudSimulace v : casovaFrontaVelbloudu) {
                 double casNovehoPozadavku = v.jakDlouhoBudeTrvatCesta(celkovaVzdalenost, dalsiPozadavek.getPozadavekKosu());
-                double casPozadavkuVelblouda = v.jakDlouhoBudeTrvatSplnitVsechnyPozadavky();
+                double casPozadavkuVelblouda = v.jakDlouhoBudeTrvatSplnitVsechnyPozadavkyKdyzSeMaVelbloudVratit();
 
                 if (dalsiPozadavek.getDeadline() - casNovehoPozadavku - simulacniCas - casPozadavkuVelblouda > 0) {
                     pozadavekPrirazen = true;

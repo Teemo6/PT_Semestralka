@@ -79,37 +79,6 @@ public class VelbloudSimulace{
             /*  -------------------- */
             case NAKLADANI:
 
-                /*
-                //Kdyz velbloud neni plne nalozen, tak nalozi dalsi kos
-                if((pocetKosu < frontaPozadavku.peek().getPozadavek().getPozadavekKosu() || pocetKosu < maxPocetKosu) && domovskySklad.getPocetKosu() > 0){
-
-                    if(pocetKosu == 0){
-
-                        cestaPoCastech.addAll(frontaPozadavku.peek().getCestaPoCastech());
-
-                        zacatekNakladani = casNaAkci;
-                        casOdchodu = zacatekNakladani + domovskySklad.getCasNalozeni() * (Math.min(maxPocetKosu, frontaPozadavku.peek().getPozadavek().getPozadavekKosu()));
-                    }
-
-                    vypisNakladani();
-
-                    pocetKosu++;
-                    domovskySklad.odeperKos();
-                    casNaAkci += domovskySklad.getCasNalozeni();
-
-                    //Kdyz velbloud ceka na nalozeni posledniho kose, tak pak rovnou bude vyslal na cestu
-                    if(pocetKosu == frontaPozadavku.peek().getPozadavek().getPozadavekKosu() || pocetKosu == maxPocetKosu){
-                        //vypisNakladani();
-                        vykonavanaAkce = VelbloudAkce.CESTA;
-                    }
-                }
-
-                //Ceka na doplneni skladu
-                else{
-                    casNaAkci++;
-                }
-                 */
-
                 //Pokud je velbloud dostatecne/maximalne nalozen, tak vypise posledni vypis o nakladani a prejde do stavu cesta
                 if(pocetKosu == frontaPozadavku.peek().getPozadavek().getPozadavekKosu() || pocetKosu == maxPocetKosu){
                     vypisNakladani();
@@ -128,7 +97,6 @@ public class VelbloudSimulace{
                             zacatekNakladani = casNaAkci;
                             casOdchodu = zacatekNakladani + domovskySklad.getCasNalozeni() * (Math.min(maxPocetKosu, frontaPozadavku.peek().getPozadavek().getPozadavekKosu()));
                         }
-
 
                         vypisNakladani();
 
@@ -155,7 +123,6 @@ public class VelbloudSimulace{
                 if(energie < cestaPoCastech.get(aktualniUsek).getVzdalenost() ){
                     vypisPiti(pozice);
                     napiSe();
-
                 }
 
                 //Pokud muze, tak se premisti do dalsi zastavky

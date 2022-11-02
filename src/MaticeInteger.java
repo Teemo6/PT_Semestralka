@@ -1,5 +1,10 @@
 import java.util.Arrays;
 
+/**
+ * Instance třídy {@code MaticeInteger} čtvercovou matici intů
+ * @author Mikuláš Mach, Štěpán Faragula
+ * @version 1.11 18-10-2022
+ */
 public class MaticeInteger {
         private int velikost;
         private int[][] obsahMatice;

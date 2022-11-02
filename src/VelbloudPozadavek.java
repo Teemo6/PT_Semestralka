@@ -1,5 +1,11 @@
 import java.util.ArrayList;
 
+/**
+ * Instance třídy {@code VelbloudPozadavek} představuje požadavek,
+ * který je předán velbloudovi ke splnění
+ * @author Mikuláš Mach, Štěpán Faragula
+ * @version 1.19 02-11-2022
+ */
 public class VelbloudPozadavek {
     private Pozadavek pozadavek;
     private ArrayList<Cesta> cestaPoCastech;
@@ -20,6 +26,10 @@ public class VelbloudPozadavek {
         pocetPotrebnychKosu = po.getPozadavekKosu();
     }
 
+    /**
+     *  Zkontroluje zda byl dany pozadavek velbloudem splneni
+     *  @return true: pokud byl splnen
+     */
     public boolean zkontrolujSplnenyPozadavek(){
         if(pozadavek.getPozadavekKosu() <= splnenoKosu){
             pozadavek.setJeSplnen(true);

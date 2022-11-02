@@ -6,29 +6,26 @@ import java.util.Random;
 /**
  * Instance třídy {@code Simulace} představuje jedináčka ve kterém běží celá simulace
  * @author Mikuláš Mach, Štěpán Faragula
- * @version 1.13 30-10-2022
+ * @version 1.19 02-11-2022
  */
 public class Simulace {
     /** Instance jedináčka Simulace */
     private static final Simulace INSTANCE = new Simulace();
     private final Random random = new Random();
 
-    /** Atributy */
+    /** Datový model */
     private VstupDat data;
-    PriorityQueue<Pozadavek> casovaFrontaPozadavku;
-    PriorityQueue<Sklad> casovaFrontaSkladu;
-    PriorityQueue<VelbloudSimulace> casovaFrontaVelbloudu;
-
-
-    ArrayList<VelbloudSimulace> seznamVelbloudu;
 
     /** Matice se kterými pracuje simulace */
     IMaticeSymetricka distancniMatice;
     MaticeInteger maticePredchudcu;
 
-    /** Cas */
+    /** Práce s časem */
     double simulacniCas = 0;
     boolean simulaceBezi = true;
+    PriorityQueue<Pozadavek> casovaFrontaPozadavku;
+    PriorityQueue<Sklad> casovaFrontaSkladu;
+    PriorityQueue<VelbloudSimulace> casovaFrontaVelbloudu;
 
     /**
      * Vrátí jedináčka
@@ -39,7 +36,7 @@ public class Simulace {
     }
 
     /**
-     * Spustí simulaci
+     * Spustí simulaci, obsahuje hlavní smyčku s časem
      * @param data Vstupní data
      */
     public void spustSimulaci(VstupDat data){
@@ -47,23 +44,17 @@ public class Simulace {
 
         vytvorPotrebneMatice();
 
-        seznamVelbloudu = new ArrayList<>();
-
         casovaFrontaPozadavku = new PriorityQueue<>();
         casovaFrontaSkladu = new PriorityQueue<>(5, Comparator.comparingDouble(Sklad::getCasDalsiAkce));
         casovaFrontaVelbloudu = new PriorityQueue<>(5, Comparator.comparingDouble(VelbloudSimulace::getCasNaAkci));
 
         casovaFrontaPozadavku.addAll(data.getPozadavky());
         casovaFrontaSkladu.addAll(data.getSklady());
-        casovaFrontaVelbloudu.addAll(seznamVelbloudu);
 
         Pozadavek dalsiPozadavek;
         Sklad dalsiSklad;
         VelbloudSimulace dalsiVel;
-
-        double casPozadavek = Double.MAX_VALUE;
-        double casSklad = Double.MAX_VALUE;
-        double casVel = Double.MAX_VALUE;
+        double casPozadavek, casSklad, casVel;
 
         while(simulaceBezi){
             dalsiPozadavek = casovaFrontaPozadavku.peek();
@@ -89,7 +80,7 @@ public class Simulace {
 
             // Zkontroluj jestli už je možné provést akci
             if(casPozadavek <= simulacniCas){
-                priradPozadavkyVelbloudum();
+                priradPozadavekVelbloudovi();
                 casovaFrontaPozadavku.removeIf(f->false);
                 continue;
             }
@@ -100,7 +91,9 @@ public class Simulace {
             }
             if(casVel <= simulacniCas){
                 VelbloudSimulace docasny = casovaFrontaVelbloudu.poll();
-                docasny.vykonejDalsiAkci();
+                if (docasny != null) {
+                    docasny.vykonejDalsiAkci();
+                }
                 casovaFrontaVelbloudu.add(docasny);
                 continue;
             }
@@ -114,6 +107,7 @@ public class Simulace {
             // Nastav simulační čas na další nejbližsí událost
             simulacniCas = Math.min(Math.min(casPozadavek, casSklad), casVel);
 
+            // Zkontroluj podmínky úspešné simulace
             if(vsechnyPozadavkyObslouzeny() && vsichniVelbloudiVolni()){
                 simulaceBezi = false;
             }
@@ -124,7 +118,7 @@ public class Simulace {
     }
 
     /**
-     * Vytvoří a vrátí distanční matici
+     * Vytvoří distanční matici a matici předchůdců
      * Využití Floyd-Warshall algoritmu
      */
     public void vytvorPotrebneMatice(){
@@ -139,7 +133,7 @@ public class Simulace {
         maticePredchudcu = new MaticeInteger(velikostMatice);
         maticePredchudcu.vyplnNekonecnem();
 
-        // matice předchůdců
+        // Matice předchůdců
         for (int i = 0; i < velikostMatice; i++) {
             for (int j = 0; j < velikostMatice; j++) {
                 if (distancniMatice.getCislo(i, j) != Double.MAX_VALUE){
@@ -225,7 +219,11 @@ public class Simulace {
         return new VelbloudSimulace(pozice, rychlost, vzdalenost, typ);
     }
 
-    public void priradPozadavkyVelbloudum() {
+    /**
+     * Přiřadí požadavek vhodnému velbloudovi
+     * Pokud neexistuje vhodný velbloud, vytvoří ho v nejbližším skladu oázy
+     */
+    public void priradPozadavekVelbloudovi() {
         Pozadavek dalsiPozadavek = casovaFrontaPozadavku.poll();
         boolean pozadavekPrirazen = false;
 
@@ -262,6 +260,7 @@ public class Simulace {
                 }
             }
 
+            // Požadavek nejde přiřadit, simulace bude pokračovat ale časem spadne
             if (!pozadavekPrirazen) {
                 System.out.println("Požadavek nepůjde obsloužit, pokračujem v simulaci");
             }
@@ -271,12 +270,20 @@ public class Simulace {
         }
     }
 
+    /**
+     * Naplní sklady
+     */
     public void naplnSklady(){
         data.getSklady().forEach(Sklad::doplnSklad);
     }
 
-    // TODO
-    // Zatím vybírá "hloupě" podle poměru, vyšší poměr má vyšší prioritu
+    /**
+     * Vygeneruj vhodného velblouda na požadavek
+     * TODO: Zatím vybírá "hloupě" podle poměru, vyšší poměr má vyšší prioritu
+     * @param celkovaVzdalenost vzdálenost požadavku
+     * @param nejblizsiSklad nejbližší sklad vůči cílové oáze
+     * @return velbloud vhodný pro vykonání požadavku
+     */
     public VelbloudSimulace generujVelblouda(double celkovaVzdalenost, AMisto nejblizsiSklad){
         VelbloudSimulace vel = null;
         for (VelbloudTyp v : data.getVelbloudi()) {
@@ -289,6 +296,10 @@ public class Simulace {
         return vel;
     }
 
+    /**
+     * Najdi a vyber neobsloužený požadavek
+     * @return neobsloužený požadavek
+     */
     public Pozadavek neobslouzenyPozadavek(){
         for(Pozadavek p : data.getPozadavky()){
             if(!p.jeSplnen()) {
@@ -300,6 +311,10 @@ public class Simulace {
         return null;
     }
 
+    /**
+     * Zkontroluj jestli už jsou všechny požadavky (i budoucí) jsou splněny
+     * @return true pokud jsou splněny všechny požadavky
+     */
     public boolean vsechnyPozadavkyObslouzeny(){
         for(Pozadavek p : data.getPozadavky()){
             if(!p.jeSplnen()){
@@ -309,6 +324,10 @@ public class Simulace {
         return true;
     }
 
+    /**
+     * Zkontroluj jestli jsou všichni velbloudi ve stavu VOLNY
+     * @return true pokud jsou všichni velbloudi volní
+     */
     public boolean vsichniVelbloudiVolni(){
         for(VelbloudSimulace velSim : casovaFrontaVelbloudu){
             if (velSim.getVykonavanaAkce() != VelbloudAkce.VOLNY) {
@@ -318,6 +337,10 @@ public class Simulace {
         return true;
     }
 
+    /**
+     * Ukonči simulaci neúspěchem
+     * @param oaza oáza která zkrachovala Harpagona
+     */
     public void ukonciSimulaci(AMisto oaza){
         System.out.println("Cas: "+ (int)simulacniCas +", Oaza: "+ ((Oaza)oaza).getIDOaza() +", Vsichni vymreli, Harpagon zkrachoval, Konec simulace");
         System.exit(1);

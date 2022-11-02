@@ -1,3 +1,8 @@
+/**
+ * Instance třídy {@code Oaza} představuje oázu která vysílá požadavky
+ * @author Štěpán Faragula, Mikuláš Mach
+ * @version 1.19 02-11-2022
+ */
 public class Oaza extends AMisto {
     protected static int pocetOaza;
     protected int IDOaza;

@@ -1,7 +1,7 @@
 /**
  * Instance třídy {@code AMisto} představuje abstraktní třídu libovolného místa v mapě
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.13 30-10-2022
+ * @version 1.19 02-11-2022
  */
 public abstract class AMisto {
     protected DoubleVector2D pozice;
@@ -36,18 +36,6 @@ public abstract class AMisto {
 
     public int getPocetKosu(){
         return pocetKosu;
-    }
-
-    public void pridejKose(int pocet){
-        pocetKosu += pocet;
-    }
-
-    public boolean uberKose(int pocet){
-        if(pocetKosu >= pocet) {
-            pocetKosu -= pocet;
-            return true;
-        }
-        return false;
     }
 
     @Override

@@ -1,7 +1,7 @@
 import java.util.Arrays;
 
 /**
- * Instance třídy {@code MaticeCtvercova} představuje jedináčka, která obsahuje matici sousednosti
+ * Instance třídy {@code MaticeCtvercova} čtvercovou matici doublů
  * @author Mikuláš Mach, Štěpán Faragula
  * @version 1.11 18-10-2022
  */
@@ -92,9 +92,5 @@ public class MaticeCtvercova implements IMaticeSymetricka{
      */
     public int getVelikost() {
         return velikost;
-    }
-
-    public double[][] getObsahMatice() {
-        return obsahMatice;
     }
 }

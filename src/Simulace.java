@@ -65,10 +65,6 @@ public class Simulace {
         double casSklad = Double.MAX_VALUE;
         double casVel = Double.MAX_VALUE;
 
-        boolean pouzilSeCasPozadavku = false;
-        boolean pouzilSeCasSkladu = false;
-        boolean pouzilSeCasVel = false;
-
         while(simulaceBezi){
             dalsiPozadavek = casovaFrontaPozadavku.peek();
             dalsiSklad = casovaFrontaSkladu.peek();
@@ -115,18 +111,10 @@ public class Simulace {
                 ukonciSimulaci(neobslouzeny.getOaza());
             }
 
-            if(neobslouzeny != null){
-                ukonciSimulaci(neobslouzeny.getOaza());
-            }
-
             // Nastav simulační čas na další nejbližsí událost
             simulacniCas = Math.min(Math.min(casPozadavek, casSklad), casVel);
 
-            if(simulacniCas >= casPozadavek){
-                simulacniCas = casPozadavek;
-            }
-
-            if(vsechnyPozadavkyObslouzeny()){
+            if(vsechnyPozadavkyObslouzeny() && vsichniVelbloudiVolni()){
                 simulaceBezi = false;
             }
         }
@@ -255,8 +243,8 @@ public class Simulace {
 
             // Zkus přiřadit požadavek existujícímu velbloudovi
             for (VelbloudSimulace v : casovaFrontaVelbloudu) {
-                double casNovehoPozadavku = v.jakDlouhoBudeTrvatCesta(celkovaVzdalenost, dalsiPozadavek.getPozadavekKosu());
-                double casPozadavkuVelblouda = v.jakDlouhoBudeTrvatSplnitVsechnyPozadavkyKdyzSeMaVelbloudVratit();
+                double casNovehoPozadavku = v.jakDlouhoBudeTrvatCestaTam(celkovaVzdalenost, dalsiPozadavek.getPozadavekKosu());
+                double casPozadavkuVelblouda = v.kdySeSplniFronta();
 
                 if (dalsiPozadavek.getDeadline() - casNovehoPozadavku - simulacniCas - casPozadavkuVelblouda > 0) {
                     pozadavekPrirazen = true;
@@ -279,7 +267,7 @@ public class Simulace {
             }
             int zaokrouhlenyCas = (int)Math.round(simulacniCas);
             int zaokrouhlenaDeadline = (int)Math.round(dalsiPozadavek.getDeadline());
-            System.out.println("Prichod pozadavku - Cas: " + zaokrouhlenyCas + ", Pozadavek: " + dalsiPozadavek.getID() + ", Oaza: " + ((Oaza) dalsiPozadavek.getOaza()).getIDOaza() + ", Pocet kosu: " + dalsiPozadavek.getPozadavekKosu() + ", Deadline: " + zaokrouhlenaDeadline);
+            System.out.println("Prichod pozadavku \t Cas: " + zaokrouhlenyCas + ", Pozadavek: " + dalsiPozadavek.getID() + ", Oaza: " + ((Oaza) dalsiPozadavek.getOaza()).getIDOaza() + ", Pocet kosu: " + dalsiPozadavek.getPozadavekKosu() + ", Deadline: " + zaokrouhlenaDeadline);
         }
     }
 
@@ -303,8 +291,10 @@ public class Simulace {
 
     public Pozadavek neobslouzenyPozadavek(){
         for(Pozadavek p : data.getPozadavky()){
-            if(p.getDeadline() < simulacniCas){
-                return p;
+            if(!p.jeSplnen()) {
+                if (p.getDeadline() < simulacniCas) {
+                    return p;
+                }
             }
         }
         return null;
@@ -313,6 +303,15 @@ public class Simulace {
     public boolean vsechnyPozadavkyObslouzeny(){
         for(Pozadavek p : data.getPozadavky()){
             if(!p.jeSplnen()){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean vsichniVelbloudiVolni(){
+        for(VelbloudSimulace velSim : casovaFrontaVelbloudu){
+            if (velSim.getVykonavanaAkce() != VelbloudAkce.VOLNY) {
                 return false;
             }
         }

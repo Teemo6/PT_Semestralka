@@ -33,11 +33,12 @@ Ziznivy 10 10 1 1 10 1 0.5
 🐪 Pocet pozadavku P: 🏜
 8
 🐪 Definice pozadavku (kazda oaza chce jeden kos, moc na to nespechaji) 🏜
-0 1 1 30
-0 2 1 30
-0 3 1 30
-0 4 1 30
-0 5 1 30
-0 6 1 30
-0 7 1 30
-0 8 1 30
+0 1 1 10000
+0 2 1 10000
+0 3 1 10000
+0 4 1 10000
+0 5 1 10000
+0 6 1 10000
+0 7 1 10000
+0 8 1 10000
+

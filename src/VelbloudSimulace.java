@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -14,6 +15,7 @@ public class VelbloudSimulace{
     private int pocetKosu;
     private double casManipulaceKose;
     private Queue<VelbloudPozadavek> frontaPozadavku;
+    private ArrayList<Cesta> cestaPoCastech = new ArrayList<>();
 
     private VelbloudAkce vykonavanaAkce;
     private double casNaAkci;
@@ -24,6 +26,7 @@ public class VelbloudSimulace{
     private double casOdchodu = 0;
     private double konecVykladani;
     private int vylozenoKosu;
+
     private static int pocet;
     private final int ID;
 
@@ -49,41 +52,21 @@ public class VelbloudSimulace{
     }
 
     /**
-     * Nalož koše
-     * @param pozadavek kolik se má naložit na velblouda
-     */
-    public void nalozKose(int pozadavek){
-        if(pozice instanceof Sklad){
-            vykonavanaAkce = VelbloudAkce.NAKLADANI;
-
-            int kolikNalozis = Math.min(maxPocetKosu, pozadavek);   // Naloží na velblouda tolik kolik unese, nebo jaký je požadavek
-            casManipulaceKose = ((Sklad) pozice).getCasNalozeni();
-
-            if(pozice.uberKose(kolikNalozis)){
-                pocetKosu = kolikNalozis;
-                // Část s časem
-
-
-            } else {
-                System.out.println("Ve skladu "+ pozice.getID() + " není požadovaný počet košů");
-            }
-        } else {
-            System.out.println("Velbloud "+ ID + " nemůže naložit koše, není ve skladu");
-        }
-    }
-
-    /**
      * Dá napít velbloudovi
      */
-    public void napiSe(){
+    private void napiSe(){
         setEnergie(maxVzdalenost);
         casNaAkci += dobaPiti;
     }
 
+    /**
+     * Funkce volana simulaci
+     * Konecny automat, vstupni bod je NAKLADANI
+     * podle toho kde se nachazi a kolik ma nakladu vykonava dalsi akce
+     */
     public void vykonejDalsiAkci(){
+
         switch (vykonavanaAkce){
-
-
 
             /*  -------------------- */
             /*  Nakladani Velblouda  */
@@ -95,9 +78,13 @@ public class VelbloudSimulace{
 
                     if(pocetKosu == 0){
 
+                        cestaPoCastech.addAll(frontaPozadavku.peek().getCestaPoCastech());
+
                         zacatekNakladani = casNaAkci;
                         casOdchodu = zacatekNakladani + domovskySklad.getCasNalozeni() * (Math.min(maxPocetKosu, frontaPozadavku.peek().getPozadavek().getPozadavekKosu()));
                     }
+
+
 
                     vypisNakladani();
 
@@ -107,7 +94,7 @@ public class VelbloudSimulace{
 
                     //Kdyz velbloud ceka na nalozeni posledniho kose, tak pak rovnou bude vyslal na cestu
                     if(pocetKosu == frontaPozadavku.peek().getPozadavek().getPozadavekKosu() || pocetKosu == maxPocetKosu){
-                        vypisNakladani();
+                        //vypisNakladani();
                         vykonavanaAkce = VelbloudAkce.CESTA;
                     }
                 }
@@ -117,6 +104,7 @@ public class VelbloudSimulace{
                     //TODO
                     casNaAkci++;
                 }
+                
                 break;
 
             /*  -------------  */
@@ -124,8 +112,12 @@ public class VelbloudSimulace{
             /*  -------------  */
             case CESTA:
 
+                if(aktualniUsek == 0){
+                    vypisNakladani();
+                }
+
                 //Kdyz nema energii na dalsi usek trasy, tak se napije
-                if(energie < frontaPozadavku.peek().getCestaPoCastech().get(aktualniUsek).getVzdalenost() ){
+                if(energie < cestaPoCastech.get(aktualniUsek).getVzdalenost() ){
                     vypisPiti(pozice);
                     napiSe();
 
@@ -133,19 +125,19 @@ public class VelbloudSimulace{
 
                 //Pokud muze, tak se premisti do dalsi zastavky
                 else {
-                    energie -= frontaPozadavku.peek().getCestaPoCastech().get(aktualniUsek).getVzdalenost();
-                    pozice = frontaPozadavku.peek().getCestaPoCastech().get(aktualniUsek).getMistoB();
-                    casNaAkci += frontaPozadavku.peek().getCestaPoCastech().get(aktualniUsek).getVzdalenost() / rychlost;
+                    energie -= cestaPoCastech.get(aktualniUsek).getVzdalenost();
+                    pozice = cestaPoCastech.get(aktualniUsek).getMistoB();
+                    casNaAkci += cestaPoCastech.get(aktualniUsek).getVzdalenost() / rychlost;
 
-
+                    //Kdyz pozice na kterou dosel neni zacatek ani konec pozadavku, tak vypise pruchodovou hlasku
                     if(pozice != domovskySklad && pozice != frontaPozadavku.peek().getPozadavek().getOaza()){
                         vypisPruchodu();
                     }
 
                     aktualniUsek++;
 
-                    //Kdyz pri urazeni aktualniho useku bude v cili, tak zacne vykladat
-                    if(aktualniUsek == frontaPozadavku.peek().getCestaPoCastech().size()){
+                    //Kdyz pri urazeni aktualniho useku bude v cili, tak prejde do stavu vykladani
+                    if(aktualniUsek == cestaPoCastech.size()){
                         vykonavanaAkce = VelbloudAkce.VYKLADANI;
 
                         aktualniUsek--;
@@ -160,34 +152,33 @@ public class VelbloudSimulace{
 
             case VYKLADANI:
 
+                //Kdyz
                 if(vylozenoKosu == 0){
                     zacatekVykladani = casNaAkci;
                     konecVykladani = zacatekVykladani + domovskySklad.getCasNalozeni() * (Math.min(maxPocetKosu, frontaPozadavku.peek().getPozadavek().getPozadavekKosu()));
                 }
 
-                vypisVykladani();
-
-                casNaAkci += domovskySklad.getCasNalozeni();
-                frontaPozadavku.peek().doruceneKose(1);
-                pocetKosu--;
-                vylozenoKosu++;
+                //TODO
 
                 if(frontaPozadavku.peek().zkontrolujSplnenyPozadavek()){
                     vypisVykladani();
                     frontaPozadavku.remove();
                     vylozenoKosu = 0;
-                }
 
-                //Kdyz nema uz kose na obslouzeni dalsiho pozadavku, tak se vrati
-                if(pocetKosu == 0){
-                    vykonavanaAkce = VelbloudAkce.CESTAZPATKY;
-                    vylozenoKosu = 0;
-                }
+                    //Kdyz nema uz kose na obslouzeni dalsiho pozadavku, tak se vrati
+                    if(pocetKosu == 0){
+                        vykonavanaAkce = VelbloudAkce.CESTAZPATKY;
+                        vylozenoKosu = 0;
+                    }
 
-                //Pokracuje v obsluze dalsich pozadavku
-                else if(true){
-                    //vykonavanaAkce = VelbloudAkce.CESTAZPATKY;
-                    //TODO
+                }
+                else {
+                    vypisVykladani();
+
+                    casNaAkci += domovskySklad.getCasNalozeni();
+                    frontaPozadavku.peek().doruceneKose(1);
+                    pocetKosu--;
+                    vylozenoKosu++;
                 }
 
                 break;
@@ -198,35 +189,42 @@ public class VelbloudSimulace{
 
             case CESTAZPATKY:
 
-                if(energie < frontaPozadavku.peek().getCestaPoCastech().get(aktualniUsek).getVzdalenost() ){
-                    vypisPiti(pozice);
-                    napiSe();
+                //Pokud velbloud obslouzil zadane pozadavky, uvolni ho
+                if(aktualniUsek == -1){
+                    vypisNavratu();
+
+                    cestaPoCastech.clear();
+
+                    aktualniUsek++;
+                    if(frontaPozadavku.isEmpty()){
+                        casNaAkci = Double.MAX_VALUE;
+                        vykonavanaAkce = VelbloudAkce.VOLNY;
+                    }
+                    else {
+                        vykonavanaAkce = VelbloudAkce.NAKLADANI;
+                    }
+                    //TODO
+
                 }
 
                 else {
-                    energie -= frontaPozadavku.peek().getCestaPoCastech().get(aktualniUsek).getVzdalenost();
-                    pozice = frontaPozadavku.peek().getCestaPoCastech().get(aktualniUsek).getMistoA();
-                    casNaAkci += frontaPozadavku.peek().getCestaPoCastech().get(aktualniUsek).getVzdalenost() / rychlost;
 
-                    if(pozice != domovskySklad){
-                        vypisPruchodu();
+                    if(energie < cestaPoCastech.get(aktualniUsek).getVzdalenost()){
+
+                        vypisPiti(pozice);
+                        napiSe();
+
                     }
+                    else {
+                        energie -= cestaPoCastech.get(aktualniUsek).getVzdalenost();
+                        pozice = cestaPoCastech.get(aktualniUsek).getMistoA();
+                        casNaAkci += cestaPoCastech.get(aktualniUsek).getVzdalenost() / rychlost;
 
-                    aktualniUsek--;
-
-                    //Pokud velbloud obslouzil zadane pozadavky, uvolni ho
-                    if(aktualniUsek == -1){
-                        vypisNavratu();
-                        aktualniUsek++;
-                        if(frontaPozadavku.isEmpty()){
-                            casNaAkci = Double.MAX_VALUE;
-                            vykonavanaAkce = VelbloudAkce.VOLNY;
+                        if(pozice != domovskySklad){
+                            vypisPruchodu();
                         }
-                        else {
-                            vykonavanaAkce = VelbloudAkce.NAKLADANI;
-                        }
-                        //TODO
 
+                        aktualniUsek--;
                     }
                 }
                break;
@@ -234,8 +232,9 @@ public class VelbloudSimulace{
     }
 
     /**
-     * Prida do fronty dalsi pozadavek co ma velbloud obslouzit
-     * @param vp pozadavek
+     * Přidá do fronty další požadavek co má velbloud obsloužit
+     * @param vp definice požadavku
+     * @param simulacniCas kdy požadavek přišel
      */
     public void priradPozadavek(VelbloudPozadavek vp , double simulacniCas){
         this.frontaPozadavku.add(vp);
@@ -245,7 +244,13 @@ public class VelbloudSimulace{
         }
     }
 
-    public double jakDlouhoBudeTrvatCesta(double celkovaVzdalenostCesty, int pocetKosuObsluha){
+    /**
+     * Vypočítá jak dlouho bude velbloudovi trvat obsloužit požadavek bez návratu do skladu
+     * @param celkovaVzdalenostCesty délka cesty
+     * @param pocetKosuObsluha kolik košů má vyložit
+     * @return čas kdy bude obsloužen
+     */
+    public double jakDlouhoBudeTrvatCestaTam(double celkovaVzdalenostCesty, int pocetKosuObsluha){
         int pocetCestSemTam = (int)Math.ceil(pocetKosuObsluha/(maxPocetKosu + 0.0));
 
         double casStravenyCestou = ((celkovaVzdalenostCesty * pocetCestSemTam * 2) - celkovaVzdalenostCesty) / rychlost;
@@ -255,7 +260,13 @@ public class VelbloudSimulace{
         return casStravenyCestou + casStravenyManipulaci + casStravenyPitim;
     }
 
-    public double jakDlouhoBudeTrvatSplnitPozadavekVeFronteKdyzSeMaVelbloudVratit(double celkovaVzdalenostCesty, int pocetKosuObsluha){
+    /**
+     * Vypočítá jak dlouho bude velbloudovi trvat obsloužit požadavek i s návratem do skladu
+     * @param celkovaVzdalenostCesty délka cesty
+     * @param pocetKosuObsluha kolik košů má vyložit
+     * @return čas kdy bude obsloužen
+     */
+    public double jakDlouhoBudeTrvatCestaTamZpet(double celkovaVzdalenostCesty, int pocetKosuObsluha){
         int pocetCestSemTam = (int)Math.ceil(pocetKosuObsluha/(maxPocetKosu + 0.0));
 
         double casStravenyCestou = (celkovaVzdalenostCesty * pocetCestSemTam * 2) / rychlost;
@@ -267,13 +278,13 @@ public class VelbloudSimulace{
 
 
     /**
-     * Vypočítá jak dlouho bude trvat splnit všechn požadavky, když se má velbloud vrátit
-     * @return
+     * Vypočítá jak dlouho bude trvat splnit všechn požadavky, když se má velbloud vrátit do skladu
+     * @return čas dokončení fronty i s návratem do skladu
      */
-    public double jakDlouhoBudeTrvatSplnitVsechnyPozadavkyKdyzSeMaVelbloudVratit(){
+    public double kdySeSplniFronta(){
         double casVsechPozadavku = 0;
         for(VelbloudPozadavek vp : frontaPozadavku){
-            casVsechPozadavku += jakDlouhoBudeTrvatSplnitPozadavekVeFronteKdyzSeMaVelbloudVratit(vp.getCelkovaVzdalenostCesty(), vp.getPocetPotrebnychKosu());
+            casVsechPozadavku += jakDlouhoBudeTrvatCestaTamZpet(vp.getCelkovaVzdalenostCesty(), vp.getPocetPotrebnychKosu());
         }
         return casVsechPozadavku;
     }
@@ -284,46 +295,6 @@ public class VelbloudSimulace{
 
     public void setEnergie(double energie){
         this.energie = energie;
-    }
-
-    public AMisto getPozice() {
-        return pozice;
-    }
-
-    public double getRychlost() {
-        return rychlost;
-    }
-
-    public double getMaxVzdalenost() {
-        return maxVzdalenost;
-    }
-
-    public double getDobaPiti() {
-        return dobaPiti;
-    }
-
-    public int getMaxPocetKosu() {
-        return maxPocetKosu;
-    }
-
-    public double getEnergie() {
-        return energie;
-    }
-
-    public int getPocetKosu() {
-        return pocetKosu;
-    }
-
-    public static int getPocet() {
-        return pocet;
-    }
-
-    public int getID() {
-        return ID;
-    }
-
-    public double getCasManipulaceKose() {
-        return casManipulaceKose;
     }
 
     public VelbloudAkce getVykonavanaAkce() {
@@ -342,7 +313,6 @@ public class VelbloudSimulace{
     }
 
     private void vypisVykladani(){
-
         int zaokrouhlenyCas = (int)Math.round(casNaAkci);
         int zaokrouhlenyVykladani = (int)Math.round(konecVykladani);
         int zaokrouhlenaRezerva = (int)Math.round(frontaPozadavku.peek().getPozadavek().getDeadline() - konecVykladani);

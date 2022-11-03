@@ -23,7 +23,7 @@ public class Sklad extends AMisto{
 
     public void doplnSklad(){
         pocetKosu += pocetPrirustek;
-        casDalsiAkce += casNalozeni;
+        casDalsiAkce += casDoplneniSkladu;
     }
 
     public void odeperKos() { pocetKosu--;}

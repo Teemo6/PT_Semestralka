@@ -1,12 +1,12 @@
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
-
 /**
- * Instance třídy {@code VelbloudSimulace}
+ * Instance třídy {@code VelbloudSimulace} představuje konkrétního velblouda vykonávajícího požadavky
  * @author Mikuláš Mach, Štěpán Faragula
- * @version 1.19 02-11-2022
+ * @version 1.20 06-11-2022
  */
 public class VelbloudSimulace{
     private AMisto pozice;
@@ -19,9 +19,9 @@ public class VelbloudSimulace{
 
     private double energie;
     private int pocetKosu;
-    private double casManipulaceKose;
+    private final double casManipulaceKose;
     private Queue<VelbloudPozadavek> frontaPozadavku;
-    private ArrayList<Cesta> cestaPoCastech = new ArrayList<>();
+    private List<Cesta> cestaPoCastech;
 
     private VelbloudAkce vykonavanaAkce;
     private double casNaAkci;
@@ -33,7 +33,7 @@ public class VelbloudSimulace{
     private double konecVykladani;
     private int vylozenoKosu;
 
-    private static int pocet;
+    private static int pocetVelbloudu;
     private final int ID;
 
     public VelbloudSimulace(Sklad pozice, double rychlost, double maxVzdalenost, VelbloudTyp typ){
@@ -52,9 +52,10 @@ public class VelbloudSimulace{
         this.dobaPiti = typ.getCasNapit();
 
         this.frontaPozadavku = new LinkedList<>();
+        this.cestaPoCastech = new ArrayList<>();
 
-        pocet++;
-        this.ID = pocet;
+        zvysID();
+        this.ID = pocetVelbloudu;
     }
 
     /**
@@ -101,7 +102,7 @@ public class VelbloudSimulace{
                         vypisNakladani();
 
                         pocetKosu++;
-                        domovskySklad.odeperKos();
+                        domovskySklad.odeberKos();
                         casNaAkci += domovskySklad.getCasNalozeni();
                     }
 
@@ -128,7 +129,7 @@ public class VelbloudSimulace{
                 //Pokud muze, tak se premisti do dalsi zastavky
                 else {
                     energie -= cestaPoCastech.get(aktualniUsek).getVzdalenost();
-                    pozice = cestaPoCastech.get(aktualniUsek).getMistoB();
+                    pozice = cestaPoCastech.get(aktualniUsek).getKonec();
                     casNaAkci += cestaPoCastech.get(aktualniUsek).getVzdalenost() / rychlost;
 
                     //Kdyz pozice na kterou dosel neni zacatek ani konec pozadavku, tak vypise pruchodovou hlasku
@@ -235,7 +236,7 @@ public class VelbloudSimulace{
                     }
                     else {
                         energie -= cestaPoCastech.get(aktualniUsek).getVzdalenost();
-                        pozice = cestaPoCastech.get(aktualniUsek).getMistoA();
+                        pozice = cestaPoCastech.get(aktualniUsek).getZacatek();
                         casNaAkci += cestaPoCastech.get(aktualniUsek).getVzdalenost() / rychlost;
 
                         if(pozice != domovskySklad){
@@ -376,5 +377,16 @@ public class VelbloudSimulace{
                 ", energie=" + energie +
                 ", pocetKosu=" + pocetKosu +
                 '}';
+    }
+
+    //////////////////////
+    //* Private metody *//
+    //////////////////////
+
+    /**
+     * Navýší počítadlo instancí
+     */
+    private void zvysID(){
+        pocetVelbloudu++;
     }
 }

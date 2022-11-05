@@ -3,13 +3,13 @@ import java.util.Arrays;
 /**
  * Instance třídy {@code MaticeCtvercova} čtvercovou matici doublů
  * @author Mikuláš Mach, Štěpán Faragula
- * @version 1.11 18-10-2022
+ * @version 1.20 06-11-2022
  */
-public class MaticeCtvercova implements IMaticeSymetricka{
-    private int velikost;
-    private double[][] obsahMatice;
+public class MaticeDouble{
+    private final int velikost;
+    private final double[][] obsahMatice;
 
-    public MaticeCtvercova(int velikost){
+    public MaticeDouble(int velikost){
         this.velikost = velikost;
         obsahMatice = new double[velikost][velikost];
     }
@@ -34,7 +34,6 @@ public class MaticeCtvercova implements IMaticeSymetricka{
 
     /**
      * Nastaví číslo podle souřadnic X, Y
-     * matice je symetrická, nastaví stejné číslo na Y, X
      * @param x x
      * @param y y
      * @param cislo hodnota
@@ -45,7 +44,6 @@ public class MaticeCtvercova implements IMaticeSymetricka{
 
     /**
      * Nastaví číslo podle souřadnic X, Y
-     * matice je symetrická, nastaví stejné číslo na Y, X
      * @param x x
      * @param y y
      * @param cislo hodnota
@@ -57,7 +55,6 @@ public class MaticeCtvercova implements IMaticeSymetricka{
 
     /**
      * Vrátí číslo na souřadnicích X, Y
-     * matice je symetrická, vrátí stejné číslo z Y, X
      * @param x x
      * @param y y
      * @return hodnota
@@ -67,7 +64,7 @@ public class MaticeCtvercova implements IMaticeSymetricka{
     }
 
     /**
-     * Vypíše do konzole čtvercovou, symetrickou matici
+     * Vypíše do konzole obsah matice
      */
     public void printMatice(){
         for(int i = 0; i < velikost; i++){

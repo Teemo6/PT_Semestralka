@@ -1,13 +1,26 @@
-public class Pozadavek implements Comparable<Pozadavek>{
+/**
+ * Instance třídy {@code VelbloudTyp} představuje příchozí požadavek
+ * @author Štěpán Faragula, Mikuláš Mach
+ * @version 1.20 06-11-2022
+ */
+public class Pozadavek{
     private final double casPrichodu;
     private final AMisto oaza;
     private final int pozadavekKosu;
     private final double deadline;
     private boolean jeSplnen;
 
-    protected static int pocet;
+    protected static int pocetPozadavku;
     protected int ID;
 
+    /**
+     * Konstruktor
+     * Defaultně není požadavek splněn
+     * @param casPrichodu čas příchodu v simulačním čase
+     * @param oaza jakou oázu je potřeba zásobovat
+     * @param pozadavekKosu kolik oáza potřebuje kosů
+     * @param deadline do kdy mají koše přijít
+     */
     public Pozadavek(double casPrichodu, AMisto oaza, int pozadavekKosu, double deadline){
         this.casPrichodu = casPrichodu;
         this.oaza = oaza;
@@ -16,59 +29,73 @@ public class Pozadavek implements Comparable<Pozadavek>{
 
         jeSplnen = false;
 
-        pocet++;
-        this.ID = pocet;
+        zvysID();
+        this.ID = pocetPozadavku;
     }
 
-    public double getCasPrichodu() {
-        return casPrichodu;
+    /**
+     * Označí požadavek jako splněný
+     */
+    public void setSplnen() {
+        this.jeSplnen = true;
     }
 
-    public int getPozadavekKosu() {
-        return pozadavekKosu;
-    }
-
-    public double getDeadline() {
-        return deadline;
-    }
-
-    public AMisto getOaza() {
-        return oaza;
-    }
-
-    public int getID() {
-        return ID;
-    }
-
-    public void setJeSplnen(boolean jeSplnen) {
-        this.jeSplnen = jeSplnen;
-    }
-
+    /**
+     * Vrátí jestli se požadavek splnil
+     * @return hodnota jeSplnen
+     */
     public boolean jeSplnen() {
         return jeSplnen;
     }
 
-
+    /**
+     * Vrátí čas příchodu v simulačním čase
+     * @return čas příchodu v simulačním čase
+     */
+    public double getCasPrichodu() {
+        return casPrichodu;
+    }
 
     /**
-     * Porovnává časy požadavků
-     * Primárně podle příchozího času
-     * Sekundárně podle Deadline
-     * @param p pozadavek
-     * @return číslo na porovnání
+     * Vrátí oázu kterou je potřeba zásobovat
+     * @return oáza kterou je potřeba zásobovat
      */
-    @Override
-    public int compareTo(Pozadavek p) {
-        int thisCasPrichodu = (int)this.getCasPrichodu();
-        int thatCasPrichodu = (int)p.getCasPrichodu();
-        int thisDeadline = (int)this.getDeadline();
-        int thatDeadline = (int)p.getDeadline();
+    public AMisto getOaza() {
+        return oaza;
+    }
 
-        if (thisCasPrichodu == thatCasPrichodu) {
-            return thisDeadline - thatDeadline;
-        }
-        else {
-            return thisCasPrichodu - thatCasPrichodu;
-        }
+    /**
+     * Vrátí počet požadovaných košů
+     * @return počet požadovaných košů
+     */
+    public int getPozadavekKosu() {
+        return pozadavekKosu;
+    }
+
+    /**
+     * Vrátí deadline v simulačním čase
+     * @return deadline v simulačním čase
+     */
+    public double getDeadline() {
+        return deadline;
+    }
+
+    /**
+     * Vrátí ID požadavku
+     * @return ID požadavku
+     */
+    public int getID() {
+        return ID;
+    }
+
+    //////////////////////
+    //* Private metody *//
+    //////////////////////
+
+    /**
+     * Navýší počítadlo instancí
+     */
+    private void zvysID(){
+        pocetPozadavku++;
     }
 }

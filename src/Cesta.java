@@ -1,39 +1,22 @@
 /**
- * Instance třídy {@code Cesta} představuje cestu mezi dvěmi libovolnými body
+ * Instance třídy {@code Cesta} představuje jednosměrnou cestu mezi dvěmi libovolnými body
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.14 01-11-2022
+ * @version 1.20 06-11-2022
  */
 public class Cesta {
-    protected final AMisto mistoA;
-    protected final AMisto mistoB;
+    protected final AMisto zacatek;
+    protected final AMisto konec;
     protected final double vzdalenost;
 
     /**
-     * Symterická cesta mezi dvěmi body
-     * místa se ukládají tak, aby jejich ID mohli být souřadnice X, Y horního trojúhelníku matice
-     * @param mistoA místo A propojené s místem B
-     * @param mistoB místo B propojené s místem A
+     * Konstruktor
+     * @param zacatek začátek cesty
+     * @param konec konec cesty
      */
-    public Cesta(AMisto mistoA, AMisto mistoB){
-        this.mistoA = mistoA;
-        this.mistoB = mistoB;
-        vzdalenost = mistoA.getPozice().computeDistance(mistoB.getPozice());
-    }
-
-    /**
-     * Vrátí místo A
-     * @return místo A
-     */
-    public AMisto getMistoA() {
-        return mistoA;
-    }
-
-    /**
-     * Vrátí místo B
-     * @return místo B
-     */
-    public AMisto getMistoB() {
-        return mistoB;
+    public Cesta(AMisto zacatek, AMisto konec){
+        this.zacatek = zacatek;
+        this.konec = konec;
+        vzdalenost = zacatek.getPozice().computeDistance(konec.getPozice());
     }
 
     /**
@@ -44,11 +27,27 @@ public class Cesta {
         return vzdalenost;
     }
 
+    /**
+     * Vrátí místo A
+     * @return místo A
+     */
+    public AMisto getZacatek() {
+        return zacatek;
+    }
+
+    /**
+     * Vrátí místo B
+     * @return místo B
+     */
+    public AMisto getKonec() {
+        return konec;
+    }
+
     @Override
     public String toString() {
         return "Cesta{" +
-                "ID mistoA=" + mistoA.getID() +
-                ", ID mistoB=" + mistoB.getID() +
+                "ID mistoA=" + zacatek.getID() +
+                ", ID mistoB=" + konec.getID() +
                 ", vzdalenost=" + vzdalenost +
                 '}';
     }

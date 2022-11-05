@@ -1,14 +1,14 @@
 /**
  * Instance třídy {@code DoubleVector2D} představuje přepravku pro souřadnice x, y typu double
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.10 18-10-2022
+ * @version 1.20 06-11-2022
  */
-
 public class DoubleVector2D {
     private final double x;
     private final double y;
 
     /**
+     * Konstruktor
      * Nastaví atributy x, y
      * @param x x
      * @param y y
@@ -29,8 +29,8 @@ public class DoubleVector2D {
         return Math.sqrt(posXDiff * posXDiff + posYDiff * posYDiff);
     }
 
-
     /**
+     * Vrátí x
      * @return x
      */
     public double getX() {
@@ -38,6 +38,7 @@ public class DoubleVector2D {
     }
 
     /**
+     * Vrátí y
      * @return y
      */
     public double getY() {
@@ -45,6 +46,7 @@ public class DoubleVector2D {
     }
 
     /**
+     * toString
      * @return {@code String} v podobě: (x, y)
      */
     @Override

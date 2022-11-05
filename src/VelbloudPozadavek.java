@@ -1,29 +1,51 @@
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Instance třídy {@code VelbloudPozadavek} představuje požadavek,
- * který je předán velbloudovi ke splnění
+ * který je předán velbloudovi do fronty ke splnění
  * @author Mikuláš Mach, Štěpán Faragula
- * @version 1.19 02-11-2022
+ * @version 1.20 06-11-2022
  */
 public class VelbloudPozadavek {
-    private Pozadavek pozadavek;
-    private ArrayList<Cesta> cestaPoCastech;
+    private final Pozadavek pozadavek;
+    private final List<Cesta> cestaPoCastech;
 
     private double celkovaVzdalenostCesty;
     private int splnenoKosu;
     private final int pocetPotrebnychKosu;
 
-    public VelbloudPozadavek(Pozadavek po, ArrayList<Cesta> ce){
-        pozadavek = po;
-        cestaPoCastech = ce;
+    /**
+     * Konstruktor
+     * @param pozadavek požadavek na obsloužení
+     * @param cesta cesta ze skladu do oázy
+     */
+    public VelbloudPozadavek(Pozadavek pozadavek, List<Cesta> cesta){
+        this.pozadavek = pozadavek;
+        cestaPoCastech = cesta;
 
         celkovaVzdalenostCesty = 0;
-        for(Cesta c : ce){
+        for(Cesta c : cesta){
             celkovaVzdalenostCesty += c.getVzdalenost();
         }
+
         splnenoKosu = 0;
-        pocetPotrebnychKosu = po.getPozadavekKosu();
+        pocetPotrebnychKosu = pozadavek.getPozadavekKosu();
+    }
+
+    /**
+     * Přidá koše k počtu doručených košů
+     * @param pocetDorucenychKosu kolik košů se má přidat
+     */
+    public void doruceneKose(int pocetDorucenychKosu){
+        splnenoKosu += pocetDorucenychKosu;
+    }
+
+    /**
+     * Vrátí počet již doručeních košů
+     * @return pocetDorucenychKosu počet doručených košů
+     */
+    public int getPocetPotrebnychKosu(){
+        return pocetPotrebnychKosu;
     }
 
     /**
@@ -32,35 +54,33 @@ public class VelbloudPozadavek {
      */
     public boolean zkontrolujSplnenyPozadavek(){
         if(pozadavek.getPozadavekKosu() <= splnenoKosu){
-            pozadavek.setJeSplnen(true);
+            pozadavek.setSplnen();
             return true;
         }
         return false;
     }
 
+    /**
+     * Vrátí požadavek
+     * @return požadavek
+     */
     public Pozadavek getPozadavek() {
         return pozadavek;
     }
 
+    /**
+     * Vrátí vzdálenost cesty
+     * @return vzdálenost cesty
+     */
     public double getCelkovaVzdalenostCesty() {
         return celkovaVzdalenostCesty;
     }
 
-    public void setPozadavek(Pozadavek pozadavek) {
-        this.pozadavek = pozadavek;
-    }
-
-    public ArrayList<Cesta> getCestaPoCastech() {
+    /**
+     * Vrátí celou cestu jako pole instancí {@code Cesta}
+     * @return pole instancí cest
+     */
+    public List<Cesta> getCestaPoCastech() {
         return cestaPoCastech;
     }
-
-    public void setCestaPoCastech(ArrayList<Cesta> cestaPoCastech) {
-        this.cestaPoCastech = cestaPoCastech;
-    }
-
-    public void doruceneKose(int pocetDorucenychKosu){
-        splnenoKosu += pocetDorucenychKosu;
-    }
-
-    public int getPocetPotrebnychKosu(){return pocetPotrebnychKosu;}
 }

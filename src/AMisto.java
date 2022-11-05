@@ -1,21 +1,22 @@
 /**
- * Instance třídy {@code AMisto} představuje abstraktní třídu libovolného místa v mapě
+ * Instance třídy {@code AMisto} představuje libovolné místa na mapě
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.19 02-11-2022
+ * @version 1.20 06-11-2022
  */
 public abstract class AMisto {
     protected DoubleVector2D pozice;
-    protected int pocetKosu = 0;
+    protected int pocetKosu;
 
-    protected static int pocet;
-    protected int ID;
+    protected static int pocetMist;
+    protected final int ID;
 
     /**
-     * Při vytvoření místa začíná ID od 1 podle zadání
+     * Konstruktor
+     * Při vytvoření entity začíná ID od 1 podle zadání
      */
     public AMisto(){
-        pocet++;
-        this.ID = pocet;
+        zvysID();
+        this.ID = pocetMist;
     }
 
     /**
@@ -34,15 +35,22 @@ public abstract class AMisto {
         return ID;
     }
 
+    /**
+     * Vrátí počet uskladněných košů
+     * @return uskladněné koše
+     */
     public int getPocetKosu(){
         return pocetKosu;
     }
 
-    @Override
-    public String toString() {
-        return "AMisto{" +
-                "pozice=" + pozice +
-                ", ID=" + ID +
-                '}';
+    //////////////////////
+    //* Private metody *//
+    //////////////////////
+
+    /**
+     * Navýší počítadlo instancí
+     */
+    private void zvysID(){
+        pocetMist++;
     }
 }

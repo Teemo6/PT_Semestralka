@@ -10,6 +10,12 @@ public class VstupDat{
     /** Instance jedináčka VstupDat */
     private static final VstupDat INSTANCE = new VstupDat();
 
+    /** Znaky komentáře v parseru */
+    private final int LEVA_ZAVORA_PRVNI = 55357;
+    private final int LEVA_ZAVORA_DRUHY = 56362;
+    private final int PRAVA_ZAVORA_PRVNI = 55356;
+    private final int PRAVA_ZAVORA_DRUHY = 57308;
+
     /** Vytvořené objekty */
     private List<Sklad> sklady;
     private List<Oaza> oazy;
@@ -44,16 +50,22 @@ public class VstupDat{
         mista = new HashMap<>();
         index = 0;
 
-        vytvorSklady(validniData);
-        vytvorOazy(validniData);
+        try {
+            vytvorSklady(validniData);
+            vytvorOazy(validniData);
 
-        // Napln mapu mista
-        sklady.forEach(s -> mista.put(s.getID(), s));
-        oazy.forEach(o -> mista.put(o.getID(), o));
+            // Napln mapu mista
+            sklady.forEach(s -> mista.put(s.getID(), s));
+            oazy.forEach(o -> mista.put(o.getID(), o));
 
-        vytvorCesty(validniData);
-        vytvorVelbloudy(validniData);
-        vytvorPozadavky(validniData);
+            vytvorCesty(validniData);
+            vytvorVelbloudy(validniData);
+            vytvorPozadavky(validniData);
+
+        } catch (Exception e){
+            System.out.println("\nSoubor nema pozadovanou strukturu.");
+            System.exit(1);
+        }
 
         // TODO Sežazení sestupně podle poměru pro budoucí generování, hloupé
         velbloudi.sort(Comparator.comparingDouble(VelbloudTyp::getPomer).reversed());
@@ -111,6 +123,10 @@ public class VstupDat{
     //* Private metody *//
     //////////////////////
 
+    //////////////////////
+    //*     Parser     *//
+    //////////////////////
+
     /**
      * Vybere ze souboru všechna data, která se nachází mimo komentáře (data jsou oddělena jakýmkoliv bílým znakem)
      * data uloží jako dynamické pole Stringů
@@ -118,15 +134,10 @@ public class VstupDat{
      * @param vstupniSoubor soubor ke čtení
      */
      private List<String> vyberValidniData(String vstupniSoubor){
-         // Levá a pravá závora znaku komentáře ve vstupním souboru
-         final int LEVA_ZAVORA_PRVNI = 55357;
-         final int LEVA_ZAVORA_DRUHY = 56362;
-         final int PRAVA_ZAVORA_PRVNI = 55356;
-         final int PRAVA_ZAVORA_DRUHY = 57308;
-
          // Čtený znak
          int readChar;
          int pocetVnoreni = 0;
+         int zmenaVnoreni;
          boolean bylPrvniZnakKomentare = false;
          boolean bylMinuleKonecKomentare = false;
 
@@ -139,50 +150,49 @@ public class VstupDat{
              BufferedReader br = new BufferedReader(fr);
 
              while ((readChar = br.read()) != -1) {
-                 // Prvni cast znaku komentare
-                 if(readChar == LEVA_ZAVORA_PRVNI || readChar == PRAVA_ZAVORA_PRVNI) {
+                 // První část znaku komentáře
+                 if(prvniZnakKomentare(readChar)){
                      bylPrvniZnakKomentare = true;
                      continue;
                  }
 
-                 // Druha cast znaku komentare
+                 // Druhá část znaku komentáře
                  if(bylPrvniZnakKomentare){
-                     if(readChar == LEVA_ZAVORA_DRUHY){
-                         pocetVnoreni += 1;
-                     }
-                     if(readChar == PRAVA_ZAVORA_DRUHY){
-                         pocetVnoreni -= 1;
+                     zmenaVnoreni = zmenaVnoreni(readChar);
+                     pocetVnoreni += zmenaVnoreni;
+
+                     if(zmenaVnoreni == -1){
                          bylMinuleKonecKomentare = true;
                      }
                      bylPrvniZnakKomentare = false;
                      continue;
                  }
 
-                 // Vyber data mimo komentare
+                 // Vyber data mimo komentáře
                  if(pocetVnoreni == 0){
                      String znak = Character.toString(readChar);
 
-                     // Dalsi znak je whitespace, zapis slovo
+                     // Další znak je whitespace, zapiš uložené slovo
                      if(znak.matches("\\s+")){
                          builder = noveSlovo(builder, validniData);
                          bylMinuleKonecKomentare = false;
                          continue;
                      }
 
-                     // Konec komentare byl tesne nalepeny na data
+                     // Konec komentáře byl těsně nalepený na data
                      if(bylMinuleKonecKomentare){
                          builder = noveSlovo(builder, validniData);
                      }
 
-                     // Pridej znak do slova
+                     // Přidej znak do slova
                      builder.append(znak);
                      bylMinuleKonecKomentare = false;
                  }
              }
-             // Zapis posledni slovo jestli nejake je
+             // Zapiš poslední slovo, jestli nějaké je
              noveSlovo(builder, validniData);
 
-             // Zavri soubor
+             // Zavři soubor
              br.close();
              fr.close();
          } catch (IOException e) {
@@ -191,6 +201,32 @@ public class VstupDat{
          }
          return validniData;
      }
+
+    /**
+     * Vrátí jestli se znak rovná hodnotě prvního znaku komentáře levé nebo pravé závory
+     * @param readChar znak na porovnání
+     * @return true pokud je shoda znaku
+     */
+     private boolean prvniZnakKomentare(int readChar){
+        return readChar == LEVA_ZAVORA_PRVNI || readChar == PRAVA_ZAVORA_PRVNI;
+     }
+
+    /**
+     * Vrátí jestli se má změnit vnoření v hierarchii komentářů
+     * @param readChar znak na porovnání
+     * @return 1 pokud se má ponořit hlouběji
+     *        -1 pokud se má vynořit
+     *         0 pokud nemá změnit vnoření
+     */
+    private int zmenaVnoreni(int readChar){
+        if(readChar == LEVA_ZAVORA_DRUHY){
+            return 1;
+        }
+        if(readChar == PRAVA_ZAVORA_DRUHY){
+            return -1;
+        }
+        return 0;
+    }
 
     /**
      * Zkontroluje jestli je možné začít psát nové slovo bez ztráty obsahu StringBuilder
@@ -205,6 +241,10 @@ public class VstupDat{
         }
         return sb;
      }
+
+    ///////////////////////
+    //* Tvoreni objektu *//
+    ///////////////////////
 
     /**
      * Vybere z validních dat sklady a načte je

@@ -88,9 +88,8 @@ public class Simulace {
             }
             if(casVel <= simulacniCas){
                 VelbloudSimulace docasny = casovaFrontaVelbloudu.poll();
-                if (docasny != null) {
-                    docasny.vykonejDalsiAkci();
-                }
+                assert docasny != null;
+                docasny.vykonejDalsiAkci();
                 casovaFrontaVelbloudu.add(docasny);
                 continue;
             }
@@ -290,7 +289,6 @@ public class Simulace {
         boolean pozadavekPrirazen = false;
 
         // Vyhledej cestu do oázy
-
         AMisto pozadavekOaza = dalsiPozadavek.getOaza();
         AMisto nejblizsiSklad = najdiNejblizsiSklad(pozadavekOaza);
         List<Cesta> cestaCasti = najdiNejkratsiCestu(nejblizsiSklad, pozadavekOaza);
@@ -331,5 +329,4 @@ public class Simulace {
         int zaokrouhlenaDeadline = (int)Math.round(dalsiPozadavek.getDeadline());
         System.out.println("Prichod pozadavku \t Cas: " + zaokrouhlenyCas + ", Pozadavek: " + dalsiPozadavek.getID() + ", Oaza: " + ((Oaza) dalsiPozadavek.getOaza()).getIDOaza() + ", Pocet kosu: " + dalsiPozadavek.getPozadavekKosu() + ", Deadline: " + zaokrouhlenaDeadline);
     }
-
 }

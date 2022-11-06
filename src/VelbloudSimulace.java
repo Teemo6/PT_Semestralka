@@ -327,7 +327,7 @@ public class VelbloudSimulace{
     private void vypisNakladani(){
         int zaokrouhlenyCas = (int)Math.round(casNaAkci);
         int zaokrouhlenyOdchod = (int)Math.round(casOdchodu);
-        System.out.println("Velbloud naklada \t Cas: " + zaokrouhlenyCas +", Velbloud:" + ID + ", Sklad: " + domovskySklad.getID() + ", Nalozeno kosu: " + pocetKosu +", Odchod v: " + zaokrouhlenyOdchod );
+        System.out.println("Velbloud naklada \t Cas: " + zaokrouhlenyCas +", Velbloud: " + ID + ", Sklad: " + domovskySklad.getID() + ", Nalozeno kosu: " + pocetKosu +", Odchod v: " + zaokrouhlenyOdchod );
 
     }
 

@@ -42,11 +42,12 @@ public class VstupDat{
         velbloudi = new ArrayList<>();
         pozadavky = new ArrayList<>();
         mista = new HashMap<>();
+        index = 0;
 
         vytvorSklady(validniData);
         vytvorOazy(validniData);
 
-        // Napln HashMap mista
+        // Napln mapu mista
         sklady.forEach(s -> mista.put(s.getID(), s));
         oazy.forEach(o -> mista.put(o.getID(), o));
 
@@ -113,19 +114,20 @@ public class VstupDat{
     /**
      * Vybere ze souboru všechna data, která se nachází mimo komentáře (data jsou oddělena jakýmkoliv bílým znakem)
      * data uloží jako dynamické pole Stringů
+     * pracujeme s komentářema kde se každý skládá ze 2 znaků
      * @param vstupniSoubor soubor ke čtení
      */
      private List<String> vyberValidniData(String vstupniSoubor){
          // Levá a pravá závora znaku komentáře ve vstupním souboru
-         int LEVA_ZAVORA_PRVNI = 55357;
-         int LEVA_ZAVORA_DRUHY = 56362;
-         int PRAVA_ZAVORA_PRVNI = 55356;
-         int PRAVA_ZAVORA_DRUHY = 57308;
+         final int LEVA_ZAVORA_PRVNI = 55357;
+         final int LEVA_ZAVORA_DRUHY = 56362;
+         final int PRAVA_ZAVORA_PRVNI = 55356;
+         final int PRAVA_ZAVORA_DRUHY = 57308;
 
          // Čtený znak
          int readChar;
          int pocetVnoreni = 0;
-         boolean bylMinuleKomentar = false;
+         boolean bylPrvniZnakKomentare = false;
          boolean bylMinuleKonecKomentare = false;
 
          // Vytvořená slova
@@ -137,68 +139,71 @@ public class VstupDat{
              BufferedReader br = new BufferedReader(fr);
 
              while ((readChar = br.read()) != -1) {
-                 // Leva zavora komentare
-                 if(readChar == LEVA_ZAVORA_PRVNI) {
-                     bylMinuleKomentar = true;
-                     continue;
-                 }
-                 if(readChar == LEVA_ZAVORA_DRUHY && bylMinuleKomentar) {
-                     bylMinuleKomentar = false;
-                     pocetVnoreni += 1;
+                 // Prvni cast znaku komentare
+                 if(readChar == LEVA_ZAVORA_PRVNI || readChar == PRAVA_ZAVORA_PRVNI) {
+                     bylPrvniZnakKomentare = true;
                      continue;
                  }
 
-                 // Prava zavora komentare
-                 if(readChar == PRAVA_ZAVORA_PRVNI) {
-                     bylMinuleKomentar = true;
-                     continue;
-                 }
-                 if(readChar == PRAVA_ZAVORA_DRUHY && bylMinuleKomentar) {
-                     bylMinuleKomentar = false;
-                     bylMinuleKonecKomentare = true;
-                     pocetVnoreni -= 1;
-                     continue;
-                 }
-
-                 // Data jsou mezi znaky komentaru
-                 if(pocetVnoreni != 0){
-                     bylMinuleKonecKomentare = false;
-                     continue;
-                 }
-
-                 // Data jsou mimo komentare
-                 String znak = Character.toString(readChar);
-
-                 // Dalsi znak je whitespace
-                 if(znak.matches("\\s+")){
-                     if(builder.length() != 0) {
-                         validniData.add(builder.toString());
-                         builder = new StringBuilder();
+                 // Druha cast znaku komentare
+                 if(bylPrvniZnakKomentare){
+                     if(readChar == LEVA_ZAVORA_DRUHY){
+                         pocetVnoreni += 1;
                      }
+                     if(readChar == PRAVA_ZAVORA_DRUHY){
+                         pocetVnoreni -= 1;
+                         bylMinuleKonecKomentare = true;
+                     }
+                     bylPrvniZnakKomentare = false;
                      continue;
                  }
 
-                 // Konec komentare byl tesne nalepeny na data
-                 if(bylMinuleKonecKomentare && builder.length() != 0){
-                     validniData.add(builder.toString());
-                     builder = new StringBuilder();
+                 // Vyber data mimo komentare
+                 if(pocetVnoreni == 0){
+                     String znak = Character.toString(readChar);
+
+                     // Dalsi znak je whitespace, zapis slovo
+                     if(znak.matches("\\s+")){
+                         builder = noveSlovo(builder, validniData);
+                         bylMinuleKonecKomentare = false;
+                         continue;
+                     }
+
+                     // Konec komentare byl tesne nalepeny na data
+                     if(bylMinuleKonecKomentare){
+                         builder = noveSlovo(builder, validniData);
+                     }
+
+                     // Pridej znak do slova
+                     builder.append(znak);
+                     bylMinuleKonecKomentare = false;
                  }
-
-                 // Pridej znak jako validni
-                 builder.append(znak);
-                 bylMinuleKonecKomentare = false;
              }
+             // Zapis posledni slovo jestli nejake je
+             noveSlovo(builder, validniData);
 
-             // Zapis posledni slovo
-             if(builder.length() != 0) {
-                 validniData.add(builder.toString());
-             }
+             // Zavri soubor
              br.close();
              fr.close();
          } catch (IOException e) {
-             e.printStackTrace();
+             System.out.println("\nNepovedlo se najit soubor.");
+             System.exit(1);
          }
          return validniData;
+     }
+
+    /**
+     * Zkontroluje jestli je možné začít psát nové slovo bez ztráty obsahu StringBuilder
+     * @param sb builder který chceme připravit pro nové slovo
+     * @param data kam se má uložit obsah builderu
+     * @return prázdný StringBuilder
+     */
+     private StringBuilder noveSlovo(StringBuilder sb, List<String> data){
+        if(!sb.isEmpty()){
+            data.add(sb.toString());
+            return new StringBuilder();
+        }
+        return sb;
      }
 
     /**

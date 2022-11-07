@@ -134,6 +134,38 @@ public class VstupDat{
      * @param vstupniSoubor soubor ke čtení
      */
      private List<String> vyberValidniData(String vstupniSoubor){
+         // Čtený soubor
+         BufferedReader br = null;
+
+         // Vyparsovaná data
+         List<String> validniData = new ArrayList<>();
+
+         try {
+             br = new BufferedReader(new FileReader(vstupniSoubor));
+             validniData = vyparsujData(br);
+         } catch (IOException e) {
+             System.out.println("\nNepovedlo se precist soubor.");
+             System.exit(1);
+         } finally {
+             if(br != null){
+                 try{
+                    br.close();
+                 } catch (IOException e){
+                     System.out.println("\nNepovedlo se najit soubor.");
+                     System.exit(1);
+                 }
+             }
+         }
+         return validniData;
+     }
+
+    /**
+     * Z předaného BufferedReaderu vyparsuje data a vrátí jejich seznam bez zakomentovaných částí
+     * @param br buffered reader
+     * @return seznam dat mimo komentáře
+     * @throws IOException hodí výjimku pokud se nepodaří přečíst soubor
+     */
+     private List<String> vyparsujData(BufferedReader br) throws IOException{
          // Čtený znak
          int readChar;
          int pocetVnoreni = 0;
@@ -145,60 +177,48 @@ public class VstupDat{
          StringBuilder builder = new StringBuilder();
          ArrayList<String> validniData = new ArrayList<>();
 
-         try {
-             FileReader fr = new FileReader(vstupniSoubor);
-             BufferedReader br = new BufferedReader(fr);
-
-             while ((readChar = br.read()) != -1) {
-                 // První část znaku komentáře
-                 if(prvniZnakKomentare(readChar)){
-                     bylPrvniZnakKomentare = true;
-                     continue;
-                 }
-
-                 // Druhá část znaku komentáře
-                 if(bylPrvniZnakKomentare){
-                     zmenaVnoreni = zmenaVnoreni(readChar);
-                     pocetVnoreni += zmenaVnoreni;
-
-                     if(zmenaVnoreni == -1){
-                         bylMinuleKonecKomentare = true;
-                     }
-                     bylPrvniZnakKomentare = false;
-                     continue;
-                 }
-
-                 // Vyber data mimo komentáře
-                 if(pocetVnoreni == 0){
-                     String znak = Character.toString(readChar);
-
-                     // Další znak je whitespace, zapiš uložené slovo
-                     if(znak.matches("\\s+")){
-                         builder = noveSlovo(builder, validniData);
-                         bylMinuleKonecKomentare = false;
-                         continue;
-                     }
-
-                     // Konec komentáře byl těsně nalepený na data
-                     if(bylMinuleKonecKomentare){
-                         builder = noveSlovo(builder, validniData);
-                     }
-
-                     // Přidej znak do slova
-                     builder.append(znak);
-                     bylMinuleKonecKomentare = false;
-                 }
+         while ((readChar = br.read()) != -1) {
+             // První část znaku komentáře
+             if(prvniZnakKomentare(readChar)){
+                 bylPrvniZnakKomentare = true;
+                 continue;
              }
-             // Zapiš poslední slovo, jestli nějaké je
-             noveSlovo(builder, validniData);
 
-             // Zavři soubor
-             br.close();
-             fr.close();
-         } catch (IOException e) {
-             System.out.println("\nNepovedlo se najit soubor.");
-             System.exit(1);
+             // Druhá část znaku komentáře
+             if(bylPrvniZnakKomentare){
+                 zmenaVnoreni = zmenaVnoreni(readChar);
+                 pocetVnoreni += zmenaVnoreni;
+
+                 if(zmenaVnoreni == -1){
+                     bylMinuleKonecKomentare = true;
+                 }
+                 bylPrvniZnakKomentare = false;
+                 continue;
+             }
+
+             // Vyber data mimo komentáře
+             if(pocetVnoreni == 0){
+                 String znak = Character.toString(readChar);
+
+                 // Další znak je whitespace, zapiš uložené slovo
+                 if(znak.matches("\\s+")){
+                     builder = noveSlovo(builder, validniData);
+                     bylMinuleKonecKomentare = false;
+                     continue;
+                 }
+
+                 // Konec komentáře byl těsně nalepený na data
+                 if(bylMinuleKonecKomentare){
+                     builder = noveSlovo(builder, validniData);
+                 }
+
+                 // Přidej znak do slova
+                 builder.append(znak);
+                 bylMinuleKonecKomentare = false;
+             }
          }
+         // Zapiš poslední slovo, jestli nějaké je
+         noveSlovo(builder, validniData);
          return validniData;
      }
 

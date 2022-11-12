@@ -1,12 +1,9 @@
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.PriorityQueue;
+import java.util.*;
 
 /**
  * Instance třídy {@code Simulace} představuje jedináčka ve kterém běží celá simulace
  * @author Mikuláš Mach, Štěpán Faragula
- * @version 1.20 06-11-2022
+ * @version 1.21 12-11-2022
  */
 public class Simulace {
     /** Instance jedináčka Simulace */
@@ -18,6 +15,15 @@ public class Simulace {
     /** Matice se kterými pracuje simulace */
     MaticeDouble distancniMatice;
     MaticeInteger maticePredchudcu;
+
+    /** Reprezentace grafu */
+    GrafMapa mapa;
+
+    // TODO posledni vymysl dne, jdu spat
+    // AMisto -> vychozi bod
+    // Map<AMisto> -> koncovy bod
+    // List<Cesta> -> seznam cest ke konci
+    Map<AMisto, Map<AMisto, List<Cesta>>> cestyMapy;
 
     /** Práce s časem */
     double simulacniCas = 0;
@@ -42,6 +48,9 @@ public class Simulace {
         this.data = data;
 
         vytvorPotrebneMatice();
+
+        mapa = vytvorMapu();
+        AMisto sklaaaaad = najdiNejvhodnejsiSkladDijkstra(data.getSklady().get(0));
 
         casovaFrontaPozadavku = new PriorityQueue<>(5, Comparator.comparingDouble(Pozadavek::getCasPrichodu));
         casovaFrontaSkladu = new PriorityQueue<>(5, Comparator.comparingDouble(Sklad::getCasDalsiAkce));
@@ -278,6 +287,63 @@ public class Simulace {
     //////////////////////
     //* Private metody *//
     //////////////////////
+
+    /**
+     * Vrátí vzdálenosti všech míst grafu od výchozího bodu
+     * @param vychoziBod začínající bod algoritmu
+     * @return seznam mezicest A, B
+     */
+    public AMisto najdiNejvhodnejsiSkladDijkstra(AMisto vychoziBod){
+        AMisto nejvhodnejsiSklad = null;
+        Map<AMisto, Double> mapaVzdalenosti = new HashMap<>();
+        Map<AMisto, CestaCasti> mapaCest = new HashMap<>();
+
+        data.getMista().forEach((k, v) -> {
+            mapaVzdalenosti.put(v, Double.MAX_VALUE);
+            mapaCest.put(v, new CestaCasti());
+        });
+        mapaVzdalenosti.put(vychoziBod, 0.0);
+
+        PriorityQueue<GrafVrchol> fronta = new PriorityQueue<>(Comparator.comparingDouble(GrafVrchol::getVzdalenost));
+        fronta.add(new GrafVrchol(vychoziBod, 0));
+
+        while (fronta.size() > 0) {
+            AMisto prvni = fronta.poll().getVrchol();
+
+            for (GrafVrchol porovnani : mapa.seznamSousednosti.get(prvni)) {
+                AMisto druhy = porovnani.getVrchol();
+                double porovnaniSoucet = mapaVzdalenosti.get(prvni) + porovnani.getVzdalenost();
+
+                if (mapaVzdalenosti.get(druhy) > porovnaniSoucet) {
+                    // TODO rekurze, prida se jenom posledni cesta
+                    mapaVzdalenosti.put(druhy, porovnaniSoucet);
+                    mapaCest.get(druhy).pridejCestu(new Cesta(prvni, druhy));
+                    fronta.add(new GrafVrchol(druhy, mapaVzdalenosti.get(druhy)));
+                }
+            }
+        }
+
+        mapaCest.forEach((k, v) -> v.uzavriCestu());
+
+        System.out.println("Vzdalenosti:");
+        mapaVzdalenosti.forEach((k, v) -> System.out.println(k.getID() + " -> " + v));
+        System.out.println();
+        System.out.println("Cesty:");
+        mapaCest.forEach((k, v) -> System.out.println(k.getID() + ": " + v));
+        System.out.println();
+
+        return nejvhodnejsiSklad;
+    }
+
+    private GrafMapa vytvorMapu(){
+        GrafMapa novaMapa = new GrafMapa();
+
+        for(CestaSymetricka cesta : data.getCesty()){
+            novaMapa.pridejVrchol(cesta);
+        }
+
+        return novaMapa;
+    }
 
     /**
      * Přiřadí požadavek vhodnému velbloudovi

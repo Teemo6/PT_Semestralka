@@ -53,4 +53,15 @@ public abstract class AMisto {
     private void zvysID(){
         pocetMist++;
     }
+
+    /**
+     * toString
+     * @return string s ID místa
+     */
+    @Override
+    public String toString() {
+        return "AMisto{" +
+                "ID=" + ID +
+                '}';
+    }
 }

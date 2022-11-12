@@ -1,0 +1,103 @@
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Instance třídy {@code CestaCasti} představuje dlouhou cestu rozdělenou na několik částí {@code Cesta}
+ * @author Štěpán Faragula, Mikuláš Mach
+ * @version 1.21 12-11-2022
+ */
+public class CestaCasti {
+    List<Cesta> seznamCest;
+    AMisto zacatek;
+    AMisto konec;
+    double vzdalenost;
+    boolean uzavrena;
+
+    /**
+     * Otevřený konstruktor, můžou se přidávat cesty, poté je potřeba uzavřít
+     */
+    public CestaCasti(){
+        seznamCest = new ArrayList<>();
+        zacatek = null;
+        konec = null;
+        vzdalenost = Double.MAX_VALUE;
+        uzavrena = false;
+    }
+
+    /**
+     * Uzavřený konstruktor, ze seznamu cest udělá objekt
+     * @param cesty seznam cest, očekává seřazený seznam (1 -> 2, 2 -> 3, 3 -> 4...)
+     */
+    public CestaCasti(List<Cesta> cesty){
+        this();
+
+        for(Cesta c : cesty){
+            seznamCest.add(c);
+            vzdalenost += c.getVzdalenost();
+        }
+        uzavrena = true;
+        zacatek = seznamCest.get(0).getZacatek();
+        konec = seznamCest.get(seznamCest.size() - 1).getKonec();
+    }
+
+    /**
+     * Přidá cestu do seznamu
+     * Pokud je CestaCasti uzavřená, neprovede nic
+     * @param c cesta ke přidání
+     */
+    public void pridejCestu(Cesta c){
+        if(uzavrena){
+            return;
+        }
+        seznamCest.add(c);
+        if(vzdalenost == Double.MAX_VALUE){
+            vzdalenost = 0;
+        }
+        vzdalenost += c.getVzdalenost();
+    }
+
+    /**
+     * Uzavře cestu, poté se nemůže upravovat
+     * Nastaví začátek a konec
+     */
+    public void uzavriCestu(){
+        if(uzavrena){
+            return;
+        }
+        uzavrena = true;
+
+        if(seznamCest.isEmpty()){
+            return;
+        }
+        zacatek = seznamCest.get(0).getZacatek();
+        konec = seznamCest.get(seznamCest.size() - 1).getKonec();
+    }
+
+    /**
+     * Vytvoří novou cestu po částech v obráceném směru
+     * Pokud je CestaCasti uzavřená, neprovede nic
+     * @return cesta po částech pozpátku
+     */
+    public CestaCasti prohodSmer(){
+        if(!uzavrena){
+            return null;
+        }
+        List<Cesta> cestaZpet = new ArrayList<>();
+
+        for(int i = seznamCest.size() - 1; i >= 0; i--){
+            cestaZpet.add(seznamCest.get(i).prohodSmer());
+        }
+        return new CestaCasti(cestaZpet);
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder str = new StringBuilder();
+
+        for(Cesta c : seznamCest){
+            str.append(c.getZacatek().getID()).append(" -> ").append(c.getKonec().getID()).append(", ");
+        }
+
+        return str.toString();
+    }
+}

@@ -1,7 +1,7 @@
 /**
  * Instance třídy {@code Cesta} představuje jednosměrnou cestu mezi dvěmi libovolnými body
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.20 06-11-2022
+ * @version 1.21 12-11-2022
  */
 public class Cesta {
     protected final AMisto zacatek;
@@ -17,6 +17,14 @@ public class Cesta {
         this.zacatek = zacatek;
         this.konec = konec;
         vzdalenost = zacatek.getPozice().computeDistance(konec.getPozice());
+    }
+
+    /**
+     * Vrátí cestu v opačném směru
+     * @return cesta z konce do začátku
+     */
+    public Cesta prohodSmer(){
+        return new Cesta(konec, zacatek);
     }
 
     /**

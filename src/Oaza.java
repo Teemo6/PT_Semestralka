@@ -26,18 +26,6 @@ public class Oaza extends AMisto {
         return IDOaza;
     }
 
-    /**
-     * toString
-     * @return string s atributy oázy
-     */
-    @Override
-    public String toString() {
-        return "Oaza{" +
-                "ID=" + ID +
-                ", pozice=" + pozice +
-                '}';
-    }
-
     //////////////////////
     //* Private metody *//
     //////////////////////

@@ -1,5 +1,3 @@
-import java.util.List;
-
 /**
  * Instance třídy {@code VelbloudPozadavek} představuje požadavek,
  * který je předán velbloudovi do fronty ke splnění
@@ -8,7 +6,8 @@ import java.util.List;
  */
 public class VelbloudPozadavek {
     private final Pozadavek pozadavek;
-    private final List<Cesta> cestaPoCastech;
+    //private final List<Cesta> cestaPoCastech;
+    private CestaCasti cestaCasti;
 
     private double celkovaVzdalenostCesty;
     private int splnenoKosu;
@@ -17,16 +16,13 @@ public class VelbloudPozadavek {
     /**
      * Konstruktor
      * @param pozadavek požadavek na obsloužení
-     * @param cesta cesta ze skladu do oázy
+     * @param cestaCasti cesta ze skladu do oázy
      */
-    public VelbloudPozadavek(Pozadavek pozadavek, List<Cesta> cesta){
+    public VelbloudPozadavek(Pozadavek pozadavek, CestaCasti cestaCasti){
         this.pozadavek = pozadavek;
-        cestaPoCastech = cesta;
+        this.cestaCasti = cestaCasti;
 
-        celkovaVzdalenostCesty = 0;
-        for(Cesta c : cesta){
-            celkovaVzdalenostCesty += c.getVzdalenost();
-        }
+        celkovaVzdalenostCesty = cestaCasti.getVzdalenost();
 
         splnenoKosu = 0;
         pocetPotrebnychKosu = pozadavek.getPozadavekKosu();
@@ -80,7 +76,7 @@ public class VelbloudPozadavek {
      * Vrátí celou cestu jako pole instancí {@code Cesta}
      * @return pole instancí cest
      */
-    public List<Cesta> getCestaPoCastech() {
-        return cestaPoCastech;
+    public CestaCasti getCestaCasti() {
+        return cestaCasti;
     }
 }

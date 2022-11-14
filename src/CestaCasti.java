@@ -106,6 +106,18 @@ public class CestaCasti {
         return new CestaCasti(cestaZpet);
     }
 
+    public AMisto getZacatek() {
+        return zacatek;
+    }
+
+    public AMisto getKonec() {
+        return konec;
+    }
+
+    public double getVzdalenost() {
+        return vzdalenost;
+    }
+
     public List<Cesta> getSeznamCest(){
         if(uzavrena){
             return seznamCest;

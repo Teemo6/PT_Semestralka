@@ -14,7 +14,6 @@ public class Simulace {
 
     /** Matice se kterými pracuje simulace */
     MaticeDouble distancniMatice;
-    MaticeInteger maticePredchudcu;
 
     /** Reprezentace grafu */
     GrafMapa mapa;
@@ -41,7 +40,7 @@ public class Simulace {
     public void spustSimulaci(VstupDat data){
         this.data = data;
 
-        vytvorPotrebneMatice();
+
 
         mapa = vytvorMapu();
         vytvorMapuPredchudcu(data.getMista().get(1));
@@ -114,74 +113,6 @@ public class Simulace {
         System.out.println();
         System.out.println("Pocet splnenych pozadavku: " + data.getPozadavky().size());
         System.out.println("Pocet vyuzitych velbloudu: " + casovaFrontaVelbloudu.size());
-    }
-
-    /**
-     * Vytvoří distanční matici a matici předchůdců
-     * Využití Floyd-Warshall algoritmu
-     */
-    public void vytvorPotrebneMatice(){
-        distancniMatice = new MaticeDouble(data.getMista().size());
-        distancniMatice.vyplnNekonecnem();
-
-        for (Cesta cesta : data.getCesty()) {
-            distancniMatice.setCisloSymetricky(cesta.getZacatek().getID() - 1, cesta.getKonec().getID() - 1, cesta.getVzdalenost());
-        }
-        int velikostMatice = distancniMatice.getVelikost();
-
-        maticePredchudcu = new MaticeInteger(velikostMatice);
-        maticePredchudcu.vyplnNekonecnem();
-
-        // Matice předchůdců
-        for (int i = 0; i < velikostMatice; i++) {
-            for (int j = 0; j < velikostMatice; j++) {
-                if (distancniMatice.getCislo(i, j) != Double.MAX_VALUE){
-                    maticePredchudcu.setCislo(i, j, i + 1);
-                }
-            }
-        }
-
-        // Distancni matice
-        for(int k = 0; k < velikostMatice; k++){
-            for(int i = 0; i < velikostMatice; i++){
-                for(int j = 0; j < velikostMatice; j++){
-                    double hodnotaCesty = distancniMatice.getCislo(i, k) + distancniMatice.getCislo(k, j);
-                    if((distancniMatice.getCislo(i, j) > hodnotaCesty)){
-                        distancniMatice.setCislo(i, j, hodnotaCesty);
-                        maticePredchudcu.setCislo(i, j, k + 1);
-                    }
-                }
-            }
-        }
-        maticePredchudcu.vyplnNulyNaDiagonalu();
-    }
-
-    /**
-     * Vrátí sezman všech mezicest z bodu A do bodu B
-     * @param zacatek začínající bod grafu
-     * @param konec konečný bod grafu
-     * @return seznam mezicest A, B
-     */
-    public List<Cesta> najdiNejkratsiCestu(AMisto zacatek, AMisto konec){
-        ArrayList<Cesta> nejkratsiCesta = new ArrayList<>();
-        AMisto zacatekTrasy = zacatek;
-
-        int IDmisto;
-        AMisto predchudce;
-
-        while(true) {
-            IDmisto = maticePredchudcu.getCislo(konec.getID() - 1, zacatekTrasy.getID() - 1);
-            if(IDmisto == Integer.MAX_VALUE){
-                break;
-            }
-            predchudce = data.getMista().get(IDmisto);
-            nejkratsiCesta.add(new Cesta(zacatekTrasy, predchudce));
-            if (predchudce == konec) {
-                break;
-            }
-            zacatekTrasy = predchudce;
-        }
-        return nejkratsiCesta;
     }
 
     /**
@@ -319,20 +250,7 @@ public class Simulace {
                 }
             }
         }
-        Map<AMisto, CestaCasti> mapaCest = new HashMap<>();
-        mapaPredchudcu.forEach((k, v) -> mapaCest.put(k, najdiNejkratsiCestuDijkstra(mapaPredchudcu, vychoziBod, k)));
-
-        System.out.println("Vzdalenosti:");
-        mapaPredchudcu.forEach((k, v) -> System.out.println(k.getID() + " -> " + v.getVzdalenost()));
-        System.out.println();
-        System.out.println("Predchudci:");
-        mapaPredchudcu.forEach((k, v) -> System.out.println(k.getID() + ": " + v.getVrchol()));
-        System.out.println();
-        System.out.println("Cesty cely:");
-        mapaCest.forEach((k, v) -> System.out.println(k.getID() + ": " + v));
-        System.out.println();
-
-        return null;
+        return mapaPredchudcu;
     }
 
     /**
@@ -341,10 +259,13 @@ public class Simulace {
      * @param konec koncový bod
      * @return cesta po částech
      */
-    private CestaCasti najdiNejkratsiCestuDijkstra(Map<AMisto, GrafVrchol> mapaPredchudcu, AMisto zacatek, AMisto konec){
+    private CestaCasti najdiNejkratsiCestuDijkstra(AMisto zacatek, AMisto konec){
         CestaCasti nejkratsiCesta = new CestaCasti();
         AMisto konecTrasy = konec;
         AMisto predchudce;
+
+        Map<AMisto, GrafVrchol>mapaPredchudcu = vytvorMapuPredchudcu(zacatek);
+
 
         while(true) {
             predchudce = mapaPredchudcu.get(konecTrasy).getVrchol();
@@ -387,33 +308,28 @@ public class Simulace {
 
         // Vyhledej cestu do oázy
         AMisto pozadavekOaza = dalsiPozadavek.getOaza();
-        AMisto nejblizsiSklad = najdiNejblizsiSklad(pozadavekOaza);
-        List<Cesta> cestaCasti = najdiNejkratsiCestu(nejblizsiSklad, pozadavekOaza);
-
-        // Vypočítej celkovou vzdálenost
-        double celkovaVzdalenost = 0;
-        for (Cesta c : cestaCasti) {
-            celkovaVzdalenost += c.getVzdalenost();
-        }
+        AMisto nejblizsiSklad = data.getSklady().get(0);
+        //AMisto nejblizsiSklad = najdiNejblizsiSklad(pozadavekOaza);
+        CestaCasti nejkratsiCesta = najdiNejkratsiCestuDijkstra(nejblizsiSklad, pozadavekOaza);
 
         // Zkus přiřadit požadavek existujícímu velbloudovi
         for (VelbloudSimulace v : casovaFrontaVelbloudu) {
-            double casNovehoPozadavku = v.jakDlouhoBudeTrvatCestaTam(celkovaVzdalenost, dalsiPozadavek.getPozadavekKosu());
+            double casNovehoPozadavku = v.jakDlouhoBudeTrvatCestaTam(nejkratsiCesta.getVzdalenost(), dalsiPozadavek.getPozadavekKosu());
             double casPozadavkuVelblouda = v.kdySeSplniFronta();
 
             if (dalsiPozadavek.getDeadline() - casNovehoPozadavku - simulacniCas - casPozadavkuVelblouda > 0) {
                 pozadavekPrirazen = true;
-                v.priradPozadavek(new VelbloudPozadavek(dalsiPozadavek, cestaCasti), simulacniCas);
+                v.priradPozadavek(new VelbloudPozadavek(dalsiPozadavek, nejkratsiCesta), simulacniCas);
                 break;
             }
         }
 
         // Vyber nejlepší druh velblouda na cestu, vytvoř ho, přiřaď mu požadavek
         if (!pozadavekPrirazen) {
-            VelbloudSimulace vel = generujVelblouda(celkovaVzdalenost, nejblizsiSklad);
+            VelbloudSimulace vel = generujVelblouda(nejkratsiCesta.getVzdalenost(), nejblizsiSklad);
             if(vel != null){
                 pozadavekPrirazen = true;
-                vel.priradPozadavek(new VelbloudPozadavek(dalsiPozadavek, cestaCasti), simulacniCas);
+                vel.priradPozadavek(new VelbloudPozadavek(dalsiPozadavek, nejkratsiCesta), simulacniCas);
             }
         }
 

@@ -93,7 +93,7 @@ public class VelbloudSimulace{
 
                         if (pocetKosu == 0) {
 
-                            cestaPoCastech.addAll(frontaPozadavku.peek().getCestaPoCastech());
+                            cestaPoCastech.addAll(frontaPozadavku.peek().getCestaCasti().getSeznamCest());
 
                             zacatekNakladani = casNaAkci;
                             casOdchodu = zacatekNakladani + domovskySklad.getCasNalozeni() * (Math.min(maxPocetKosu, frontaPozadavku.peek().getPozadavek().getPozadavekKosu()));
@@ -108,8 +108,7 @@ public class VelbloudSimulace{
 
                     //Ceka na naplneni skladu
                     else{
-                        //TODO
-                        casNaAkci++;
+                        casNaAkci = domovskySklad.getCasDalsiAkce();
                     }
                 }
 

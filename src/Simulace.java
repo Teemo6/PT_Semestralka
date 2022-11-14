@@ -3,7 +3,7 @@ import java.util.*;
 /**
  * Instance třídy {@code Simulace} představuje jedináčka ve kterém běží celá simulace
  * @author Mikuláš Mach, Štěpán Faragula
- * @version 1.21 12-11-2022
+ * @version 1.22 14-11-2022
  */
 public class Simulace {
     /** Instance jedináčka Simulace */
@@ -18,12 +18,6 @@ public class Simulace {
 
     /** Reprezentace grafu */
     GrafMapa mapa;
-
-    // TODO posledni vymysl dne, jdu spat
-    // AMisto -> vychozi bod
-    // Map<AMisto> -> koncovy bod
-    // List<Cesta> -> seznam cest ke konci
-    Map<AMisto, Map<AMisto, List<Cesta>>> cestyMapy;
 
     /** Práce s časem */
     double simulacniCas = 0;
@@ -50,7 +44,7 @@ public class Simulace {
         vytvorPotrebneMatice();
 
         mapa = vytvorMapu();
-        vytvorMapuPredchudcu(data.getMista().get(9));
+        vytvorMapuPredchudcu(data.getMista().get(1));
 
         casovaFrontaPozadavku = new PriorityQueue<>(5, Comparator.comparingDouble(Pozadavek::getCasPrichodu));
         casovaFrontaSkladu = new PriorityQueue<>(5, Comparator.comparingDouble(Sklad::getCasDalsiAkce));
@@ -293,19 +287,16 @@ public class Simulace {
      * @param vychoziBod začínající bod algoritmu
      * @return mapa předchůdců
      */
-    // TODO dodwelatasdasdasdasfvdxv
     public Map<AMisto, GrafVrchol> vytvorMapuPredchudcu(AMisto vychoziBod){
-        Map<AMisto, Double> mapaVzdalenosti = new HashMap<>();
-        Map<AMisto, AMisto> mapaPredchudcu = new HashMap<>();
+        Map<AMisto, GrafVrchol> mapaPredchudcu = new HashMap<>();
+        GrafVrchol vychoziVrchol = new GrafVrchol(vychoziBod, 0.0);
 
         // Nastav predchudce na null, vzdalenost na inf
-        data.getMista().forEach((k, v) -> {
-            mapaVzdalenosti.put(v, Double.MAX_VALUE);
-            mapaPredchudcu.put(v, null);
-        });
-        mapaVzdalenosti.put(vychoziBod, 0.0);
+        data.getMista().forEach((k, v) -> mapaPredchudcu.put(v, new GrafVrchol(null, Double.MAX_VALUE)));
 
+        // Zpracovani fronty Dijkstry
         PriorityQueue<GrafVrchol> fronta = new PriorityQueue<>(Comparator.comparingDouble(GrafVrchol::getVzdalenost));
+        mapaPredchudcu.put(vychoziBod, vychoziVrchol);
         fronta.add(new GrafVrchol(vychoziBod, 0));
 
         while (fronta.size() > 0) {
@@ -318,29 +309,25 @@ public class Simulace {
 
             // Projdi vsechny sousedy
             for (GrafVrchol sousedniVrchol : mapa.seznamSousednosti.get(predchudce)) {
-                AMisto druhy = sousedniVrchol.getVrchol();
-                double porovnaniSoucet = mapaVzdalenosti.get(predchudce) + sousedniVrchol.getVzdalenost();
+                AMisto soused = sousedniVrchol.getVrchol();
+                double vzdalenostSouseda = mapaPredchudcu.get(predchudce).getVzdalenost() + sousedniVrchol.getVzdalenost();
 
                 // Pokud je cesta kratsi, zapis souseda jako predchudce
-                if (mapaVzdalenosti.get(druhy) > porovnaniSoucet) {
-                    mapaVzdalenosti.put(druhy, porovnaniSoucet);
-                    mapaPredchudcu.put(druhy, predchudce);
-                    fronta.add(new GrafVrchol(druhy, mapaVzdalenosti.get(druhy)));
+                if (mapaPredchudcu.get(soused).getVzdalenost() > vzdalenostSouseda) {
+                    mapaPredchudcu.put(soused, new GrafVrchol(predchudce, vzdalenostSouseda));
+                    fronta.add(new GrafVrchol(soused, mapaPredchudcu.get(soused).getVzdalenost()));
                 }
             }
         }
-
-        System.out.println("Vzdalenosti:");
-        mapaVzdalenosti.forEach((k, v) -> System.out.println(k.getID() + " -> " + v));
-        System.out.println();
-        System.out.println("Predchudci:");
-        mapaPredchudcu.forEach((k, v) -> System.out.println(k.getID() + ": " + v));
-        System.out.println();
-
-
         Map<AMisto, CestaCasti> mapaCest = new HashMap<>();
         mapaPredchudcu.forEach((k, v) -> mapaCest.put(k, najdiNejkratsiCestuDijkstra(mapaPredchudcu, vychoziBod, k)));
 
+        System.out.println("Vzdalenosti:");
+        mapaPredchudcu.forEach((k, v) -> System.out.println(k.getID() + " -> " + v.getVzdalenost()));
+        System.out.println();
+        System.out.println("Predchudci:");
+        mapaPredchudcu.forEach((k, v) -> System.out.println(k.getID() + ": " + v.getVrchol()));
+        System.out.println();
         System.out.println("Cesty cely:");
         mapaCest.forEach((k, v) -> System.out.println(k.getID() + ": " + v));
         System.out.println();
@@ -354,13 +341,13 @@ public class Simulace {
      * @param konec koncový bod
      * @return cesta po částech
      */
-    private CestaCasti najdiNejkratsiCestuDijkstra(Map<AMisto, AMisto> mapaPredchudcu, AMisto zacatek, AMisto konec){
+    private CestaCasti najdiNejkratsiCestuDijkstra(Map<AMisto, GrafVrchol> mapaPredchudcu, AMisto zacatek, AMisto konec){
         CestaCasti nejkratsiCesta = new CestaCasti();
         AMisto konecTrasy = konec;
         AMisto predchudce;
 
         while(true) {
-            predchudce = mapaPredchudcu.get(konecTrasy);
+            predchudce = mapaPredchudcu.get(konecTrasy).getVrchol();
             if(predchudce == null){
                 break;
             }

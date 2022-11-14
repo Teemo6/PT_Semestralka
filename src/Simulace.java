@@ -80,12 +80,10 @@ public class Simulace {
             // Zkontroluj jestli už je možné provést akci
             if(casPozadavek <= simulacniCas){
                 priradPozadavekVelbloudovi();
-                casovaFrontaPozadavku.removeIf(f->false);
                 continue;
             }
             if(casSklad <= simulacniCas){
                 naplnSklady();
-                casovaFrontaSkladu.removeIf(f->false);
                 continue;
             }
             if(casVel <= simulacniCas){
@@ -145,14 +143,15 @@ public class Simulace {
     /**
      * Vygeneruj vhodného velblouda na požadavek
      * TODO: Zatím vybírá "hloupě" podle poměru, vyšší poměr má vyšší prioritu
-     * @param celkovaVzdalenost vzdálenost požadavku
+     * @param cesta cesta po částech
      * @param nejblizsiSklad nejbližší sklad vůči cílové oáze
      * @return velbloud vhodný pro vykonání požadavku
      */
-    public VelbloudSimulace generujVelblouda(double celkovaVzdalenost, AMisto nejblizsiSklad){
+    public VelbloudSimulace generujVelblouda(CestaCasti cesta, AMisto nejblizsiSklad){
         VelbloudSimulace vel = null;
+        double nejdelsiUsek = cesta.getNejdelsiUsek();
         for (VelbloudTyp typ : data.getVelbloudi()) {
-            if (typ.getMinVzdalenost() > celkovaVzdalenost) {
+            if (typ.getMinVzdalenost() > nejdelsiUsek) {
                 vel = typ.generujVelblouda((Sklad)nejblizsiSklad);
                 vel.setCasNaAkci(simulacniCas);
                 casovaFrontaVelbloudu.add(vel);
@@ -266,7 +265,6 @@ public class Simulace {
 
         Map<AMisto, GrafVrchol>mapaPredchudcu = vytvorMapuPredchudcu(zacatek);
 
-
         while(true) {
             predchudce = mapaPredchudcu.get(konecTrasy).getVrchol();
             if(predchudce == null){
@@ -311,22 +309,26 @@ public class Simulace {
         AMisto nejblizsiSklad = data.getSklady().get(0);
         //AMisto nejblizsiSklad = najdiNejblizsiSklad(pozadavekOaza);
         CestaCasti nejkratsiCesta = najdiNejkratsiCestuDijkstra(nejblizsiSklad, pozadavekOaza);
+        double nejdelsiUsekCesty = nejkratsiCesta.getNejdelsiUsek();
 
         // Zkus přiřadit požadavek existujícímu velbloudovi
         for (VelbloudSimulace v : casovaFrontaVelbloudu) {
-            double casNovehoPozadavku = v.jakDlouhoBudeTrvatCestaTam(nejkratsiCesta.getVzdalenost(), dalsiPozadavek.getPozadavekKosu());
-            double casPozadavkuVelblouda = v.kdySeSplniFronta();
+            // TODO dijkstra s limitem cesty??????
+            if(nejdelsiUsekCesty <= v.getMaxVzdalenost()) {
+                double casNovehoPozadavku = v.jakDlouhoBudeTrvatCestaTam(nejkratsiCesta.getVzdalenost(), dalsiPozadavek.getPozadavekKosu());
+                double casPozadavkuVelblouda = v.kdySeSplniFronta();
 
-            if (dalsiPozadavek.getDeadline() - casNovehoPozadavku - simulacniCas - casPozadavkuVelblouda > 0) {
-                pozadavekPrirazen = true;
-                v.priradPozadavek(new VelbloudPozadavek(dalsiPozadavek, nejkratsiCesta), simulacniCas);
-                break;
+                if (dalsiPozadavek.getDeadline() - casNovehoPozadavku - simulacniCas - casPozadavkuVelblouda > 0) {
+                    pozadavekPrirazen = true;
+                    v.priradPozadavek(new VelbloudPozadavek(dalsiPozadavek, nejkratsiCesta), simulacniCas);
+                    break;
+                }
             }
         }
 
         // Vyber nejlepší druh velblouda na cestu, vytvoř ho, přiřaď mu požadavek
         if (!pozadavekPrirazen) {
-            VelbloudSimulace vel = generujVelblouda(nejkratsiCesta.getVzdalenost(), nejblizsiSklad);
+            VelbloudSimulace vel = generujVelblouda(nejkratsiCesta, nejblizsiSklad);
             if(vel != null){
                 pozadavekPrirazen = true;
                 vel.priradPozadavek(new VelbloudPozadavek(dalsiPozadavek, nejkratsiCesta), simulacniCas);

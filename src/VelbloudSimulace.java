@@ -20,8 +20,8 @@ public class VelbloudSimulace{
     private double energie;
     private int pocetKosu;
     private final double casManipulaceKose;
-    private Queue<VelbloudPozadavek> frontaPozadavku;
-    private List<Cesta> cestaPoCastech;
+    private final Queue<VelbloudPozadavek> frontaPozadavku;
+    private final List<Cesta> cestaPoCastech;
 
     private VelbloudAkce vykonavanaAkce;
     private double casNaAkci;
@@ -127,14 +127,15 @@ public class VelbloudSimulace{
 
                 //Pokud muze, tak se premisti do dalsi zastavky
                 else {
-                    energie -= cestaPoCastech.get(aktualniUsek).getVzdalenost();
-                    pozice = cestaPoCastech.get(aktualniUsek).getKonec();
-                    casNaAkci += cestaPoCastech.get(aktualniUsek).getVzdalenost() / rychlost;
 
                     //Kdyz pozice na kterou dosel neni zacatek ani konec pozadavku, tak vypise pruchodovou hlasku
                     if(pozice != domovskySklad && pozice != frontaPozadavku.peek().getPozadavek().getOaza()){
                         vypisPruchodu();
                     }
+
+                    energie -= cestaPoCastech.get(aktualniUsek).getVzdalenost();
+                    pozice = cestaPoCastech.get(aktualniUsek).getKonec();
+                    casNaAkci += cestaPoCastech.get(aktualniUsek).getVzdalenost() / rychlost;
 
                     aktualniUsek++;
 
@@ -169,7 +170,6 @@ public class VelbloudSimulace{
                     //Kdyz nema uz kose na obslouzeni dalsiho pozadavku, tak se vrati
                     if(pocetKosu == 0){
                         vykonavanaAkce = VelbloudAkce.CESTAZPATKY;
-                        vylozenoKosu = 0;
                     }
 
                 }
@@ -234,18 +234,23 @@ public class VelbloudSimulace{
 
                     }
                     else {
-                        energie -= cestaPoCastech.get(aktualniUsek).getVzdalenost();
-                        pozice = cestaPoCastech.get(aktualniUsek).getZacatek();
-                        casNaAkci += cestaPoCastech.get(aktualniUsek).getVzdalenost() / rychlost;
 
                         if(pozice != domovskySklad){
                             vypisPruchodu();
                         }
 
+                        energie -= cestaPoCastech.get(aktualniUsek).getVzdalenost();
+                        pozice = cestaPoCastech.get(aktualniUsek).getZacatek();
+                        casNaAkci += cestaPoCastech.get(aktualniUsek).getVzdalenost() / rychlost;
+
                         aktualniUsek--;
                     }
                 }
                break;
+            case VOLNY:
+                //casNaAkci = Double.MAX_VALUE;
+                casNaAkci = domovskySklad.getCasDalsiAkce();
+                break;
         }
     }
 
@@ -341,10 +346,10 @@ public class VelbloudSimulace{
         int zaokrouhlenyCas = (int)Math.round(casNaAkci);
         int zaokrouhlenyOdchod = (int)Math.round(casNaAkci + dobaPiti);
         if(pozice instanceof Oaza){
-            System.out.println("Velbloud pije \t Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Oaza: " + pozice.getID() + ", Ziznivy " + typ.getNazev() + ", Pokracovani mozne v: " + zaokrouhlenyOdchod);
+            System.out.println("Velbloud pije \t\t Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Oaza: " + pozice.getID() + ", Ziznivy " + typ.getNazev() + ", Pokracovani mozne v: " + zaokrouhlenyOdchod);
         }
         else {
-            System.out.println("Velbloud pije \t Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Sklad: " + pozice.getID() + ", Ziznivy " + typ.getNazev() + ", Pokracovani mozne v: " + zaokrouhlenyOdchod);
+            System.out.println("Velbloud pije \t\t Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Sklad: " + pozice.getID() + ", Ziznivy " + typ.getNazev() + ", Pokracovani mozne v: " + zaokrouhlenyOdchod);
         }
 
     }
@@ -361,6 +366,10 @@ public class VelbloudSimulace{
 
     public void setCasNaAkci(double casNaAkci) {
         this.casNaAkci = casNaAkci;
+    }
+
+    public double getMaxVzdalenost() {
+        return maxVzdalenost;
     }
 
     @Override

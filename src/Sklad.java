@@ -24,7 +24,8 @@ public class Sklad extends AMisto{
         this.casDoplneniSkladu = casDoplneniSkladu;
         this.casNalozeni = casManipulaceKose;
 
-        if(casManipulaceKose <= 0){
+        // Sklad se doplní za čas 0 a doplní se o nenulový počet
+        if(casDoplneniSkladu <= 0 && pocetPrirustek > 0){
             this.pocetKosu = Integer.MAX_VALUE;
             this.casDalsiAkce = Double.MAX_VALUE;
         } else {

@@ -11,6 +11,7 @@ public class CestaCasti {
     AMisto zacatek;
     AMisto konec;
     double vzdalenost;
+    double nejdelsiUsek;
     boolean uzavrena;
 
     /**
@@ -21,6 +22,7 @@ public class CestaCasti {
         zacatek = null;
         konec = null;
         vzdalenost = Double.MAX_VALUE;
+        nejdelsiUsek = 0;
         uzavrena = false;
     }
 
@@ -34,6 +36,9 @@ public class CestaCasti {
         for(Cesta c : cesty){
             seznamCest.add(c);
             vzdalenost += c.getVzdalenost();
+            if(c.getVzdalenost() > nejdelsiUsek){
+                nejdelsiUsek = c.getVzdalenost();
+            }
         }
         uzavrena = true;
         zacatek = seznamCest.get(0).getZacatek();
@@ -54,6 +59,9 @@ public class CestaCasti {
             vzdalenost = 0;
         }
         vzdalenost += c.getVzdalenost();
+        if(c.getVzdalenost() > nejdelsiUsek){
+            nejdelsiUsek = c.getVzdalenost();
+        }
     }
 
     /**
@@ -70,6 +78,9 @@ public class CestaCasti {
             vzdalenost = 0;
         }
         vzdalenost += c.getVzdalenost();
+        if(c.getVzdalenost() > nejdelsiUsek){
+            nejdelsiUsek = c.getVzdalenost();
+        }
     }
 
     /**
@@ -116,6 +127,10 @@ public class CestaCasti {
 
     public double getVzdalenost() {
         return vzdalenost;
+    }
+
+    public double getNejdelsiUsek() {
+        return nejdelsiUsek;
     }
 
     public List<Cesta> getSeznamCest(){

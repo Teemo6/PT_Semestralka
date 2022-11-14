@@ -57,6 +57,22 @@ public class CestaCasti {
     }
 
     /**
+     * Přidá cestu do seznamu
+     * Pokud je CestaCasti uzavřená, neprovede nic
+     * @param c cesta ke přidání
+     */
+    public void pridejCestuNaZacatek(Cesta c){
+        if(uzavrena){
+            return;
+        }
+        seznamCest.add(0, c);
+        if(vzdalenost == Double.MAX_VALUE){
+            vzdalenost = 0;
+        }
+        vzdalenost += c.getVzdalenost();
+    }
+
+    /**
      * Uzavře cestu, poté se nemůže upravovat
      * Nastaví začátek a konec
      */
@@ -90,12 +106,20 @@ public class CestaCasti {
         return new CestaCasti(cestaZpet);
     }
 
+    public List<Cesta> getSeznamCest(){
+        if(uzavrena){
+            return seznamCest;
+        }
+        System.out.println("Nejdrive je potreba uzavrit cestu, vracim prazdny seznam");
+        return new ArrayList<>();
+    }
+
     @Override
     public String toString(){
         StringBuilder str = new StringBuilder();
 
         for(Cesta c : seznamCest){
-            str.append(c.getZacatek().getID()).append(" -> ").append(c.getKonec().getID()).append(", ");
+            str.append(c).append(", ");
         }
 
         return str.toString();

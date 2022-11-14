@@ -50,7 +50,7 @@ public class Simulace {
         vytvorPotrebneMatice();
 
         mapa = vytvorMapu();
-        AMisto sklaaaaad = najdiNejvhodnejsiSkladDijkstra(data.getSklady().get(0));
+        vytvorMapuPredchudcu(data.getMista().get(9));
 
         casovaFrontaPozadavku = new PriorityQueue<>(5, Comparator.comparingDouble(Pozadavek::getCasPrichodu));
         casovaFrontaSkladu = new PriorityQueue<>(5, Comparator.comparingDouble(Sklad::getCasDalsiAkce));
@@ -289,18 +289,19 @@ public class Simulace {
     //////////////////////
 
     /**
-     * Vrátí vzdálenosti všech míst grafu od výchozího bodu
+     * Vytvoří mapu vzdáleností z počátku, Dijkstrův algoritmus
      * @param vychoziBod začínající bod algoritmu
-     * @return seznam mezicest A, B
+     * @return mapa předchůdců
      */
-    public AMisto najdiNejvhodnejsiSkladDijkstra(AMisto vychoziBod){
-        AMisto nejvhodnejsiSklad = null;
+    // TODO dodwelatasdasdasdasfvdxv
+    public Map<AMisto, GrafVrchol> vytvorMapuPredchudcu(AMisto vychoziBod){
         Map<AMisto, Double> mapaVzdalenosti = new HashMap<>();
-        Map<AMisto, CestaCasti> mapaCest = new HashMap<>();
+        Map<AMisto, AMisto> mapaPredchudcu = new HashMap<>();
 
+        // Nastav predchudce na null, vzdalenost na inf
         data.getMista().forEach((k, v) -> {
             mapaVzdalenosti.put(v, Double.MAX_VALUE);
-            mapaCest.put(v, new CestaCasti());
+            mapaPredchudcu.put(v, null);
         });
         mapaVzdalenosti.put(vychoziBod, 0.0);
 
@@ -308,33 +309,76 @@ public class Simulace {
         fronta.add(new GrafVrchol(vychoziBod, 0));
 
         while (fronta.size() > 0) {
-            AMisto prvni = fronta.poll().getVrchol();
+            AMisto predchudce = fronta.poll().getVrchol();
 
-            for (GrafVrchol porovnani : mapa.seznamSousednosti.get(prvni)) {
-                AMisto druhy = porovnani.getVrchol();
-                double porovnaniSoucet = mapaVzdalenosti.get(prvni) + porovnani.getVzdalenost();
+            // Vychozi misto nema zadne sousedy
+            if(mapa.seznamSousednosti.get(predchudce) == null){
+                break;
+            }
 
+            // Projdi vsechny sousedy
+            for (GrafVrchol sousedniVrchol : mapa.seznamSousednosti.get(predchudce)) {
+                AMisto druhy = sousedniVrchol.getVrchol();
+                double porovnaniSoucet = mapaVzdalenosti.get(predchudce) + sousedniVrchol.getVzdalenost();
+
+                // Pokud je cesta kratsi, zapis souseda jako predchudce
                 if (mapaVzdalenosti.get(druhy) > porovnaniSoucet) {
-                    // TODO rekurze, prida se jenom posledni cesta
                     mapaVzdalenosti.put(druhy, porovnaniSoucet);
-                    mapaCest.get(druhy).pridejCestu(new Cesta(prvni, druhy));
+                    mapaPredchudcu.put(druhy, predchudce);
                     fronta.add(new GrafVrchol(druhy, mapaVzdalenosti.get(druhy)));
                 }
             }
         }
 
-        mapaCest.forEach((k, v) -> v.uzavriCestu());
-
         System.out.println("Vzdalenosti:");
         mapaVzdalenosti.forEach((k, v) -> System.out.println(k.getID() + " -> " + v));
         System.out.println();
-        System.out.println("Cesty:");
+        System.out.println("Predchudci:");
+        mapaPredchudcu.forEach((k, v) -> System.out.println(k.getID() + ": " + v));
+        System.out.println();
+
+
+        Map<AMisto, CestaCasti> mapaCest = new HashMap<>();
+        mapaPredchudcu.forEach((k, v) -> mapaCest.put(k, najdiNejkratsiCestuDijkstra(mapaPredchudcu, vychoziBod, k)));
+
+        System.out.println("Cesty cely:");
         mapaCest.forEach((k, v) -> System.out.println(k.getID() + ": " + v));
         System.out.println();
 
-        return nejvhodnejsiSklad;
+        return null;
     }
 
+    /**
+     * Vrátí nejkratší cestu mezi dvěmi body
+     * @param zacatek počáteční bod
+     * @param konec koncový bod
+     * @return cesta po částech
+     */
+    private CestaCasti najdiNejkratsiCestuDijkstra(Map<AMisto, AMisto> mapaPredchudcu, AMisto zacatek, AMisto konec){
+        CestaCasti nejkratsiCesta = new CestaCasti();
+        AMisto konecTrasy = konec;
+        AMisto predchudce;
+
+        while(true) {
+            predchudce = mapaPredchudcu.get(konecTrasy);
+            if(predchudce == null){
+                break;
+            }
+            nejkratsiCesta.pridejCestuNaZacatek(new Cesta(predchudce, konecTrasy));
+            if (predchudce == zacatek) {
+                break;
+            }
+            konecTrasy = predchudce;
+        }
+        nejkratsiCesta.uzavriCestu();
+
+        return nejkratsiCesta;
+    }
+
+    /**
+     * Vytvoří graf jako spojový seznam
+     * @return mapa grafu
+     */
     private GrafMapa vytvorMapu(){
         GrafMapa novaMapa = new GrafMapa();
 

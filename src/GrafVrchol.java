@@ -32,4 +32,9 @@ public class GrafVrchol {
     public double getVzdalenost() {
         return vzdalenost;
     }
+
+    @Override
+    public String toString() {
+        return "Misto = " + vrchol + ", dist = " + vzdalenost;
+    }
 }

@@ -53,10 +53,6 @@ public class Cesta {
 
     @Override
     public String toString() {
-        return "Cesta{" +
-                "ID mistoA=" + zacatek.getID() +
-                ", ID mistoB=" + konec.getID() +
-                ", vzdalenost=" + vzdalenost +
-                '}';
+        return getZacatek().getID() + " -> " + getKonec().getID();
     }
 }

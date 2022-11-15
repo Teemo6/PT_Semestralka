@@ -26,12 +26,11 @@
 7 8
 8 1
 🐪 Pocet druhu velbloudu D: 🏜
-4
+3
 🐪 Definice velblouda (nazev, minimalni rychlost, maximalni rychlost, minimalni vzdalenost, maximalni vzdalenost, doba piti, maximalni zatizeni a procentualni pomer druhu velblouda)  🏜
-Pomaly 1 1 1000 1000 0 1 0.5
-Ziznivy 10 10 1 1 10 1 0.5
-Zilinbznivy 10 10 1 1 10 1 0.2
-Ziznisdavy 10 10 1 1 10 1 0.3
+Typ05 1 1 1000 1000 0 1 0.5
+Typ03 10 10 1 1 10 1 0.3
+Typ02 10 10 1 1 10 1 0.2
 🐪 Pocet pozadavku P: 🏜
 7
 🐪 Definice pozadavku (kazda oaza chce jeden kos, moc na to nespechaji) 🏜

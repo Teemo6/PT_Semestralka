@@ -3,7 +3,7 @@ import java.util.*;
 /**
  * Instance třídy {@code Simulace} představuje jedináčka ve kterém běží celá simulace
  * @author Mikuláš Mach, Štěpán Faragula
- * @version 1.22 14-11-2022
+ * @version 1.23 15-11-2022
  */
 public class Simulace {
     /** Instance jedináčka Simulace */
@@ -17,6 +17,9 @@ public class Simulace {
 
     /** Reprezentace grafu */
     GrafMapa mapa;
+
+    /** Generátor velbloudů */
+    VelbloudGenerator velGen;
 
     /** Práce s časem */
     double simulacniCas = 0;
@@ -39,11 +42,8 @@ public class Simulace {
      */
     public void spustSimulaci(VstupDat data){
         this.data = data;
-
-
-
-        mapa = vytvorMapu();
-        vytvorMapuPredchudcu(data.getMista().get(1));
+        this.velGen = new VelbloudGenerator(data.getVelbloudi());
+        this.mapa = vytvorMapu();
 
         casovaFrontaPozadavku = new PriorityQueue<>(5, Comparator.comparingDouble(Pozadavek::getCasPrichodu));
         casovaFrontaSkladu = new PriorityQueue<>(5, Comparator.comparingDouble(Sklad::getCasDalsiAkce));
@@ -94,10 +94,11 @@ public class Simulace {
                 continue;
             }
 
-            // Zkontroluj jestli nemá jeden požadavek po deadline
+            // Ukonči simulaci pokud má požadavek po deadline
             Pozadavek neobslouzeny = neobslouzenyPozadavek();
             if(neobslouzeny != null){
-                ukonciSimulaci(neobslouzeny.getOaza());
+                System.out.println("Cas: "+ (int)simulacniCas +", Oaza: "+ ((Oaza)neobslouzeny.getOaza()).getIDOaza() +", Vsichni vymreli, Harpagon zkrachoval, Konec simulace");
+                return;
             }
 
             // Nastav simulační čas na další nejbližsí událost
@@ -142,19 +143,31 @@ public class Simulace {
 
     /**
      * Vygeneruj vhodného velblouda na požadavek
-     * TODO: Zatím vybírá "hloupě" podle poměru, vyšší poměr má vyšší prioritu
      * @param cesta cesta po částech
      * @param nejblizsiSklad nejbližší sklad vůči cílové oáze
      * @return velbloud vhodný pro vykonání požadavku
      */
     public VelbloudSimulace generujVelblouda(CestaCasti cesta, AMisto nejblizsiSklad){
-        VelbloudSimulace vel = null;
+        Map<VelbloudTyp, Boolean> uzTenhleTypByl = new HashMap<>();
         double nejdelsiUsek = cesta.getNejdelsiUsek();
-        for (VelbloudTyp typ : data.getVelbloudi()) {
-            if (typ.getMinVzdalenost() > nejdelsiUsek) {
-                vel = typ.generujVelblouda((Sklad)nejblizsiSklad);
+        VelbloudSimulace vel = null;
+
+        for(VelbloudTyp v : data.getVelbloudi()){
+            uzTenhleTypByl.put(v, false);
+        }
+
+        // TODO debug
+        while(uzTenhleTypByl.containsValue(false)){
+            VelbloudTyp dalsiTyp = velGen.dalsiVelbloudPodlePomeru();
+
+            vel = velGen.generujVelblouda((Sklad)nejblizsiSklad);
+            casovaFrontaVelbloudu.add(vel);
+            uzTenhleTypByl.put(dalsiTyp, true);
+
+            if (dalsiTyp.getMinVzdalenost() > nejdelsiUsek) {
                 vel.setCasNaAkci(simulacniCas);
-                casovaFrontaVelbloudu.add(vel);
+            } else {
+                vel.setCasNaAkci(Double.MAX_VALUE);
             }
         }
         return vel;
@@ -197,15 +210,6 @@ public class Simulace {
             }
         }
         return true;
-    }
-
-    /**
-     * Ukonči simulaci neúspěchem
-     * @param oaza oáza která zkrachovala Harpagona
-     */
-    public void ukonciSimulaci(AMisto oaza){
-        System.out.println("Cas: "+ (int)simulacniCas +", Oaza: "+ ((Oaza)oaza).getIDOaza() +", Vsichni vymreli, Harpagon zkrachoval, Konec simulace");
-        System.exit(1);
     }
 
     //////////////////////
@@ -288,10 +292,9 @@ public class Simulace {
     private GrafMapa vytvorMapu(){
         GrafMapa novaMapa = new GrafMapa();
 
-        for(CestaSymetricka cesta : data.getCesty()){
+        for(Cesta cesta : data.getCesty()){
             novaMapa.pridejVrchol(cesta);
         }
-
         return novaMapa;
     }
 

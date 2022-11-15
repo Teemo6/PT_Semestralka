@@ -38,22 +38,6 @@ public class VelbloudTyp {
     }
 
     /**
-     * Vytvoří velblouda podle typu na pozici skladu
-     * @param domaciSklad domácí sklad
-     * @return velbloud v simulaci
-     */
-    public VelbloudSimulace generujVelblouda(Sklad domaciSklad){
-        Random random = new Random();
-        double rychlost = random.nextDouble() * (maxRychlost - minRychlost) + minRychlost;
-
-        double stredniHodnota = (minVzdalenost + maxVzdalenost) / 2;          // podle zadání
-        double smerodatnaOdchylka = (maxVzdalenost - minVzdalenost) / 4;      // podle zadání
-        double vzdalenost = random.nextGaussian() * smerodatnaOdchylka + stredniHodnota;
-
-        return new VelbloudSimulace(domaciSklad, rychlost, vzdalenost, this);
-    }
-
-    /**
      * Vrátí název druhu
      * @return název druhu
      */
@@ -123,15 +107,6 @@ public class VelbloudTyp {
      */
     @Override
     public String toString() {
-        return "VelbloudTyp{" +
-                "nazev='" + nazev + '\'' +
-                ", minRychlost=" + minRychlost +
-                ", maxRychlost=" + maxRychlost +
-                ", minVzdalenost=" + minVzdalenost +
-                ", maxVzdalenost=" + maxVzdalenost +
-                ", casNapit=" + casNapit +
-                ", maxKose=" + maxKose +
-                ", pomer=" + pomer +
-                '}';
+        return "typ = " + nazev;
     }
 }

@@ -6,7 +6,7 @@ import java.util.Queue;
 /**
  * Instance třídy {@code VelbloudSimulace} představuje konkrétního velblouda vykonávajícího požadavky
  * @author Mikuláš Mach, Štěpán Faragula
- * @version 1.20 06-11-2022
+ * @version 1.23 15-11-2022
  */
 public class VelbloudSimulace{
     private AMisto pozice;

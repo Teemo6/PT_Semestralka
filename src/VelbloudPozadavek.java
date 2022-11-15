@@ -2,7 +2,7 @@
  * Instance třídy {@code VelbloudPozadavek} představuje požadavek,
  * který je předán velbloudovi do fronty ke splnění
  * @author Mikuláš Mach, Štěpán Faragula
- * @version 1.20 06-11-2022
+ * @version 1.23 15-11-2022
  */
 public class VelbloudPozadavek {
     private final Pozadavek pozadavek;

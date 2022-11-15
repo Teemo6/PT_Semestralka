@@ -4,7 +4,7 @@ import java.io.*;
 /**
  * Instance třídy {@code VstupDat} představuje jedináčka, který umí přečíst vstupní soubor a vybrat potřebná data
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.20 06-11-2022
+ * @version 1.23 15-11-2022
  */
 public class VstupDat{
     /** Instance jedináčka VstupDat */
@@ -19,7 +19,7 @@ public class VstupDat{
     /** Vytvořené objekty */
     private List<Sklad> sklady;
     private List<Oaza> oazy;
-    private Set<CestaSymetricka> cesty;
+    private List<Cesta> cesty;
     private List<VelbloudTyp> velbloudi;
     private List<Pozadavek> pozadavky;
     private Map<Integer, AMisto> mista;
@@ -40,11 +40,13 @@ public class VstupDat{
      * @param vstupniSoubor soubor ke čtení, předává se privátní metodě vyberValidniData()
      */
     public void vytvorObjekty(String vstupniSoubor){
+        long a = System.currentTimeMillis();
         List<String> validniData = vyberValidniData(vstupniSoubor);
+        System.out.println("\nData nactena v case: " + (System.currentTimeMillis() - a) + " ms.\n");
 
         sklady = new ArrayList<>();
         oazy = new ArrayList<>();
-        cesty = new HashSet<>();
+        cesty = new ArrayList<>();
         velbloudi = new ArrayList<>();
         pozadavky = new ArrayList<>();
         mista = new HashMap<>();
@@ -66,9 +68,6 @@ public class VstupDat{
             System.out.println("\nSoubor nema pozadovanou strukturu.");
             System.exit(1);
         }
-
-        // TODO Sežazení sestupně podle poměru pro budoucí generování, hloupé
-        velbloudi.sort(Comparator.comparingDouble(VelbloudTyp::getPomer).reversed());
     }
 
     /**
@@ -91,7 +90,7 @@ public class VstupDat{
      * Vrátí vytvořené cesty
      * @return cesty
      */
-    public Set<CestaSymetricka> getCesty() {
+    public List<Cesta> getCesty() {
         return cesty;
     }
 
@@ -318,7 +317,7 @@ public class VstupDat{
              int zacatekCesty = Integer.parseInt(validniData.get(index));
              int konecCesty = Integer.parseInt(validniData.get(index + 1));
 
-             CestaSymetricka cesta = new CestaSymetricka(mista.get(zacatekCesty), mista.get(konecCesty));
+             Cesta cesta = new Cesta(mista.get(zacatekCesty), mista.get(konecCesty));
              cesty.add(cesta);
          }
      }

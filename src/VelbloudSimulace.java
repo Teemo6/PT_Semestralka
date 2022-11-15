@@ -18,19 +18,29 @@ public class VelbloudSimulace{
     private final VelbloudTyp typ;
 
     private double energie;
+    /** Určuje kolik aktuálně velbloud nese košů*/
     private int pocetKosu;
+    /** Určuje jak dlouho trvá naložit/vyložit koš*/
     private final double casManipulaceKose;
+    /** Fronta všech požadavků co má velbloud obloužit*/
     private final Queue<VelbloudPozadavek> frontaPozadavku;
+    /** ArrayList všech jednotlivých úseků, které vedou ze skladu do cílové oázy*/
     private final List<Cesta> cestaPoCastech;
 
     private VelbloudAkce vykonavanaAkce;
+    /** Simulační čas kdy má být velbloud znovu obsloužen*/
     private double casNaAkci;
     private int aktualniUsek = 0;
 
+    /** Simulační čas začátku nakládání*/
     private double zacatekNakladani;
+    /** Simulační čas začátku vykládání*/
     private double zacatekVykladani;
+    /** Vypočtený simulační čas chvíle, kdy velbloud dokončí nakládání a vyrazí na cestu*/
     private double casOdchodu = 0;
+    /** Vypočtený simulační čas chvíle, kdy velbloud vyloží všechny koše, které má doručit na dané místo*/
     private double konecVykladani;
+    /** Počet košů, které velbloud vyložil během jedné cesty na daném místě*/
     private int vylozenoKosu;
 
     private static int pocetVelbloudu;
@@ -58,13 +68,7 @@ public class VelbloudSimulace{
         this.ID = pocetVelbloudu;
     }
 
-    /**
-     * Dá napít velbloudovi
-     */
-    private void napiSe(){
-        setEnergie(maxVzdalenost);
-        casNaAkci += dobaPiti;
-    }
+
 
     /**
      * Funkce volana simulaci,
@@ -328,42 +332,6 @@ public class VelbloudSimulace{
         return casNaAkci;
     }
 
-    private void vypisNakladani(){
-        int zaokrouhlenyCas = (int)Math.round(casNaAkci);
-        int zaokrouhlenyOdchod = (int)Math.round(casOdchodu);
-        System.out.println("Velbloud naklada \t Cas: " + zaokrouhlenyCas +", Velbloud: " + ID + ", Sklad: " + domovskySklad.getID() + ", Nalozeno kosu: " + pocetKosu +", Odchod v: " + zaokrouhlenyOdchod );
-
-    }
-
-    private void vypisVykladani(){
-        int zaokrouhlenyCas = (int)Math.round(casNaAkci);
-        int zaokrouhlenyVykladani = (int)Math.round(konecVykladani);
-        int zaokrouhlenaRezerva = (int)Math.round(frontaPozadavku.peek().getPozadavek().getDeadline() - casNaAkci);
-        System.out.println("Velbloud vyklada \t Cas: " + zaokrouhlenyCas + ", Velbloud: "+ ID + ", Oaza: "+ pozice.getID() + ", Vylozeno kosu: "+ vylozenoKosu + ", Vylozeno v: " + zaokrouhlenyVykladani + ", Casova rezerva: " + zaokrouhlenaRezerva);
-    }
-
-    private void vypisPiti(AMisto pozice){
-        int zaokrouhlenyCas = (int)Math.round(casNaAkci);
-        int zaokrouhlenyOdchod = (int)Math.round(casNaAkci + dobaPiti);
-        if(pozice instanceof Oaza){
-            System.out.println("Velbloud pije \t\t Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Oaza: " + pozice.getID() + ", Ziznivy " + typ.getNazev() + ", Pokracovani mozne v: " + zaokrouhlenyOdchod);
-        }
-        else {
-            System.out.println("Velbloud pije \t\t Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Sklad: " + pozice.getID() + ", Ziznivy " + typ.getNazev() + ", Pokracovani mozne v: " + zaokrouhlenyOdchod);
-        }
-
-    }
-
-    private void vypisNavratu(){
-        int zaokrouhlenyCas = (int)Math.round(casNaAkci);
-        System.out.println("Velbloud se vratil \t Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Navrat do skladu: " + domovskySklad.getID());
-    }
-
-    private void vypisPruchodu(){
-        int zaokrouhlenyCas = (int)Math.round(casNaAkci);
-        System.out.println("Kuk na velblouda \t Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Oaza: " + pozice.getID() + ", Kuk na velblouda");
-    }
-
     public void setCasNaAkci(double casNaAkci) {
         this.casNaAkci = casNaAkci;
     }
@@ -396,5 +364,64 @@ public class VelbloudSimulace{
      */
     private void zvysID(){
         pocetVelbloudu++;
+    }
+
+    /**
+     * Dá napít velbloudovi
+     */
+    private void napiSe(){
+        setEnergie(maxVzdalenost);
+        casNaAkci += dobaPiti;
+    }
+
+    /**
+     * Vypíše do konzole stav nakládání
+     */
+    private void vypisNakladani(){
+        int zaokrouhlenyCas = (int)Math.round(casNaAkci);
+        int zaokrouhlenyOdchod = (int)Math.round(casOdchodu);
+        System.out.println("Velbloud naklada \t Cas: " + zaokrouhlenyCas +", Velbloud: " + ID + ", Sklad: " + domovskySklad.getID() + ", Nalozeno kosu: " + pocetKosu +", Odchod v: " + zaokrouhlenyOdchod );
+
+    }
+
+    /**
+     * Vypíše do konzole stav vykládání
+     */
+    private void vypisVykladani(){
+        int zaokrouhlenyCas = (int)Math.round(casNaAkci);
+        int zaokrouhlenyVykladani = (int)Math.round(konecVykladani);
+        int zaokrouhlenaRezerva = (int)Math.round(frontaPozadavku.peek().getPozadavek().getDeadline() - casNaAkci);
+        System.out.println("Velbloud vyklada \t Cas: " + zaokrouhlenyCas + ", Velbloud: "+ ID + ", Oaza: "+ pozice.getID() + ", Vylozeno kosu: "+ vylozenoKosu + ", Vylozeno v: " + zaokrouhlenyVykladani + ", Casova rezerva: " + zaokrouhlenaRezerva);
+    }
+
+    /**
+     * Vypíše do konzole průbeh pití
+     */
+    private void vypisPiti(AMisto pozice){
+        int zaokrouhlenyCas = (int)Math.round(casNaAkci);
+        int zaokrouhlenyOdchod = (int)Math.round(casNaAkci + dobaPiti);
+        if(pozice instanceof Oaza){
+            System.out.println("Velbloud pije \t\t Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Oaza: " + pozice.getID() + ", Ziznivy " + typ.getNazev() + ", Pokracovani mozne v: " + zaokrouhlenyOdchod);
+        }
+        else {
+            System.out.println("Velbloud pije \t\t Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Sklad: " + pozice.getID() + ", Ziznivy " + typ.getNazev() + ", Pokracovani mozne v: " + zaokrouhlenyOdchod);
+        }
+
+    }
+
+    /**
+     * Vypíše do konzole návrat velblouda
+     */
+    private void vypisNavratu(){
+        int zaokrouhlenyCas = (int)Math.round(casNaAkci);
+        System.out.println("Velbloud se vratil \t Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Navrat do skladu: " + domovskySklad.getID());
+    }
+
+    /**
+     * Vypíše do konzole, že velbloud prochází oázou
+     */
+    private void vypisPruchodu(){
+        int zaokrouhlenyCas = (int)Math.round(casNaAkci);
+        System.out.println("Kuk na velblouda \t Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Oaza: " + pozice.getID() + ", Kuk na velblouda");
     }
 }

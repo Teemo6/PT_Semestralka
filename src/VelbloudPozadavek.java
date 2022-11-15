@@ -6,10 +6,9 @@
  */
 public class VelbloudPozadavek {
     private final Pozadavek pozadavek;
-    //private final List<Cesta> cestaPoCastech;
-    private CestaCasti cestaCasti;
+    private final CestaCasti cestaCasti;
 
-    private double celkovaVzdalenostCesty;
+    private final double celkovaVzdalenostCesty;
     private int splnenoKosu;
     private final int pocetPotrebnychKosu;
 

@@ -40,9 +40,7 @@ public class VstupDat{
      * @param vstupniSoubor soubor ke čtení, předává se privátní metodě vyberValidniData()
      */
     public void vytvorObjekty(String vstupniSoubor){
-        long a = System.currentTimeMillis();
         List<String> validniData = vyberValidniData(vstupniSoubor);
-        System.out.println("\nData nactena v case: " + (System.currentTimeMillis() - a) + " ms.\n");
 
         sklady = new ArrayList<>();
         oazy = new ArrayList<>();
@@ -55,15 +53,9 @@ public class VstupDat{
         try {
             vytvorSklady(validniData);
             vytvorOazy(validniData);
-
-            // Napln mapu mista
-            sklady.forEach(s -> mista.put(s.getID(), s));
-            oazy.forEach(o -> mista.put(o.getID(), o));
-
             vytvorCesty(validniData);
             vytvorVelbloudy(validniData);
             vytvorPozadavky(validniData);
-
         } catch (Exception e){
             System.out.println("\nSoubor nema pozadovanou strukturu.");
             System.exit(1);
@@ -143,14 +135,14 @@ public class VstupDat{
              br = new BufferedReader(new FileReader(vstupniSoubor));
              validniData = vyparsujData(br);
          } catch (IOException e) {
-             System.out.println("\nNepovedlo se precist soubor.");
+             System.out.println("\nNepovedlo se najit soubor.");
              System.exit(1);
          } finally {
              if(br != null){
                  try{
                     br.close();
                  } catch (IOException e){
-                     System.out.println("\nNepovedlo se najit soubor.");
+                     System.out.println("\nNepovedlo se precist soubor.");
                      System.exit(1);
                  }
              }
@@ -283,6 +275,7 @@ public class VstupDat{
 
              Sklad sklad = new Sklad(new DoubleVector2D(x, y), pocetKosu, dobaDoplneniTs, dobaDoplneniTn);
              sklady.add(sklad);
+             mista.put(sklad.getID(), sklad);
          }
      }
 
@@ -301,6 +294,7 @@ public class VstupDat{
 
              Oaza oaza = new Oaza(new DoubleVector2D(x,y));
              oazy.add(oaza);
+             mista.put(oaza.getID(), oaza);
          }
      }
 

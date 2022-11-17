@@ -45,6 +45,12 @@ public class CestaCasti {
         konec = seznamCest.get(seznamCest.size() - 1).getKonec();
     }
 
+    public static CestaCasti nekonecnaCesta(){
+        CestaCasti c = new CestaCasti();
+        c.uzavriCestu();
+        return c;
+    }
+
     /**
      * Přidá cestu do seznamu
      * Pokud je CestaCasti uzavřená, neprovede nic

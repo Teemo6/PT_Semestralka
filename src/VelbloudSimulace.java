@@ -79,181 +79,36 @@ public class VelbloudSimulace{
 
         switch (vykonavanaAkce){
 
-            /*  -------------------- */
-            /*  Nakladani Velblouda  */
-            /*  -------------------- */
             case NAKLADANI:
 
-                //Pokud je velbloud dostatecne/maximalne nalozen, tak vypise posledni vypis o nakladani a prejde do stavu cesta
-                if(pocetKosu == frontaPozadavku.peek().getPozadavek().getPozadavekKosu() || pocetKosu == maxPocetKosu){
-                    vypisNakladani();
-                    vykonavanaAkce = VelbloudAkce.CESTA;
-                }
-
-                else{
-
-                    //Kdyz velbloud neni plne nalozen, tak nalozi dalsi kos
-                    if((pocetKosu < frontaPozadavku.peek().getPozadavek().getPozadavekKosu() || pocetKosu < maxPocetKosu) && domovskySklad.getPocetKosu() > 0) {
-
-                        if (pocetKosu == 0) {
-
-                            cestaPoCastech.addAll(frontaPozadavku.peek().getCestaCasti().getSeznamCest());
-
-                            zacatekNakladani = casNaAkci;
-                            casOdchodu = zacatekNakladani + domovskySklad.getCasNalozeni() * (Math.min(maxPocetKosu, frontaPozadavku.peek().getPozadavek().getPozadavekKosu()));
-                        }
-
-                        vypisNakladani();
-
-                        pocetKosu++;
-                        domovskySklad.odeberKos();
-                        casNaAkci += domovskySklad.getCasNalozeni();
-                    }
-
-                    //Ceka na naplneni skladu
-                    else{
-                        casNaAkci = domovskySklad.getCasDalsiAkce();
-                    }
-                }
-
+                obsluhaNakladani();
                 break;
 
-            /*  -------------  */
-            /*  Cesta do cile  */
-            /*  -------------  */
             case CESTA:
 
-                //Kdyz nema energii na dalsi usek trasy, tak se napije
-                if(energie < cestaPoCastech.get(aktualniUsek).getVzdalenost() ){
-                    vypisPiti(pozice);
-                    napiSe();
-                }
-
-                //Pokud muze, tak se premisti do dalsi zastavky
-                else {
-
-                    //Kdyz pozice na kterou dosel neni zacatek ani konec pozadavku, tak vypise pruchodovou hlasku
-                    if(pozice != domovskySklad && pozice != frontaPozadavku.peek().getPozadavek().getOaza()){
-                        vypisPruchodu();
-                    }
-
-                    energie -= cestaPoCastech.get(aktualniUsek).getVzdalenost();
-                    pozice = cestaPoCastech.get(aktualniUsek).getKonec();
-                    casNaAkci += cestaPoCastech.get(aktualniUsek).getVzdalenost() / rychlost;
-
-                    aktualniUsek++;
-
-                    //Kdyz pri urazeni aktualniho useku bude v cili, tak prejde do stavu vykladani
-                    if(aktualniUsek == cestaPoCastech.size()){
-                        vykonavanaAkce = VelbloudAkce.VYKLADANI;
-
-                        aktualniUsek--;
-                    }
-                }
-
+                obsluhaCesty();
                 break;
-
-            /*  ---------  */
-            /*  Vykladani  */
-            /*  ---------  */
 
             case VYKLADANI:
 
-                //Kdyz se zacne nakladani, ulozi si cas zacatku a vypocita konec
-                if(vylozenoKosu == 0){
-                    zacatekVykladani = casNaAkci;
-                    konecVykladani = zacatekVykladani + domovskySklad.getCasNalozeni() * (Math.min(maxPocetKosu, frontaPozadavku.peek().getPozadavek().getPozadavekKosu()));
-                }
-
-                //Zkontroluje zda je pozadavek splnen
-                if(frontaPozadavku.peek().zkontrolujSplnenyPozadavek()){
-                    vypisVykladani();
-                    frontaPozadavku.remove();
-                    vylozenoKosu = 0;
-
-                    //Kdyz nema uz kose na obslouzeni dalsiho pozadavku, tak se vrati
-                    if(pocetKosu == 0){
-                        vykonavanaAkce = VelbloudAkce.CESTAZPATKY;
-                    }
-
-                }
-
-                //Pokud pozadavek jeste neni splnen, proved
-                else {
-
-                    //Pokud pocet kosu je 0, tak se vrat zpatky pro dalsi kose
-                    //TODO TADYBUDE PROBLEM BLBECKU
-                    //TODO Pri obsluze jednoho pozadavku vice velbloudy to nebude fungovat
-                    if(pocetKosu == 0){
-                        vykonavanaAkce = VelbloudAkce.CESTAZPATKY;
-                        vylozenoKosu = 0;
-                    }
-                    //TODO TADYBUDE PROBLEM BLBECKU
-
-                    //Pokud ma velblouc co vykladat, tak to vylozi (vyklada po jednom kosi a udela vypis)
-                    else {
-                        vypisVykladani();
-
-                        casNaAkci += domovskySklad.getCasNalozeni();
-                        frontaPozadavku.peek().doruceneKose(1);
-                        pocetKosu--;
-                        vylozenoKosu++;
-                    }
-
-                }
-
+                obsluhaVykladani();
                 break;
-
-            /*  ---------------  */
-            /*  Cesta do zpatky  */
-            /*  ---------------  */
 
             //Vicemene stejne jako CESTA
             case CESTAZPATKY:
 
-                //Pokud velbloud obslouzil zadane pozadavky, uvolni ho
-                if(aktualniUsek == -1){
-                    vypisNavratu();
-
-                    cestaPoCastech.clear();
-
-                    aktualniUsek++;
-                    if(frontaPozadavku.isEmpty()){
-                        casNaAkci = Double.MAX_VALUE;
-                        vykonavanaAkce = VelbloudAkce.VOLNY;
-                    }
-                    else {
-                        vykonavanaAkce = VelbloudAkce.NAKLADANI;
-                    }
-                    //TODO
-
-                }
-
-                else {
-
-                    if(energie < cestaPoCastech.get(aktualniUsek).getVzdalenost()){
-
-                        vypisPiti(pozice);
-                        napiSe();
-
-                    }
-                    else {
-
-                        if(pozice != domovskySklad){
-                            vypisPruchodu();
-                        }
-
-                        energie -= cestaPoCastech.get(aktualniUsek).getVzdalenost();
-                        pozice = cestaPoCastech.get(aktualniUsek).getZacatek();
-                        casNaAkci += cestaPoCastech.get(aktualniUsek).getVzdalenost() / rychlost;
-
-                        aktualniUsek--;
-                    }
-                }
+                obsluhaCestyZpet();
                break;
+
             case VOLNY:
                 //casNaAkci = Double.MAX_VALUE;
                 casNaAkci = domovskySklad.getCasDalsiAkce();
+                break;
+
+            //Nemelo by nikdy nastat
+            default:
+
+                System.out.println("CHYBA");
                 break;
         }
     }
@@ -342,22 +197,181 @@ public class VelbloudSimulace{
 
     @Override
     public String toString() {
-        return "VelbloudSimulace{" +
-                "ID=" + ID +
-                ", casAkce=" + casNaAkci +
-                ", pozice=" + pozice.getID() +
-                ", rychlost=" + rychlost +
-                ", maxVzdalenost=" + maxVzdalenost +
-                ", dobaPiti=" + dobaPiti +
-                ", maxPocetKosu=" + maxPocetKosu +
-                ", energie=" + energie +
-                ", pocetKosu=" + pocetKosu +
-                '}';
+        return "ID=" + ID + ", typ=" + typ.getNazev();
     }
 
     //////////////////////
     //* Private metody *//
     //////////////////////
+
+    /**
+     * Kontroluje zda má být velbloud naložen, pokud ano a jsou ve skladu koše, tak ho naloží,
+     * pokud nejsou koše, tak na ně počká a pokud už je naložen tak ho přepne do stavu CESTA
+     */
+    private void obsluhaNakladani(){
+
+        //Pokud je velbloud dostatecne/maximalne nalozen, tak vypise posledni vypis o nakladani a prejde do stavu cesta
+        if(pocetKosu == frontaPozadavku.peek().getPozadavek().getPozadavekKosu() || pocetKosu == maxPocetKosu){
+            vypisNakladani();
+            vykonavanaAkce = VelbloudAkce.CESTA;
+        }
+
+        else{
+
+            //Kdyz velbloud neni plne nalozen, tak nalozi dalsi kos
+            if((pocetKosu < frontaPozadavku.peek().getPozadavek().getPozadavekKosu() || pocetKosu < maxPocetKosu) && domovskySklad.getPocetKosu() > 0) {
+
+                if (pocetKosu == 0) {
+
+                    cestaPoCastech.addAll(frontaPozadavku.peek().getCestaCasti().getSeznamCest());
+
+                    zacatekNakladani = casNaAkci;
+                    casOdchodu = zacatekNakladani + domovskySklad.getCasNalozeni() * (Math.min(maxPocetKosu, frontaPozadavku.peek().getPozadavek().getPozadavekKosu()));
+                }
+
+                vypisNakladani();
+
+                pocetKosu++;
+                domovskySklad.odeberKos();
+                casNaAkci += domovskySklad.getCasNalozeni();
+            }
+
+            //Ceka na naplneni skladu
+            else{
+                casNaAkci = domovskySklad.getCasDalsiAkce();
+            }
+        }
+
+    }
+
+    /**
+     * Kontroluje, zda velbloud může ujít následující úsek cesty, pokud ne tak nechá velblouda napít,
+     * pokud ano, tak velblouda přemístí na další pozici. Pokud další pozice není cíl, tak vypíše průchod
+     * a pokud další pozice je cíl, tak velbloud přejde do stavu vykládání.
+     */
+    private void obsluhaCesty(){
+
+        //Kdyz nema energii na dalsi usek trasy, tak se napije
+        if(energie < cestaPoCastech.get(aktualniUsek).getVzdalenost() ){
+            vypisPiti(pozice);
+            napiSe();
+        }
+
+        //Pokud muze, tak se premisti do dalsi zastavky
+        else {
+
+            //Kdyz pozice na kterou dosel neni zacatek ani konec pozadavku, tak vypise pruchodovou hlasku
+            if(pozice != domovskySklad && pozice != frontaPozadavku.peek().getPozadavek().getOaza()){
+                vypisPruchodu();
+            }
+
+            energie -= cestaPoCastech.get(aktualniUsek).getVzdalenost();
+            pozice = cestaPoCastech.get(aktualniUsek).getKonec();
+            casNaAkci += cestaPoCastech.get(aktualniUsek).getVzdalenost() / rychlost;
+
+            aktualniUsek++;
+
+            //Kdyz pri urazeni aktualniho useku bude v cili, tak prejde do stavu vykladani
+            if(aktualniUsek == cestaPoCastech.size()){
+                vykonavanaAkce = VelbloudAkce.VYKLADANI;
+
+                aktualniUsek--;
+            }
+        }
+
+    }
+
+    private void obsluhaCestyZpet(){
+
+        //Pokud velbloud obslouzil zadane pozadavky, uvolni ho
+        if(aktualniUsek == -1){
+            vypisNavratu();
+
+            cestaPoCastech.clear();
+
+            aktualniUsek++;
+            if(frontaPozadavku.isEmpty()){
+                casNaAkci = Double.MAX_VALUE;
+                vykonavanaAkce = VelbloudAkce.VOLNY;
+            }
+            else {
+                vykonavanaAkce = VelbloudAkce.NAKLADANI;
+            }
+            //TODO
+
+        }
+
+        else {
+
+            if(energie < cestaPoCastech.get(aktualniUsek).getVzdalenost()){
+
+                vypisPiti(pozice);
+                napiSe();
+
+            }
+            else {
+
+                if(pozice != domovskySklad){
+                    vypisPruchodu();
+                }
+
+                energie -= cestaPoCastech.get(aktualniUsek).getVzdalenost();
+                pozice = cestaPoCastech.get(aktualniUsek).getZacatek();
+                casNaAkci += cestaPoCastech.get(aktualniUsek).getVzdalenost() / rychlost;
+
+                aktualniUsek--;
+            }
+        }
+
+    }
+
+    private void obsluhaVykladani(){
+
+        //Kdyz se zacne nakladani, ulozi si cas zacatku a vypocita konec
+        if(vylozenoKosu == 0){
+            zacatekVykladani = casNaAkci;
+            konecVykladani = zacatekVykladani + domovskySklad.getCasNalozeni() * (Math.min(maxPocetKosu, frontaPozadavku.peek().getPozadavek().getPozadavekKosu()));
+        }
+
+        //Zkontroluje zda je pozadavek splnen
+        if(frontaPozadavku.peek().zkontrolujSplnenyPozadavek()){
+            vypisVykladani();
+            frontaPozadavku.remove();
+            vylozenoKosu = 0;
+
+            //Kdyz nema uz kose na obslouzeni dalsiho pozadavku, tak se vrati
+            if(pocetKosu == 0){
+                vykonavanaAkce = VelbloudAkce.CESTAZPATKY;
+            }
+
+        }
+
+        //Pokud pozadavek jeste neni splnen, proved
+        else {
+
+            //Pokud pocet kosu je 0, tak se vrat zpatky pro dalsi kose
+            //TODO TADYBUDE PROBLEM BLBECKU
+            //TODO Pri obsluze jednoho pozadavku vice velbloudy to nebude fungovat
+            if(pocetKosu == 0){
+                vykonavanaAkce = VelbloudAkce.CESTAZPATKY;
+                vylozenoKosu = 0;
+            }
+            //TODO TADYBUDE PROBLEM BLBECKU
+
+            //Pokud ma velblouc co vykladat, tak to vylozi (vyklada po jednom kosi a udela vypis)
+            else {
+                vypisVykladani();
+
+                casNaAkci += domovskySklad.getCasNalozeni();
+                frontaPozadavku.peek().doruceneKose(1);
+                pocetKosu--;
+                vylozenoKosu++;
+            }
+
+        }
+
+    }
+
 
     /**
      * Navýší počítadlo instancí
@@ -406,7 +420,6 @@ public class VelbloudSimulace{
         else {
             System.out.println("Velbloud pije \t\t Cas: " + zaokrouhlenyCas + ", Velbloud: " + ID + ", Sklad: " + pozice.getID() + ", Ziznivy " + typ.getNazev() + ", Pokracovani mozne v: " + zaokrouhlenyOdchod);
         }
-
     }
 
     /**

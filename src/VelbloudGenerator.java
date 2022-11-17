@@ -1,23 +1,46 @@
 import java.util.*;
 
 public class VelbloudGenerator {
-    private final NavigableMap<VelbloudTyp, Integer> pocetVelbloudu;
+    private Map<VelbloudTyp, Integer> pocetVelbloudu;
+    private VelbloudTyp nejvetsiPomer;
+    private double nejvetsiMinVzdalenost;
     private int celkovyPocetVelbloudu;
+
+    /** Instance jedináčka Simulace */
+    private static final VelbloudGenerator INSTANCE = new VelbloudGenerator();
+
+    /**
+     * Vrátí jedináčka
+     * @return instance jedináčka
+     */
+    public static VelbloudGenerator getInstance(){
+        return INSTANCE;
+    }
 
     /**
      * Konstruktor
      * @param typ seznam typu velbloudu
      */
-    public VelbloudGenerator(List<VelbloudTyp> typ){
-        // TODO remove treemap, jdu spinkat :|
-        pocetVelbloudu = new TreeMap<>(Comparator.comparingDouble(VelbloudTyp::getPomer));
+    public void vytvorGenerator(List<VelbloudTyp> typ){
+        pocetVelbloudu = new HashMap<>();
+        nejvetsiPomer = null;
+        nejvetsiMinVzdalenost = 0;
 
         for(VelbloudTyp vel : typ) {
-            System.out.println(vel);
-            pocetVelbloudu.putIfAbsent(vel, 0);
-        }
+            pocetVelbloudu.put(vel, 0);
 
-        System.out.println("ahoj");
+            if(nejvetsiPomer == null){
+                nejvetsiPomer = vel;
+            }
+
+            if(nejvetsiPomer.getPomer() < vel.getPomer()){
+                nejvetsiPomer = vel;
+            }
+
+            if(nejvetsiMinVzdalenost < vel.getMinVzdalenost()){
+                nejvetsiMinVzdalenost = vel.getMinVzdalenost();
+            }
+        }
     }
 
     /**
@@ -25,15 +48,14 @@ public class VelbloudGenerator {
      * @return typ velblouda který bude generován jako další
      */
     public VelbloudTyp dalsiVelbloudPodlePomeru(){
-        VelbloudTyp dalsiVelbloud = pocetVelbloudu.lastKey();
-        VelbloudTyp kandidat1;
+        VelbloudTyp dalsiVelbloud = nejvetsiPomer;
 
         for (Map.Entry<VelbloudTyp, Integer> vel : pocetVelbloudu.entrySet()) {
-            kandidat1 = vel.getKey();
+            VelbloudTyp kandidat = vel.getKey();
             double skutecnyPomer = (double)vel.getValue() / celkovyPocetVelbloudu;
 
-            if(skutecnyPomer < kandidat1.getPomer()){
-                dalsiVelbloud = kandidat1;
+            if(skutecnyPomer < kandidat.getPomer()){
+                dalsiVelbloud = kandidat;
             }
         }
         return dalsiVelbloud;
@@ -56,6 +78,10 @@ public class VelbloudGenerator {
         pridejVelblouda(typ);
 
         return new VelbloudSimulace(domaciSklad, rychlost, vzdalenost, typ);
+    }
+
+    public double getNejvetsiMinVzdalenost() {
+        return nejvetsiMinVzdalenost;
     }
 
     //////////////////////

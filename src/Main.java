@@ -5,9 +5,7 @@
  */
 public class Main {
     // Testovací spuštění
-    private static final String VSTUP_SOUBORU = "data/tutorial.txt";
-
-    private static final VstupDat VSTUP_DAT = VstupDat.getInstance();
+    private static final String VSTUP_SOUBORU = "data2/centre_large.txt";
     private static final Simulace SIMULACE = Simulace.getInstance();
 
     /**
@@ -15,13 +13,6 @@ public class Main {
      * @param args vstupní data
      */
     public static void main(String[] args) {
-        long a = System.currentTimeMillis();
-
-        //VSTUP_DAT.nactiData(args[0]);
-        VSTUP_DAT.vytvorObjekty(VSTUP_SOUBORU);
-        System.out.println("\nData nactena v case: " + (System.currentTimeMillis() - a) + " ms.\n");
-
-        SIMULACE.spustSimulaci(VSTUP_DAT);
-        System.out.println("\nRuntime: " + (System.currentTimeMillis() - a) + " ms.");
+        SIMULACE.spustSimulaci(VSTUP_SOUBORU);
     }
 }

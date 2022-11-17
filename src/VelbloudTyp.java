@@ -1,5 +1,3 @@
-import java.util.Random;
-
 /**
  * Instance třídy {@code VelbloudTyp} představuje druh velblouda
  * @author Štěpán Faragula, Mikuláš Mach
@@ -36,7 +34,6 @@ public class VelbloudTyp {
         this.maxKose = maxKose;
         this.pomer = pomer;
     }
-
     /**
      * Vrátí název druhu
      * @return název druhu

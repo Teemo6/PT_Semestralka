@@ -9,24 +9,17 @@ public class Simulace {
     /** Instance jedináčka Simulace */
     private static final Simulace INSTANCE = new Simulace();
 
-    /** Datový model */
-    private VstupDat data;
-
-    /** Matice se kterými pracuje simulace */
-    MaticeDouble distancniMatice;
-
-    /** Reprezentace grafu */
-    GrafMapa mapa;
-
-    /** Generátor velbloudů */
-    VelbloudGenerator velGen;
+    /** Model simulace */
+    private static final VstupDat data = VstupDat.getInstance();
+    private static final GrafMapa mapa = GrafMapa.getInstance();
+    private static final VelbloudGenerator velGen = VelbloudGenerator.getInstance();
 
     /** Práce s časem */
-    double simulacniCas = 0;
-    boolean simulaceBezi = true;
-    PriorityQueue<Pozadavek> casovaFrontaPozadavku;
-    PriorityQueue<Sklad> casovaFrontaSkladu;
-    PriorityQueue<VelbloudSimulace> casovaFrontaVelbloudu;
+    double simulacniCas;
+    boolean simulaceBezi;
+    PriorityQueue<Pozadavek> frontaPozadavku;
+    PriorityQueue<Sklad> frontaSkladu;
+    PriorityQueue<VelbloudSimulace> frontaVelbloudu;
 
     /**
      * Vrátí jedináčka
@@ -38,33 +31,45 @@ public class Simulace {
 
     /**
      * Spustí simulaci, obsahuje hlavní smyčku s časem
-     * @param data Vstupní data
+     * @param vstupniSoubor Vstupní data
      */
-    public void spustSimulaci(VstupDat data){
-        this.data = data;
-        this.velGen = new VelbloudGenerator(data.getVelbloudi());
-        this.mapa = vytvorMapu();
+    public void spustSimulaci(String vstupniSoubor){
+        // Inicializace simulace
+        long casSpusteniSimulace = System.currentTimeMillis();
 
-        casovaFrontaPozadavku = new PriorityQueue<>(5, Comparator.comparingDouble(Pozadavek::getCasPrichodu));
-        casovaFrontaSkladu = new PriorityQueue<>(5, Comparator.comparingDouble(Sklad::getCasDalsiAkce));
-        casovaFrontaVelbloudu = new PriorityQueue<>(5, Comparator.comparingDouble(VelbloudSimulace::getCasNaAkci));
+        data.vytvorObjekty(vstupniSoubor);
+        System.out.println("\nData nactena: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.");
 
-        casovaFrontaPozadavku.addAll(data.getPozadavky());
-        casovaFrontaSkladu.addAll(data.getSklady());
+        mapa.vytvorGraf(data.getCesty());
+        System.out.println("\nMapa vytvorena: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.");
 
+        velGen.vytvorGenerator(data.getVelbloudi());
+        System.out.println("\nGenerator pripraven: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.\n");
+
+        // Simulacni cas
+        simulacniCas = 0;
+        simulaceBezi = true;
+
+        // Casove fronty
+        frontaPozadavku = new PriorityQueue<>(5, Comparator.comparingDouble(Pozadavek::getCasPrichodu));
+        frontaSkladu = new PriorityQueue<>(5, Comparator.comparingDouble(Sklad::getCasDalsiAkce));
+        frontaVelbloudu = new PriorityQueue<>(5, Comparator.comparingDouble(VelbloudSimulace::getCasNaAkci));
+
+        frontaPozadavku.addAll(data.getPozadavky());
+        frontaSkladu.addAll(data.getSklady());
+
+        // Zpracovani fronty
         Pozadavek dalsiPozadavek;
         Sklad dalsiSklad;
         VelbloudSimulace dalsiVel;
         double casPozadavek, casSklad, casVel;
 
         while(simulaceBezi){
-            dalsiPozadavek = casovaFrontaPozadavku.peek();
-            dalsiSklad = casovaFrontaSkladu.peek();
-            dalsiVel = casovaFrontaVelbloudu.peek();
+            dalsiPozadavek = frontaPozadavku.peek();
+            dalsiSklad = frontaSkladu.peek();
+            dalsiVel = frontaVelbloudu.peek();
 
-            casPozadavek = Double.MAX_VALUE;
-            casSklad = Double.MAX_VALUE;
-            casVel = Double.MAX_VALUE;
+            casPozadavek = casSklad = casVel = Double.MAX_VALUE;
 
             // Zkontroluj jestli existuje další akce
             if(dalsiPozadavek != null){
@@ -83,14 +88,19 @@ public class Simulace {
                 continue;
             }
             if(casSklad <= simulacniCas){
-                naplnSklady();
+                Sklad docasnySklad = frontaSkladu.poll();
+                assert docasnySklad != null;
+
+                docasnySklad.doplnSklad();
+                frontaSkladu.add(docasnySklad);
                 continue;
             }
             if(casVel <= simulacniCas){
-                VelbloudSimulace docasny = casovaFrontaVelbloudu.poll();
-                assert docasny != null;
-                docasny.vykonejDalsiAkci();
-                casovaFrontaVelbloudu.add(docasny);
+                VelbloudSimulace docasnyVelbloud = frontaVelbloudu.poll();
+                assert docasnyVelbloud != null;
+
+                docasnyVelbloud.vykonejDalsiAkci();
+                frontaVelbloudu.add(docasnyVelbloud);
                 continue;
             }
 
@@ -98,56 +108,31 @@ public class Simulace {
             Pozadavek neobslouzeny = neobslouzenyPozadavek();
             if(neobslouzeny != null){
                 System.out.println("Cas: "+ (int)simulacniCas +", Oaza: "+ ((Oaza)neobslouzeny.getOaza()).getIDOaza() +", Vsichni vymreli, Harpagon zkrachoval, Konec simulace");
-                return;
+                break;
+            }
+
+            // Zkontroluj podmínky úspešné simulace
+            if(vsechnyPozadavkyObslouzeny() && vsichniVelbloudiVolni()){
+                break;
             }
 
             // Nastav simulační čas na další nejbližsí událost
             simulacniCas = Math.min(Math.min(casPozadavek, casSklad), casVel);
-
-            // Zkontroluj podmínky úspešné simulace
-            if(vsechnyPozadavkyObslouzeny() && vsichniVelbloudiVolni()){
-                simulaceBezi = false;
-            }
         }
         System.out.println();
         System.out.println("Pocet splnenych pozadavku: " + data.getPozadavky().size());
-        System.out.println("Pocet vyuzitych velbloudu: " + casovaFrontaVelbloudu.size());
-    }
-
-    /**
-     * Vrátí sezman všech mezicest z bodu A do bodu B
-     * @param oaza začínající bod grafu
-     * @return seznam mezicest A, B
-     */
-    public AMisto najdiNejblizsiSklad(AMisto oaza){
-        AMisto sklad = null;
-        double cena;
-        double nejkratsiCesta = Double.MAX_VALUE;
-
-        for(AMisto s : data.getSklady()){
-            cena = distancniMatice.getCislo(s.getID() - 1, oaza.getID() - 1);
-            if(cena < nejkratsiCesta){
-                nejkratsiCesta = cena;
-                sklad = s;
-            }
-        }
-        return sklad;
-    }
-
-    /**
-     * Naplní sklady
-     */
-    public void naplnSklady(){
-        data.getSklady().forEach(Sklad::doplnSklad);
+        System.out.println("Pocet vyuzitych velbloudu: " + frontaVelbloudu.size());
+        System.out.println("SimCas: " + simulacniCas);
+        System.out.println("\nRuntime: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.");
     }
 
     /**
      * Vygeneruj vhodného velblouda na požadavek
      * @param cesta cesta po částech
-     * @param nejblizsiSklad nejbližší sklad vůči cílové oáze
+     * @param domovskySklad nejbližší sklad vůči cílové oáze
      * @return velbloud vhodný pro vykonání požadavku
      */
-    public VelbloudSimulace generujVelblouda(CestaCasti cesta, AMisto nejblizsiSklad){
+    public VelbloudSimulace generujVhodnehoVelblouda(CestaCasti cesta, AMisto domovskySklad){
         Map<VelbloudTyp, Boolean> uzTenhleTypByl = new HashMap<>();
         double nejdelsiUsek = cesta.getNejdelsiUsek();
         VelbloudSimulace vel = null;
@@ -156,16 +141,16 @@ public class Simulace {
             uzTenhleTypByl.put(v, false);
         }
 
-        // TODO debug
         while(uzTenhleTypByl.containsValue(false)){
             VelbloudTyp dalsiTyp = velGen.dalsiVelbloudPodlePomeru();
 
-            vel = velGen.generujVelblouda((Sklad)nejblizsiSklad);
-            casovaFrontaVelbloudu.add(vel);
+            vel = velGen.generujVelblouda((Sklad)domovskySklad);
+            frontaVelbloudu.add(vel);
             uzTenhleTypByl.put(dalsiTyp, true);
 
             if (dalsiTyp.getMinVzdalenost() > nejdelsiUsek) {
                 vel.setCasNaAkci(simulacniCas);
+                return vel;
             } else {
                 vel.setCasNaAkci(Double.MAX_VALUE);
             }
@@ -204,7 +189,7 @@ public class Simulace {
      * @return true pokud jsou všichni velbloudi volní
      */
     public boolean vsichniVelbloudiVolni(){
-        for(VelbloudSimulace velSim : casovaFrontaVelbloudu){
+        for(VelbloudSimulace velSim : frontaVelbloudu){
             if (velSim.getVykonavanaAkce() != VelbloudAkce.VOLNY) {
                 return false;
             }
@@ -217,106 +202,32 @@ public class Simulace {
     //////////////////////
 
     /**
-     * Vytvoří mapu vzdáleností z počátku, Dijkstrův algoritmus
-     * @param vychoziBod začínající bod algoritmu
-     * @return mapa předchůdců
-     */
-    public Map<AMisto, GrafVrchol> vytvorMapuPredchudcu(AMisto vychoziBod){
-        Map<AMisto, GrafVrchol> mapaPredchudcu = new HashMap<>();
-        GrafVrchol vychoziVrchol = new GrafVrchol(vychoziBod, 0.0);
-
-        // Nastav predchudce na null, vzdalenost na inf
-        data.getMista().forEach((k, v) -> mapaPredchudcu.put(v, new GrafVrchol(null, Double.MAX_VALUE)));
-
-        // Zpracovani fronty Dijkstry
-        PriorityQueue<GrafVrchol> fronta = new PriorityQueue<>(Comparator.comparingDouble(GrafVrchol::getVzdalenost));
-        mapaPredchudcu.put(vychoziBod, vychoziVrchol);
-        fronta.add(new GrafVrchol(vychoziBod, 0));
-
-        while (fronta.size() > 0) {
-            AMisto predchudce = fronta.poll().getVrchol();
-
-            // Vychozi misto nema zadne sousedy
-            if(mapa.seznamSousednosti.get(predchudce) == null){
-                break;
-            }
-
-            // Projdi vsechny sousedy
-            for (GrafVrchol sousedniVrchol : mapa.seznamSousednosti.get(predchudce)) {
-                AMisto soused = sousedniVrchol.getVrchol();
-                double vzdalenostSouseda = mapaPredchudcu.get(predchudce).getVzdalenost() + sousedniVrchol.getVzdalenost();
-
-                // Pokud je cesta kratsi, zapis souseda jako predchudce
-                if (mapaPredchudcu.get(soused).getVzdalenost() > vzdalenostSouseda) {
-                    mapaPredchudcu.put(soused, new GrafVrchol(predchudce, vzdalenostSouseda));
-                    fronta.add(new GrafVrchol(soused, mapaPredchudcu.get(soused).getVzdalenost()));
-                }
-            }
-        }
-        return mapaPredchudcu;
-    }
-
-    /**
-     * Vrátí nejkratší cestu mezi dvěmi body
-     * @param zacatek počáteční bod
-     * @param konec koncový bod
-     * @return cesta po částech
-     */
-    private CestaCasti najdiNejkratsiCestuDijkstra(AMisto zacatek, AMisto konec){
-        CestaCasti nejkratsiCesta = new CestaCasti();
-        AMisto konecTrasy = konec;
-        AMisto predchudce;
-
-        Map<AMisto, GrafVrchol>mapaPredchudcu = vytvorMapuPredchudcu(zacatek);
-
-        while(true) {
-            predchudce = mapaPredchudcu.get(konecTrasy).getVrchol();
-            if(predchudce == null){
-                break;
-            }
-            nejkratsiCesta.pridejCestuNaZacatek(new Cesta(predchudce, konecTrasy));
-            if (predchudce == zacatek) {
-                break;
-            }
-            konecTrasy = predchudce;
-        }
-        nejkratsiCesta.uzavriCestu();
-
-        return nejkratsiCesta;
-    }
-
-    /**
-     * Vytvoří graf jako spojový seznam
-     * @return mapa grafu
-     */
-    private GrafMapa vytvorMapu(){
-        GrafMapa novaMapa = new GrafMapa();
-
-        for(Cesta cesta : data.getCesty()){
-            novaMapa.pridejVrchol(cesta);
-        }
-        return novaMapa;
-    }
-
-    /**
      * Přiřadí požadavek vhodnému velbloudovi
      * Pokud neexistuje vhodný velbloud, vytvoří ho v nejbližším skladu oázy
      */
     private void priradPozadavekVelbloudovi() {
-        Pozadavek dalsiPozadavek = casovaFrontaPozadavku.poll();
+        Pozadavek dalsiPozadavek = frontaPozadavku.poll();
         assert dalsiPozadavek != null;
         boolean pozadavekPrirazen = false;
+        int zaokrouhlenyCas = (int)Math.round(simulacniCas);
+        int zaokrouhlenaDeadline = (int)Math.round(dalsiPozadavek.getDeadline());
 
         // Vyhledej cestu do oázy
         AMisto pozadavekOaza = dalsiPozadavek.getOaza();
-        AMisto nejblizsiSklad = data.getSklady().get(0);
-        //AMisto nejblizsiSklad = najdiNejblizsiSklad(pozadavekOaza);
-        CestaCasti nejkratsiCesta = najdiNejkratsiCestuDijkstra(nejblizsiSklad, pozadavekOaza);
+        AMisto nejblizsiSklad = mapa.najdiNejblizsiSklad(pozadavekOaza, data.getSklady(), velGen.getNejvetsiMinVzdalenost());
+        CestaCasti nejkratsiCesta = mapa.najdiNejkratsiCestuDijkstra(nejblizsiSklad, pozadavekOaza, velGen.getNejvetsiMinVzdalenost());
+
+        // Cesta je INF (neexistuje)
+        if(nejkratsiCesta.getVzdalenost() == Double.MAX_VALUE){
+            System.out.println("Pozadavek " + dalsiPozadavek.getID() + " nejde obslouzit, simulace pokracuje");
+            System.out.println("Prichod pozadavku \t Cas: " + zaokrouhlenyCas + ", Pozadavek: " + dalsiPozadavek.getID() + ", Oaza: " + ((Oaza) dalsiPozadavek.getOaza()).getIDOaza() + ", Pocet kosu: " + dalsiPozadavek.getPozadavekKosu() + ", Deadline: " + zaokrouhlenaDeadline);
+            return;
+        }
+
         double nejdelsiUsekCesty = nejkratsiCesta.getNejdelsiUsek();
 
         // Zkus přiřadit požadavek existujícímu velbloudovi
-        for (VelbloudSimulace v : casovaFrontaVelbloudu) {
-            // TODO dijkstra s limitem cesty??????
+        for (VelbloudSimulace v : frontaVelbloudu) {
             if(nejdelsiUsekCesty <= v.getMaxVzdalenost()) {
                 double casNovehoPozadavku = v.jakDlouhoBudeTrvatCestaTam(nejkratsiCesta.getVzdalenost(), dalsiPozadavek.getPozadavekKosu());
                 double casPozadavkuVelblouda = v.kdySeSplniFronta();
@@ -329,10 +240,12 @@ public class Simulace {
             }
         }
 
-        // Vyber nejlepší druh velblouda na cestu, vytvoř ho, přiřaď mu požadavek
+        // Vyber vhodný druh velblouda, vytvoř ho, přiřaď mu požadavek
         if (!pozadavekPrirazen) {
-            VelbloudSimulace vel = generujVelblouda(nejkratsiCesta, nejblizsiSklad);
-            if(vel != null){
+            VelbloudSimulace vel = generujVhodnehoVelblouda(nejkratsiCesta, nejblizsiSklad);
+            double casNovehoPozadavku = vel.jakDlouhoBudeTrvatCestaTam(nejkratsiCesta.getVzdalenost(), dalsiPozadavek.getPozadavekKosu());
+
+            if (dalsiPozadavek.getDeadline() - casNovehoPozadavku - simulacniCas > 0) {
                 pozadavekPrirazen = true;
                 vel.priradPozadavek(new VelbloudPozadavek(dalsiPozadavek, nejkratsiCesta), simulacniCas);
             }
@@ -340,11 +253,8 @@ public class Simulace {
 
         // Požadavek nejde přiřadit, simulace bude pokračovat ale časem spadne
         if (!pozadavekPrirazen) {
-            System.out.println("Požadavek nepůjde obsloužit, pokračujem v simulaci");
+            System.out.println("Pozadavek " + dalsiPozadavek.getID() + " nejde obslouzit, simulace pokracuje");
         }
-
-        int zaokrouhlenyCas = (int)Math.round(simulacniCas);
-        int zaokrouhlenaDeadline = (int)Math.round(dalsiPozadavek.getDeadline());
         System.out.println("Prichod pozadavku \t Cas: " + zaokrouhlenyCas + ", Pozadavek: " + dalsiPozadavek.getID() + ", Oaza: " + ((Oaza) dalsiPozadavek.getOaza()).getIDOaza() + ", Pocet kosu: " + dalsiPozadavek.getPozadavekKosu() + ", Deadline: " + zaokrouhlenaDeadline);
     }
 }

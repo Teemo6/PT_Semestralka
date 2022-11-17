@@ -39,16 +39,21 @@ public class GrafMapa {
      * @param omezeni omezení minimální vzdáleností velblouda
      * @return cesta po částech
      */
-    public CestaCasti najdiNejkratsiCestuDijkstra(AMisto zacatek, AMisto konec, double omezeni){
+    public CestaCasti najdiNejkratsiCestuDijkstra(AMisto zacatek, AMisto konec, double omezeni, boolean optimalizace){
         CestaCasti nejkratsiCesta = new CestaCasti();
         AMisto konecTrasy = konec;
         AMisto predchudce;
+        Map<AMisto, GrafVrchol> mapaPredchudcu;
 
         // Koukni se, jestli už jsi nevytvořil mapu předtím
-        Map<AMisto, GrafVrchol>mapaPredchudcu = seznamPredchozichMap.get(zacatek);
-        if(mapaPredchudcu == null){
-            seznamPredchozichMap.put(zacatek, vytvorMapuPredchudcu(zacatek, omezeni));
+        if(optimalizace) {
             mapaPredchudcu = seznamPredchozichMap.get(zacatek);
+            if (mapaPredchudcu == null) {
+                seznamPredchozichMap.put(zacatek, vytvorMapuPredchudcu(zacatek, omezeni));
+                mapaPredchudcu = seznamPredchozichMap.get(zacatek);
+            }
+        } else {
+            mapaPredchudcu = vytvorMapuPredchudcu(zacatek, omezeni);
         }
 
         // Cesta neexistuje
@@ -80,7 +85,7 @@ public class GrafMapa {
      * @param omezeni omezení minimální vzdáleností velblouda
      * @return sklad s nejkratší cestou
      */
-    public AMisto najdiNejblizsiSklad(AMisto oaza, List<Sklad> sklady, double omezeni){
+    public AMisto najdiNejblizsiSklad(AMisto oaza, List<Sklad> sklady, double omezeni, boolean optimalizace){
         AMisto sklad = null;
         double cena;
         double nejkratsiCesta = Double.MAX_VALUE;
@@ -91,6 +96,7 @@ public class GrafMapa {
             return null;
         }
 
+        // TODO dost neefektivní
         // Pokud má právě jednoho souseda a tím je sklad
         if(sousedi.size() == 1 && sousedi.get(0).getVrchol().getClass().getSimpleName().equals("Sklad")){
             return seznamSousednosti.get(oaza).getFirst().getVrchol();
@@ -98,7 +104,7 @@ public class GrafMapa {
 
         // Projdi všechny sklady a porovnej cesty
         for(AMisto s : sklady){
-            cena = najdiNejkratsiCestuDijkstra(s, oaza, omezeni).getVzdalenost();
+            cena = najdiNejkratsiCestuDijkstra(s, oaza, omezeni, optimalizace).getVzdalenost();
             if(cena < nejkratsiCesta){
                 nejkratsiCesta = cena;
                 sklad = s;

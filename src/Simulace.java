@@ -21,6 +21,11 @@ public class Simulace {
     PriorityQueue<Sklad> frontaSkladu;
     PriorityQueue<VelbloudSimulace> frontaVelbloudu;
 
+    /** Pokus o optimalizaci simulace */
+    private boolean optimalizace;
+    private final int OPTIMALIZACE_SKLADY = 100;
+    private final int OPTIMALIZACE_MISTA = 500;
+
     /**
      * Vrátí jedináčka
      * @return instance jedináčka
@@ -45,6 +50,9 @@ public class Simulace {
 
         velGen.vytvorGenerator(data.getVelbloudi());
         System.out.println("\nGenerator pripraven: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.\n");
+
+        // Má cenu optimalizovat
+        optimalizace = data.getSklady().size() < OPTIMALIZACE_SKLADY && data.getMista().size() < OPTIMALIZACE_MISTA;
 
         // Simulacni cas
         simulacniCas = 0;
@@ -214,8 +222,8 @@ public class Simulace {
 
         // Vyhledej cestu do oázy
         AMisto pozadavekOaza = dalsiPozadavek.getOaza();
-        AMisto nejblizsiSklad = mapa.najdiNejblizsiSklad(pozadavekOaza, data.getSklady(), velGen.getNejvetsiMinVzdalenost());
-        CestaCasti nejkratsiCesta = mapa.najdiNejkratsiCestuDijkstra(nejblizsiSklad, pozadavekOaza, velGen.getNejvetsiMinVzdalenost());
+        AMisto nejblizsiSklad = mapa.najdiNejblizsiSklad(pozadavekOaza, data.getSklady(), velGen.getNejvetsiMinVzdalenost(), optimalizace);
+        CestaCasti nejkratsiCesta = mapa.najdiNejkratsiCestuDijkstra(nejblizsiSklad, pozadavekOaza, velGen.getNejvetsiMinVzdalenost(), optimalizace);
 
         // Cesta je INF (neexistuje)
         if(nejkratsiCesta.getVzdalenost() == Double.MAX_VALUE){

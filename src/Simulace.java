@@ -24,7 +24,6 @@ public class Simulace {
     /** Pokus o optimalizaci simulace */
     private boolean optimalizace;
     private final int OPTIMALIZACE_SKLADY = 100;
-    private final int OPTIMALIZACE_MISTA = 500;
 
     /**
      * Vrátí jedináčka
@@ -51,8 +50,8 @@ public class Simulace {
         velGen.vytvorGenerator(data.getVelbloudi());
         System.out.println("\nGenerator pripraven: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.\n");
 
-        // Má cenu optimalizovat
-        optimalizace = data.getSklady().size() < OPTIMALIZACE_SKLADY && data.getMista().size() < OPTIMALIZACE_MISTA;
+        // Má cenu optimalizovat, je málo skladů?
+        optimalizace = data.getSklady().size() < OPTIMALIZACE_SKLADY && data.getMista().size() - OPTIMALIZACE_SKLADY > 0;
 
         // Simulacni cas
         simulacniCas = 0;

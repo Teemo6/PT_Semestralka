@@ -18,7 +18,7 @@
 🐪 Pocet druhu velbloudu D: 🏜
 1
 🐪 Definice velblouda (nazev, minimalni rychlost, maximalni rychlost, minimalni vzdalenost, maximalni vzdalenost, doba piti, maximalni zatizeni a procentualni pomer druhu velblouda)  🏜
-Pomaly5 1 1 1 1 1 1 1
+Pomaly5 1 1 1 1 1 8 1
 🐪 Pocet pozadavku P: 🏜
 3
 🐪 Definice pozadavku (kazda oaza chce jeden kos, moc na to nespechaji) 🏜

@@ -137,10 +137,11 @@ public class VelbloudSimulace{
         int pocetOpakovaniCesty = (int)Math.ceil(pocetKosuObsluha/(maxPocetKosu + 0.0));
 
         double simEnergie = energie;
-        double casStravenyPitim = 0;
+        double casPitiTam = 0;
+        double casPitiZpet= 0;
         for(Cesta c : cesta.getSeznamCest()){
             if(simEnergie - c.getVzdalenost() <= 0){
-                casStravenyPitim += dobaPiti;
+                casPitiTam += dobaPiti;
                 simEnergie = maxVzdalenost;
             } else {
                 simEnergie -= c.getVzdalenost();
@@ -148,13 +149,17 @@ public class VelbloudSimulace{
         }
         for(Cesta c : cesta.prohodSmer().getSeznamCest()){
             if(simEnergie - c.getVzdalenost() <= 0){
-                casStravenyPitim += dobaPiti;
+                casPitiZpet += dobaPiti;
                 simEnergie = maxVzdalenost;
             } else {
                 simEnergie -= c.getVzdalenost();
             }
         }
-        casStravenyPitim *= pocetOpakovaniCesty;
+
+        casPitiTam *= pocetOpakovaniCesty;
+        casPitiZpet *= (pocetOpakovaniCesty - 1);
+
+        double casStravenyPitim = casPitiTam + casPitiZpet;
 
         double casStravenyCestou = ((celkovaVzdalenostCesty * pocetOpakovaniCesty * 2) - celkovaVzdalenostCesty) / rychlost;
         double casStravenyManipulaci = pocetKosuObsluha * casManipulaceKose * 2;
@@ -209,7 +214,7 @@ public class VelbloudSimulace{
         for(VelbloudPozadavek vp : frontaPozadavku){
             casVsechPozadavku += jakDlouhoBudeTrvatCestaTamZpet(vp.getCestaCasti(), vp.getPocetPotrebnychKosu());
         }
-        // Zezacatku je velbloud napity
+        // zezacatku max energie
         casVsechPozadavku -= dobaPiti;
         return casVsechPozadavku;
     }
@@ -228,6 +233,10 @@ public class VelbloudSimulace{
 
     public double getDobaPiti() {
         return dobaPiti;
+    }
+
+    public Queue<VelbloudPozadavek> getFrontaPozadavku() {
+        return frontaPozadavku;
     }
 
     public void setCasNaAkci(double casNaAkci) {

@@ -237,11 +237,10 @@ public class Simulace {
      * @return true pokud velbloud stihne obsloužit požadavek
      */
     private boolean zkusPriraditPozadavekVelbloudovi(VelbloudSimulace vel, Pozadavek dalsiPozadavek, CestaCasti nejkratsiCesta){
-        vel.priradPozadavek(new VelbloudPozadavek(dalsiPozadavek, nejkratsiCesta), simulacniCas);
         double casNovehoPozadavku = vel.kdySplniPozadavek(nejkratsiCesta, dalsiPozadavek.getPozadavekKosu());
-        double casPozadavkuVelblouda = vel.kdySeSplniFronta();
+        double casFrontyVelblouda = vel.kdySeSplniFronta();
 
-        if (dalsiPozadavek.getDeadline() - casNovehoPozadavku - simulacniCas - casPozadavkuVelblouda - vel.getDobaPiti() > 0) {
+        if (dalsiPozadavek.getDeadline() - simulacniCas - casNovehoPozadavku - casFrontyVelblouda > 0) {
             vel.priradPozadavek(new VelbloudPozadavek(dalsiPozadavek, nejkratsiCesta), simulacniCas);
             return true;
         }

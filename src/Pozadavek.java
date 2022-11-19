@@ -98,4 +98,9 @@ public class Pozadavek{
     private void zvysID(){
         pocetPozadavku++;
     }
+
+    @Override
+    public String toString(){
+        return "ID=" + ID + ", inc=" + casPrichodu + ", ded=" + deadline;
+    }
 }

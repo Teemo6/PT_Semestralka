@@ -9,6 +9,7 @@ public class Sklad extends AMisto{
     private final double casNalozeni;
 
     private int pocetKosu;
+    private int pocetRezervace;
     private double casDalsiAkce;
 
     /**
@@ -23,6 +24,7 @@ public class Sklad extends AMisto{
         this.pocetPrirustek = pocetPrirustek;
         this.casDoplneniSkladu = casDoplneniSkladu;
         this.casNalozeni = casManipulaceKose;
+        this.pocetRezervace = 0;
 
         // Sklad se doplní za čas 0 a doplní se o nenulový počet
         if(casDoplneniSkladu <= 0 && pocetPrirustek > 0){
@@ -42,10 +44,22 @@ public class Sklad extends AMisto{
         casDalsiAkce += casDoplneniSkladu;
     }
 
+    public double kdyBudeNalozenaRezervace(int rezervace){
+        return casDoplneniSkladu * (Math.ceil((rezervace - pocetKosu - pocetRezervace) / (double)pocetPrirustek));
+    }
+
+
+    public void rezervujKose(int pocet){
+        pocetRezervace += pocet;
+    }
+
     /**
      * Odebere 1 koš ze skladu
      */
-    public void odeberKos() { pocetKosu--;}
+    public void odeberKos() {
+        pocetKosu--;
+        pocetRezervace--;
+    }
 
     /**
      * Vrátí počet naskladněných košů

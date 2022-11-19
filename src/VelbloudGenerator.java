@@ -58,6 +58,8 @@ public class VelbloudGenerator {
                 dalsiVelbloud = kandidat;
             }
         }
+
+        nejvetsiPomer = dalsiVelbloud;
         return dalsiVelbloud;
     }
 

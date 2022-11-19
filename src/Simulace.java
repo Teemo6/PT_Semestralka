@@ -17,6 +17,7 @@ public class Simulace {
     /** Práce s časem */
     double simulacniCas;
     boolean simulaceBezi;
+    Pozadavek neobslouzenyPozadavek = null;
     PriorityQueue<Pozadavek> frontaPozadavku;
     PriorityQueue<Sklad> frontaSkladu;
     PriorityQueue<VelbloudSimulace> frontaVelbloudu;
@@ -58,7 +59,7 @@ public class Simulace {
         simulaceBezi = true;
 
         // Casove fronty
-        frontaPozadavku = new PriorityQueue<>(5, Comparator.comparingDouble(Pozadavek::getCasPrichodu));
+        frontaPozadavku = new PriorityQueue<>(5, Comparator.comparingDouble(Pozadavek::getCasPrichodu).thenComparing(Pozadavek::getDeadline));
         frontaSkladu = new PriorityQueue<>(5, Comparator.comparingDouble(Sklad::getCasDalsiAkce));
         frontaVelbloudu = new PriorityQueue<>(5, Comparator.comparingDouble(VelbloudSimulace::getCasNaAkci));
 
@@ -111,15 +112,9 @@ public class Simulace {
                 continue;
             }
 
-            // Ukonči simulaci pokud má požadavek po deadline
-            Pozadavek neobslouzeny = neobslouzenyPozadavek();
-            if(neobslouzeny != null){
-                System.out.println("Cas: "+ (int)simulacniCas +", Oaza: "+ ((Oaza)neobslouzeny.getOaza()).getIDOaza() +", Vsichni vymreli, Harpagon zkrachoval, Konec simulace");
-                break;
-            }
-
-            // Zkontroluj podmínky úspešné simulace
-            if(vsechnyPozadavkyObslouzeny() && vsichniVelbloudiVolni()){
+            // Zkontroluj podminky ukonceni simulace
+            zkontrolujKonecSimulace();
+            if(!simulaceBezi){
                 break;
             }
 
@@ -133,58 +128,36 @@ public class Simulace {
         System.out.println("\nRuntime: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.");
     }
 
-    /**
-     * Vygeneruj vhodného velblouda na požadavek
-     * @param cesta cesta po částech
-     * @param domovskySklad nejbližší sklad vůči cílové oáze
-     * @return velbloud vhodný pro vykonání požadavku
-     */
-    public VelbloudSimulace generujVhodnehoVelblouda(CestaCasti cesta, AMisto domovskySklad){
-        Map<VelbloudTyp, Boolean> uzTenhleTypByl = new HashMap<>();
-        double nejdelsiUsek = cesta.getNejdelsiUsek();
-        VelbloudSimulace vel = null;
-
-        for(VelbloudTyp v : data.getVelbloudi()){
-            uzTenhleTypByl.put(v, false);
-        }
-
-        while(uzTenhleTypByl.containsValue(false)){
-            VelbloudTyp dalsiTyp = velGen.dalsiVelbloudPodlePomeru();
-
-            vel = velGen.generujVelblouda((Sklad)domovskySklad);
-            frontaVelbloudu.add(vel);
-            uzTenhleTypByl.put(dalsiTyp, true);
-
-            if (dalsiTyp.getMinVzdalenost() > nejdelsiUsek) {
-                vel.setCasNaAkci(simulacniCas);
-                return vel;
-            } else {
-                vel.setCasNaAkci(Double.MAX_VALUE);
-            }
-        }
-        return vel;
-    }
+    //////////////////////
+    //* Private metody *//
+    //////////////////////
 
     /**
-     * Najdi a vyber neobsloužený požadavek
-     * @return neobsloužený požadavek
+     * Ukončí simulaci pokud dojde deadline nebo jsou požadavky obslouženy
      */
-    public Pozadavek neobslouzenyPozadavek(){
-        for(Pozadavek p : data.getPozadavky()){
-            if(!p.jeSplnen() && p.getDeadline() < simulacniCas) {
-                return p;
-            }
+    private void zkontrolujKonecSimulace(){
+        // Zkontroluj podmínky úspešné simulace
+        if(vsechnyPozadavkyObslouzeny() && vsichniVelbloudiVolni()){
+            simulaceBezi = false;
         }
-        return null;
+
+        // Zkontroluj podmínky neúspešné simulace
+        if(neobslouzenyPozadavek != null){
+            System.out.println("Cas: "+ (int)simulacniCas +", Oaza: "+ ((Oaza)neobslouzenyPozadavek.getOaza()).getIDOaza() +", Vsichni vymreli, Harpagon zkrachoval, Konec simulace");
+            simulaceBezi = false;
+        }
     }
 
     /**
      * Zkontroluj jestli už jsou všechny požadavky (i budoucí) jsou splněny
      * @return true pokud jsou splněny všechny požadavky
      */
-    public boolean vsechnyPozadavkyObslouzeny(){
+    private boolean vsechnyPozadavkyObslouzeny(){
         for(Pozadavek p : data.getPozadavky()){
             if(!p.jeSplnen()){
+                if(p.getDeadline() < simulacniCas){
+                    neobslouzenyPozadavek = p;
+                }
                 return false;
             }
         }
@@ -195,7 +168,7 @@ public class Simulace {
      * Zkontroluj jestli jsou všichni velbloudi ve stavu VOLNY
      * @return true pokud jsou všichni velbloudi volní
      */
-    public boolean vsichniVelbloudiVolni(){
+    private boolean vsichniVelbloudiVolni(){
         for(VelbloudSimulace velSim : frontaVelbloudu){
             if (velSim.getVykonavanaAkce() != VelbloudAkce.VOLNY) {
                 return false;
@@ -203,10 +176,6 @@ public class Simulace {
         }
         return true;
     }
-
-    //////////////////////
-    //* Private metody *//
-    //////////////////////
 
     /**
      * Přiřadí požadavek vhodnému velbloudovi
@@ -233,15 +202,16 @@ public class Simulace {
 
         double nejdelsiUsekCesty = nejkratsiCesta.getNejdelsiUsek();
 
-        // Zkus přiřadit požadavek existujícímu velbloudovi
-        for (VelbloudSimulace v : frontaVelbloudu) {
-            if(nejdelsiUsekCesty <= v.getMaxVzdalenost()) {
-                double casNovehoPozadavku = v.jakDlouhoBudeTrvatCestaTam(nejkratsiCesta.getVzdalenost(), dalsiPozadavek.getPozadavekKosu());
-                double casPozadavkuVelblouda = v.kdySeSplniFronta();
+        // TODO sklady rezervace
+        Sklad domaciSklad = (Sklad) nejkratsiCesta.getZacatek();
+        double casRezervace = simulacniCas + domaciSklad.kdyBudeNalozenaRezervace(dalsiPozadavek.getPozadavekKosu());
+        // TODO bullshit
 
-                if (dalsiPozadavek.getDeadline() - casNovehoPozadavku - simulacniCas - casPozadavkuVelblouda > 0) {
-                    pozadavekPrirazen = true;
-                    v.priradPozadavek(new VelbloudPozadavek(dalsiPozadavek, nejkratsiCesta), simulacniCas);
+        // Zkus přiřadit požadavek existujícímu velbloudovi
+        for (VelbloudSimulace vel : frontaVelbloudu) {
+            if(nejdelsiUsekCesty <= vel.getMaxVzdalenost()) {
+                pozadavekPrirazen = zkusPriraditPozadavekVelbloudovi(vel, dalsiPozadavek, nejkratsiCesta);
+                if(pozadavekPrirazen){
                     break;
                 }
             }
@@ -249,13 +219,7 @@ public class Simulace {
 
         // Vyber vhodný druh velblouda, vytvoř ho, přiřaď mu požadavek
         if (!pozadavekPrirazen) {
-            VelbloudSimulace vel = generujVhodnehoVelblouda(nejkratsiCesta, nejblizsiSklad);
-            double casNovehoPozadavku = vel.jakDlouhoBudeTrvatCestaTam(nejkratsiCesta.getVzdalenost(), dalsiPozadavek.getPozadavekKosu());
-
-            if (dalsiPozadavek.getDeadline() - casNovehoPozadavku - simulacniCas > 0) {
-                pozadavekPrirazen = true;
-                vel.priradPozadavek(new VelbloudPozadavek(dalsiPozadavek, nejkratsiCesta), simulacniCas);
-            }
+            pozadavekPrirazen = zkusPriraditPozadavekVelbloudovi(generujVhodnehoVelblouda(nejkratsiCesta, nejblizsiSklad), dalsiPozadavek, nejkratsiCesta);
         }
 
         // Požadavek nejde přiřadit, simulace bude pokračovat ale časem spadne
@@ -263,5 +227,56 @@ public class Simulace {
             System.out.println("Pozadavek " + dalsiPozadavek.getID() + " nejde obslouzit, simulace pokracuje");
         }
         System.out.println("Prichod pozadavku \t Cas: " + zaokrouhlenyCas + ", Pozadavek: " + dalsiPozadavek.getID() + ", Oaza: " + ((Oaza) dalsiPozadavek.getOaza()).getIDOaza() + ", Pocet kosu: " + dalsiPozadavek.getPozadavekKosu() + ", Deadline: " + zaokrouhlenaDeadline);
+    }
+
+    /**
+     * Počítání jestli velbloud stihne splnit požadavek
+     * @param vel velbloud vybraný pro požadavek
+     * @param dalsiPozadavek požadavek
+     * @param nejkratsiCesta cesta
+     * @return true pokud velbloud stihne obsloužit požadavek
+     */
+    private boolean zkusPriraditPozadavekVelbloudovi(VelbloudSimulace vel, Pozadavek dalsiPozadavek, CestaCasti nejkratsiCesta){
+        vel.priradPozadavek(new VelbloudPozadavek(dalsiPozadavek, nejkratsiCesta), simulacniCas);
+        double casNovehoPozadavku = vel.kdySplniPozadavek(nejkratsiCesta, dalsiPozadavek.getPozadavekKosu());
+        double casPozadavkuVelblouda = vel.kdySeSplniFronta();
+
+        if (dalsiPozadavek.getDeadline() - casNovehoPozadavku - simulacniCas - casPozadavkuVelblouda - vel.getDobaPiti() > 0) {
+            vel.priradPozadavek(new VelbloudPozadavek(dalsiPozadavek, nejkratsiCesta), simulacniCas);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Vygeneruj vhodného velblouda na požadavek
+     * @param cesta cesta po částech
+     * @param domovskySklad nejbližší sklad vůči cílové oáze
+     * @return velbloud vhodný pro vykonání požadavku
+     */
+    private VelbloudSimulace generujVhodnehoVelblouda(CestaCasti cesta, AMisto domovskySklad){
+        Map<VelbloudTyp, Boolean> uzTenhleTypByl = new HashMap<>();
+        double nejdelsiUsek = cesta.getNejdelsiUsek();
+        VelbloudSimulace vel = null;
+
+        for(VelbloudTyp v : data.getVelbloudi()){
+            uzTenhleTypByl.put(v, false);
+        }
+
+        while(uzTenhleTypByl.containsValue(false)){
+            VelbloudTyp dalsiTyp = velGen.dalsiVelbloudPodlePomeru();
+
+            vel = velGen.generujVelblouda((Sklad)domovskySklad);
+            frontaVelbloudu.add(vel);
+            uzTenhleTypByl.put(dalsiTyp, true);
+
+            if (dalsiTyp.getMinVzdalenost() > nejdelsiUsek) {
+                vel.setCasNaAkci(simulacniCas);
+                return vel;
+            } else {
+                vel.setCasNaAkci(Double.MAX_VALUE);
+            }
+        }
+        return vel;
     }
 }

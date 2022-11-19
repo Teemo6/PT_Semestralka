@@ -128,32 +128,73 @@ public class VelbloudSimulace{
 
     /**
      * Vypočítá jak dlouho bude velbloudovi trvat obsloužit požadavek bez návratu do skladu
-     * @param celkovaVzdalenostCesty délka cesty
+     * @param cesta délka cesty
      * @param pocetKosuObsluha kolik košů má vyložit
      * @return čas kdy bude obsloužen
      */
-    public double jakDlouhoBudeTrvatCestaTam(double celkovaVzdalenostCesty, int pocetKosuObsluha){
-        int pocetCestSemTam = (int)Math.ceil(pocetKosuObsluha/(maxPocetKosu + 0.0));
+    public double kdySplniPozadavek(CestaCasti cesta, int pocetKosuObsluha){
+        double celkovaVzdalenostCesty = cesta.getVzdalenost();
+        int pocetOpakovaniCesty = (int)Math.ceil(pocetKosuObsluha/(maxPocetKosu + 0.0));
 
-        double casStravenyCestou = ((celkovaVzdalenostCesty * pocetCestSemTam * 2) - celkovaVzdalenostCesty) / rychlost;
+        double simEnergie = energie;
+        double casStravenyPitim = 0;
+        for(Cesta c : cesta.getSeznamCest()){
+            if(simEnergie - c.getVzdalenost() <= 0){
+                casStravenyPitim += dobaPiti;
+                simEnergie = maxVzdalenost;
+            } else {
+                simEnergie -= c.getVzdalenost();
+            }
+        }
+        for(Cesta c : cesta.prohodSmer().getSeznamCest()){
+            if(simEnergie - c.getVzdalenost() <= 0){
+                casStravenyPitim += dobaPiti;
+                simEnergie = maxVzdalenost;
+            } else {
+                simEnergie -= c.getVzdalenost();
+            }
+        }
+        casStravenyPitim *= pocetOpakovaniCesty;
+
+        double casStravenyCestou = ((celkovaVzdalenostCesty * pocetOpakovaniCesty * 2) - celkovaVzdalenostCesty) / rychlost;
         double casStravenyManipulaci = pocetKosuObsluha * casManipulaceKose * 2;
-        double casStravenyPitim = Math.ceil(celkovaVzdalenostCesty/(maxVzdalenost + 0.0)) * dobaPiti;
 
         return casStravenyCestou + casStravenyManipulaci + casStravenyPitim;
     }
 
     /**
      * Vypočítá jak dlouho bude velbloudovi trvat obsloužit požadavek i s návratem do skladu
-     * @param celkovaVzdalenostCesty délka cesty
+     * @param cesta délka cesty
      * @param pocetKosuObsluha kolik košů má vyložit
      * @return čas kdy bude obsloužen
      */
-    public double jakDlouhoBudeTrvatCestaTamZpet(double celkovaVzdalenostCesty, int pocetKosuObsluha){
-        int pocetCestSemTam = (int)Math.ceil(pocetKosuObsluha/(maxPocetKosu + 0.0));
+    public double jakDlouhoBudeTrvatCestaTamZpet(CestaCasti cesta, int pocetKosuObsluha){
+        double celkovaVzdalenostCesty = cesta.getVzdalenost();
+        int pocetOpakovani = (int)Math.ceil(pocetKosuObsluha/(maxPocetKosu + 0.0));
 
-        double casStravenyCestou = (celkovaVzdalenostCesty * pocetCestSemTam * 2) / rychlost;
+        double simEnergie = energie;
+        double casStravenyPitim = 0;
+        for(Cesta c : cesta.getSeznamCest()){
+            if(simEnergie - c.getVzdalenost() <= 0){
+                casStravenyPitim += dobaPiti;
+                simEnergie = maxVzdalenost;
+            } else {
+                simEnergie -= c.getVzdalenost();
+            }
+        }
+        for(Cesta c : cesta.prohodSmer().getSeznamCest()){
+            if(simEnergie - c.getVzdalenost() <= 0){
+                casStravenyPitim += dobaPiti;
+                simEnergie = maxVzdalenost;
+            } else {
+                simEnergie -= c.getVzdalenost();
+            }
+        }
+
+        double casStravenyCestou = (celkovaVzdalenostCesty * pocetOpakovani * 2) / rychlost;
         double casStravenyManipulaci = pocetKosuObsluha * casManipulaceKose * 2;
-        double casStravenyPitim = Math.ceil(celkovaVzdalenostCesty/(maxVzdalenost + 0.0)) * dobaPiti;
+
+        casStravenyPitim *= pocetOpakovani;
 
         return casStravenyCestou + casStravenyManipulaci + casStravenyPitim;
     }
@@ -166,13 +207,11 @@ public class VelbloudSimulace{
     public double kdySeSplniFronta(){
         double casVsechPozadavku = 0;
         for(VelbloudPozadavek vp : frontaPozadavku){
-            casVsechPozadavku += jakDlouhoBudeTrvatCestaTamZpet(vp.getCelkovaVzdalenostCesty(), vp.getPocetPotrebnychKosu());
+            casVsechPozadavku += jakDlouhoBudeTrvatCestaTamZpet(vp.getCestaCasti(), vp.getPocetPotrebnychKosu());
         }
+        // Zezacatku je velbloud napity
+        casVsechPozadavku -= dobaPiti;
         return casVsechPozadavku;
-    }
-
-    public void setPozice(AMisto pozice){
-        this.pozice = pozice;
     }
 
     public void setEnergie(double energie){
@@ -185,6 +224,10 @@ public class VelbloudSimulace{
 
     public double getCasNaAkci() {
         return casNaAkci;
+    }
+
+    public double getDobaPiti() {
+        return dobaPiti;
     }
 
     public void setCasNaAkci(double casNaAkci) {

@@ -1,12 +1,12 @@
 /**
  * Instance třídy {@code Cesta} představuje jednosměrnou cestu mezi dvěmi libovolnými body
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.21 12-11-2022
+ * @version 1.22 14-11-2022
  */
 public class Cesta {
-    protected final AMisto zacatek;
-    protected final AMisto konec;
-    protected final double vzdalenost;
+    private final AMisto zacatek;
+    private final AMisto konec;
+    private final double vzdalenost;
 
     /**
      * Konstruktor

@@ -1,11 +1,11 @@
 /**
  * Instance třídy {@code Oaza} představuje oázu kterou je potřeba zásobovat koši
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.20 06-11-2022
+ * @version 1.21 12-11-2022
  */
 public class Oaza extends AMisto {
-    protected static int pocetOaza;
-    protected int IDOaza;
+    private static int pocetOaza;
+    private final int IDOaza;
 
     /**
      * Konstruktor

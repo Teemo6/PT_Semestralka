@@ -2,7 +2,7 @@
  * Instance třídy {@code VelbloudPozadavek} představuje požadavek,
  * který je předán velbloudovi do fronty ke splnění
  * @author Mikuláš Mach, Štěpán Faragula
- * @version 1.23 15-11-2022
+ * @version 1.28 20-11-2022
  */
 public class VelbloudPozadavek {
     private final Pozadavek pozadavek;
@@ -23,7 +23,7 @@ public class VelbloudPozadavek {
 
         celkovaVzdalenostCesty = cestaCasti.getVzdalenost();
 
-        splnenoKosu = 0;
+        this.splnenoKosu = 0;
         pocetPotrebnychKosu = pozadavek.getPozadavekKosu();
     }
 
@@ -79,6 +79,10 @@ public class VelbloudPozadavek {
         return cestaCasti;
     }
 
+    /**
+     * Vrátí počet odnošených košů
+     * @return počet odnošených košů
+     */
     public int getPocetSplnenychKosu() {
         return splnenoKosu;
     }

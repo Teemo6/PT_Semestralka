@@ -1,7 +1,7 @@
 /**
  * Instance třídy {@code GrafMapa} představuje vrchol neorientovaného grafu
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.21 12-11-2022
+ * @version 1.22 14-11-2022
  */
 public class GrafVrchol {
     AMisto vrchol;

@@ -3,7 +3,7 @@ import java.util.*;
 /**
  * Instance třídy {@code GrafMapa} představuje neorientovaný matematický graf
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.21 12-11-2022
+ * @version 1.27 20-11-2022
  */
 public class GrafMapa {
     private Map<AMisto, LinkedList<GrafVrchol>> seznamSousednosti;
@@ -22,6 +22,7 @@ public class GrafMapa {
 
     /**
      * Vytvoří graf jako spojový seznam
+     * @param cesty seznam cest které tvoří graf
      */
     public void vytvorGraf(List<Cesta> cesty){
         seznamSousednosti = new HashMap<>();
@@ -37,6 +38,7 @@ public class GrafMapa {
      * @param zacatek počáteční bod
      * @param konec koncový bod
      * @param omezeni omezení minimální vzdáleností velblouda
+     * @param optimalizace jestli se má zapnout mód optimalizace
      * @return cesta po částech
      */
     public CestaCasti najdiNejkratsiCestuDijkstra(AMisto zacatek, AMisto konec, double omezeni, boolean optimalizace){
@@ -83,6 +85,7 @@ public class GrafMapa {
      * @param oaza oáza
      * @param sklady všechny sklady v grafu
      * @param omezeni omezení minimální vzdáleností velblouda
+     * @param optimalizace jestli se má zapnout mód optimalizace
      * @return sklad s nejkratší cestou
      */
     public AMisto najdiNejblizsiSklad(AMisto oaza, List<Sklad> sklady, double omezeni, boolean optimalizace){

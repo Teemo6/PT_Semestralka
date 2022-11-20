@@ -1,13 +1,17 @@
 /**
  * Instance třídy {@code AMisto} představuje libovolné místa na mapě
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.20 06-11-2022
+ * @version 1.21 12-11-2022
  */
 public abstract class AMisto {
+    /** souřadnice místa */
     protected DoubleVector2D pozice;
+    /** počet uskladněných košů */
     protected int pocetKosu;
 
+    /** počítadlo míst */
     protected static int pocetMist;
+    /** ID místa */
     protected final int ID;
 
     /**

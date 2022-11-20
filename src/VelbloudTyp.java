@@ -1,7 +1,7 @@
 /**
  * Instance třídy {@code VelbloudTyp} představuje druh velblouda
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.20 06-11-2022
+ * @version 1.28 20-11-2022
  */
 public class VelbloudTyp {
     private final String nazev;
@@ -36,8 +36,7 @@ public class VelbloudTyp {
         this.pomer = pomer;
 
         double prumernaVzdalenost = (minVzdalenost + maxVzdalenost) / 2;
-        double vetsiPrumer = (prumernaVzdalenost + maxVzdalenost) / 2;
-        this.vetsiPrumerVzdalenost = vetsiPrumer;
+        this.vetsiPrumerVzdalenost = (prumernaVzdalenost + maxVzdalenost) / 2;
     }
     /**
      * Vrátí název druhu
@@ -103,6 +102,10 @@ public class VelbloudTyp {
         return pomer;
     }
 
+    /**
+     * Vrátí hodnotu vzdálenosti se kterou se bude většina velbloudů generovat
+     * @return hodnota vzdálenosti se kterou se bude většina velbloudů generovat
+     */
     public double getVetsiPrumerVzdalenost() {
         return vetsiPrumerVzdalenost;
     }

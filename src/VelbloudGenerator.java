@@ -1,5 +1,10 @@
 import java.util.*;
 
+/**
+ * Instance třídy {@code VelbloudGenerator} představuje generátor velbloudů držící se poměru zastoupení
+ * @author Štěpán Faragula, Mikuláš Mach
+ * @version 1.28 20-11-2022
+ */
 public class VelbloudGenerator {
     private Map<VelbloudTyp, Integer> pocetVelbloudu;
     private VelbloudTyp nejvetsiPomer;
@@ -82,6 +87,10 @@ public class VelbloudGenerator {
         return new VelbloudSimulace(domaciSklad, rychlost, vzdalenost, typ);
     }
 
+    /**
+     * Vrátí větší vzdálenost, kterou ještě může generovaný velbloud reálně dostat
+     * @return větší průměr vzdálenosti
+     */
     public double nejvetsiPrumernaVzdalenost() {
         return nejvetsiPrumernaVzdalenost;
     }

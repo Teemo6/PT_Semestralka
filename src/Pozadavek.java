@@ -1,7 +1,7 @@
 /**
  * Instance třídy {@code VelbloudTyp} představuje příchozí požadavek
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.20 06-11-2022
+ * @version 1.27 20-11-2022
  */
 public class Pozadavek{
     private final double casPrichodu;
@@ -10,8 +10,8 @@ public class Pozadavek{
     private final double deadline;
     private boolean jeSplnen;
 
-    protected static int pocetPozadavku;
-    protected int ID;
+    private static int pocetPozadavku;
+    private final int ID;
 
     /**
      * Konstruktor

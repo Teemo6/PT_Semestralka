@@ -1,7 +1,7 @@
 /**
  * Instance třídy {@code Sklad} představuje sklad která zásobuje okolní oázy
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.20 06-11-2022
+ * @version 1.28 20-11-2022
  */
 public class Sklad extends AMisto{
     private final int pocetPrirustek;
@@ -44,6 +44,7 @@ public class Sklad extends AMisto{
         casDalsiAkce += casDoplneniSkladu;
     }
 
+    // TODO :////////
     public double kdyBudeNalozenaRezervace(int rezervace){
         return casDoplneniSkladu * (Math.ceil((rezervace - pocetKosu - pocetRezervace) / (double)pocetPrirustek));
     }

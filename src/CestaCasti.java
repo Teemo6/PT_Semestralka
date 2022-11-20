@@ -4,7 +4,7 @@ import java.util.List;
 /**
  * Instance třídy {@code CestaCasti} představuje dlouhou cestu rozdělenou na několik částí {@code Cesta}
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.21 12-11-2022
+ * @version 1.24 17-11-2022
  */
 public class CestaCasti {
     List<Cesta> seznamCest;
@@ -45,6 +45,10 @@ public class CestaCasti {
         konec = seznamCest.get(seznamCest.size() - 1).getKonec();
     }
 
+    /**
+     * Vrátí cestu se vzdáleností INF
+     * @return cesta se vzdáleností INF
+     */
     public static CestaCasti nekonecnaCesta(){
         CestaCasti c = new CestaCasti();
         c.uzavriCestu();
@@ -123,22 +127,42 @@ public class CestaCasti {
         return new CestaCasti(cestaZpet);
     }
 
+    /**
+     * Vrátí začáteční bod
+     * @return začáteční bod
+     */
     public AMisto getZacatek() {
         return zacatek;
     }
 
+    /**
+     * Vrátí konečný bod cesty
+     * @return konečný bod
+     */
     public AMisto getKonec() {
         return konec;
     }
 
+    /**
+     * Vrátí celkovou vzdálenost cesty
+     * @return celková vzdálenost cesty
+     */
     public double getVzdalenost() {
         return vzdalenost;
     }
 
+    /**
+     * Vrátí nejdelší úsek cesty
+     * @return nejdelší úsek ze všech cest
+     */
     public double getNejdelsiUsek() {
         return nejdelsiUsek;
     }
 
+    /**
+     * Vrátí seznam cest ze kterých se skládá CestaCasti
+     * @return seznam cest
+     */
     public List<Cesta> getSeznamCest(){
         if(uzavrena){
             return seznamCest;

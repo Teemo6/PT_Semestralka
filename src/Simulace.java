@@ -3,7 +3,7 @@ import java.util.*;
 /**
  * Instance třídy {@code Simulace} představuje jedináčka ve kterém běží celá simulace
  * @author Mikuláš Mach, Štěpán Faragula
- * @version 1.23 15-11-2022
+ * @version 1.28 20-11-2022
  */
 public class Simulace {
     /** Instance jedináčka Simulace */
@@ -15,10 +15,10 @@ public class Simulace {
     private static final VelbloudGenerator velGen = VelbloudGenerator.getInstance();
 
     /** Práce s časem */
-    private double simulacniCas;
-    private PriorityQueue<Pozadavek> frontaPozadavku;
-    private PriorityQueue<Sklad> frontaSkladu;
-    private PriorityQueue<VelbloudSimulace> frontaVelbloudu;
+    double simulacniCas;
+    PriorityQueue<Pozadavek> frontaPozadavku;
+    PriorityQueue<Sklad> frontaSkladu;
+    PriorityQueue<VelbloudSimulace> frontaVelbloudu;
 
     /** Podmínky ukončení simulace */
     private final static List<Pozadavek> neobslouzenePozadavky = new ArrayList<>();
@@ -127,13 +127,18 @@ public class Simulace {
             // Nastav simulační čas na další nejbližsí událost
             simulacniCas = Math.min(Math.min(casPozadavek, casSklad), casVel);
         }
+        int pocetPozadavku = data.getPozadavky().size() - neobslouzenePozadavky.size();
         System.out.println();
-        System.out.println("Pocet splnenych pozadavku: " + data.getPozadavky().size());
-        System.out.println("Pocet vyuzitych velbloudu: " + frontaVelbloudu.size());
+        System.out.println("Pocet splnenych pozadavku: " + pocetPozadavku);
+        System.out.println("Pocet generovanych velbloudu: " + frontaVelbloudu.size());
         System.out.println("SimCas: " + simulacniCas);
         System.out.println("\nRuntime: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.");
     }
 
+    /**
+     * Označí požadavek ze svého seznamu jako splněný
+     * @param p jaký je spněný požadavek
+     */
     public static void oznacSplnenyPozadavek(Pozadavek p){
         neobslouzenePozadavky.remove(p);
     }
@@ -209,12 +214,6 @@ public class Simulace {
         }
 
         double nejdelsiUsekCesty = nejkratsiCesta.getNejdelsiUsek();
-
-        // TODO sklady rezervace
-        Sklad domaciSklad = (Sklad) nejkratsiCesta.getZacatek();
-        double casRezervace = simulacniCas + domaciSklad.kdyBudeNalozenaRezervace(dalsiPozadavek.getPozadavekKosu());
-        double cislo = domaciSklad.kolikBudeCelkemKosuVCase(2054);
-        // TODO bullshit
 
         // Zkus přiřadit požadavek existujícímu velbloudovi
         for (VelbloudSimulace vel : frontaVelbloudu) {

@@ -4,7 +4,7 @@ import java.io.*;
 /**
  * Instance třídy {@code VstupDat} představuje jedináčka, který umí přečíst vstupní soubor a vybrat potřebná data
  * @author Štěpán Faragula, Mikuláš Mach
- * @version 1.23 15-11-2022
+ * @version 1.28 20-11-2022
  */
 public class VstupDat{
     /** Instance jedináčka VstupDat */

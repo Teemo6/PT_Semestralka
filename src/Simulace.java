@@ -198,8 +198,8 @@ public class Simulace {
 
         // Vyhledej cestu do oázy
         AMisto pozadavekOaza = dalsiPozadavek.getOaza();
-        AMisto nejblizsiSklad = mapa.najdiNejblizsiSklad(pozadavekOaza, data.getSklady(), velGen.getNejvetsiMinVzdalenost(), optimalizace);
-        CestaCasti nejkratsiCesta = mapa.najdiNejkratsiCestuDijkstra(nejblizsiSklad, pozadavekOaza, velGen.getNejvetsiMinVzdalenost(), optimalizace);
+        AMisto nejblizsiSklad = mapa.najdiNejblizsiSklad(pozadavekOaza, data.getSklady(), velGen.nejvetsiPrumernaVzdalenost(), optimalizace);
+        CestaCasti nejkratsiCesta = mapa.najdiNejkratsiCestuDijkstra(nejblizsiSklad, pozadavekOaza, velGen.nejvetsiPrumernaVzdalenost(), optimalizace);
 
         // Cesta je INF (neexistuje)
         if(nejkratsiCesta.getVzdalenost() == Double.MAX_VALUE){
@@ -213,6 +213,7 @@ public class Simulace {
         // TODO sklady rezervace
         Sklad domaciSklad = (Sklad) nejkratsiCesta.getZacatek();
         double casRezervace = simulacniCas + domaciSklad.kdyBudeNalozenaRezervace(dalsiPozadavek.getPozadavekKosu());
+        double cislo = domaciSklad.kolikBudeCelkemKosuVCase(2054);
         // TODO bullshit
 
         // Zkus přiřadit požadavek existujícímu velbloudovi
@@ -265,6 +266,7 @@ public class Simulace {
         Map<VelbloudTyp, Boolean> uzTenhleTypByl = new HashMap<>();
         double nejdelsiUsek = cesta.getNejdelsiUsek();
         VelbloudSimulace vel = null;
+        VelbloudTyp vhodnyTyp = null;
 
         for(VelbloudTyp v : data.getVelbloudi()){
             uzTenhleTypByl.put(v, false);
@@ -275,14 +277,22 @@ public class Simulace {
 
             vel = velGen.generujVelblouda((Sklad)domovskySklad);
             frontaVelbloudu.add(vel);
-            uzTenhleTypByl.put(dalsiTyp, true);
 
-            if (dalsiTyp.getMinVzdalenost() > nejdelsiUsek) {
-                vel.setCasNaAkci(simulacniCas);
-                return vel;
+            if (dalsiTyp.getVetsiPrumerVzdalenost() >= nejdelsiUsek) {
+                vhodnyTyp = dalsiTyp;
+                if(vel.getMaxVzdalenost() >= nejdelsiUsek){
+                    vel.setCasNaAkci(simulacniCas);
+                    return vel;
+                }
             } else {
                 vel.setCasNaAkci(Double.MAX_VALUE);
             }
+
+            // Typ je vhodny, jenom se vygeneroval spatny velbloud
+            if(vel.getTyp() == vhodnyTyp){
+                continue;
+            }
+            uzTenhleTypByl.put(dalsiTyp, true);
         }
         return vel;
     }

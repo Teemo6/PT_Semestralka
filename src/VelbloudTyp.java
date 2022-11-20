@@ -9,6 +9,7 @@ public class VelbloudTyp {
     private final double maxRychlost;
     private final double minVzdalenost;
     private final double maxVzdalenost;
+    private final double vetsiPrumerVzdalenost;
     private final double casNapit;
     private final int maxKose;
     private final double pomer;
@@ -33,6 +34,10 @@ public class VelbloudTyp {
         this.casNapit = casNapit;
         this.maxKose = maxKose;
         this.pomer = pomer;
+
+        double prumernaVzdalenost = (minVzdalenost + maxVzdalenost) / 2;
+        double vetsiPrumer = (prumernaVzdalenost + maxVzdalenost) / 2;
+        this.vetsiPrumerVzdalenost = vetsiPrumer;
     }
     /**
      * Vrátí název druhu
@@ -96,6 +101,10 @@ public class VelbloudTyp {
      */
     public double getPomer() {
         return pomer;
+    }
+
+    public double getVetsiPrumerVzdalenost() {
+        return vetsiPrumerVzdalenost;
     }
 
     /**

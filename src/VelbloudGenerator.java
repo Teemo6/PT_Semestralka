@@ -3,7 +3,7 @@ import java.util.*;
 public class VelbloudGenerator {
     private Map<VelbloudTyp, Integer> pocetVelbloudu;
     private VelbloudTyp nejvetsiPomer;
-    private double nejvetsiMinVzdalenost;
+    private double nejvetsiPrumernaVzdalenost;
     private int celkovyPocetVelbloudu;
 
     /** Instance jedináčka Simulace */
@@ -24,7 +24,7 @@ public class VelbloudGenerator {
     public void vytvorGenerator(List<VelbloudTyp> typ){
         pocetVelbloudu = new HashMap<>();
         nejvetsiPomer = null;
-        nejvetsiMinVzdalenost = 0;
+        nejvetsiPrumernaVzdalenost = 0;
 
         for(VelbloudTyp vel : typ) {
             pocetVelbloudu.put(vel, 0);
@@ -37,8 +37,8 @@ public class VelbloudGenerator {
                 nejvetsiPomer = vel;
             }
 
-            if(nejvetsiMinVzdalenost < vel.getMinVzdalenost()){
-                nejvetsiMinVzdalenost = vel.getMinVzdalenost();
+            if(nejvetsiPrumernaVzdalenost < vel.getVetsiPrumerVzdalenost()){
+                nejvetsiPrumernaVzdalenost = vel.getVetsiPrumerVzdalenost();
             }
         }
     }
@@ -82,8 +82,8 @@ public class VelbloudGenerator {
         return new VelbloudSimulace(domaciSklad, rychlost, vzdalenost, typ);
     }
 
-    public double getNejvetsiMinVzdalenost() {
-        return nejvetsiMinVzdalenost;
+    public double nejvetsiPrumernaVzdalenost() {
+        return nejvetsiPrumernaVzdalenost;
     }
 
     //////////////////////

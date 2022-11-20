@@ -78,4 +78,8 @@ public class VelbloudPozadavek {
     public CestaCasti getCestaCasti() {
         return cestaCasti;
     }
+
+    public int getPocetSplnenychKosu() {
+        return splnenoKosu;
+    }
 }

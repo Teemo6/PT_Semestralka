@@ -255,6 +255,10 @@ public class VelbloudSimulace{
         this.casNaAkci = casNaAkci;
     }
 
+    public VelbloudTyp getTyp() {
+        return typ;
+    }
+
     public double getMaxVzdalenost() {
         return maxVzdalenost;
     }
@@ -275,7 +279,7 @@ public class VelbloudSimulace{
     private void obsluhaNakladani(){
 
         //Pokud je velbloud dostatecne/maximalne nalozen, tak vypise posledni vypis o nakladani a prejde do stavu cesta
-        if(pocetKosu == frontaPozadavku.peek().getPozadavek().getPozadavekKosu() || pocetKosu == maxPocetKosu){
+        if(pocetKosu == frontaPozadavku.peek().getPozadavek().getPozadavekKosu() - frontaPozadavku.peek().getPocetSplnenychKosu() || pocetKosu == maxPocetKosu){
             vypisNakladani();
             vykonavanaAkce = VelbloudAkce.CESTA;
         }
@@ -287,6 +291,7 @@ public class VelbloudSimulace{
 
                 if (pocetKosu == 0) {
 
+                    cestaPoCastech.clear();
                     cestaPoCastech.addAll(frontaPozadavku.peek().getCestaCasti().getSeznamCest());
 
                     zacatekNakladani = casNaAkci;
@@ -404,9 +409,9 @@ public class VelbloudSimulace{
             vylozenoKosu = 0;
 
             //Kdyz nema uz kose na obslouzeni dalsiho pozadavku, tak se vrati
-            if(pocetKosu == 0){
+            //if(pocetKosu == 0){
                 vykonavanaAkce = VelbloudAkce.CESTAZPATKY;
-            }
+            //}
 
         }
 

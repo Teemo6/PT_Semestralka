@@ -48,6 +48,10 @@ public class Sklad extends AMisto{
         return casDoplneniSkladu * (Math.ceil((rezervace - pocetKosu - pocetRezervace) / (double)pocetPrirustek));
     }
 
+    public double kolikBudeCelkemKosuVCase(double simCas){
+        return pocetPrirustek * Math.ceil(simCas / casDoplneniSkladu);
+    }
+
 
     public void rezervujKose(int pocet){
         pocetRezervace += pocet;

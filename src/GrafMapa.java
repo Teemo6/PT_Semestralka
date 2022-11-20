@@ -92,6 +92,9 @@ public class GrafMapa {
         LinkedList<GrafVrchol> sousedi = seznamSousednosti.get(oaza);
 
         // Pokud nemá sousedy
+        if(sousedi == null){
+            return null;
+        }
         if(sousedi.isEmpty()){
             return null;
         }

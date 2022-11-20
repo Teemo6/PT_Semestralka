@@ -261,7 +261,7 @@ public class VstupDat{
      * Vybere z validních dat sklady a načte je
      * @param validniData vyparsovaná data ze vstupního souboru
      */
-     private void vytvorSklady(List<String> validniData){
+     private void vytvorSklady(List<String> validniData) throws RuntimeException{
          int posledniIndexSkladu = Integer.parseInt(validniData.get(index)) * 5;  // pocet skladu je nasoben poctem parametru pro vytvoreni objektu
          index++;
 
@@ -272,6 +272,10 @@ public class VstupDat{
              int pocetKosu = Integer.parseInt(validniData.get(index + 2));
              double dobaDoplneniTs = Double.parseDouble(validniData.get(index + 3));
              double dobaDoplneniTn = Double.parseDouble(validniData.get(index + 4));
+
+             if(dobaDoplneniTn < 0 || dobaDoplneniTs < 0){
+                 throw new RuntimeException("Cas nemuze byt zaporny");
+             }
 
              Sklad sklad = new Sklad(new DoubleVector2D(x, y), pocetKosu, dobaDoplneniTs, dobaDoplneniTn);
              sklady.add(sklad);
@@ -320,7 +324,11 @@ public class VstupDat{
      * Vybere z validních dat velbloudy a načte je
      * @param validniData vyparsovaná data ze vstupního souboru
      */
-     private void vytvorVelbloudy(List<String> validniData){
+     private void vytvorVelbloudy(List<String> validniData) throws RuntimeException{
+         // Kontrola pomeru
+         double sumaPomeru = 0;
+         double epsilon = 0.00000000001;
+
          int posledniIndexVelblouda = Integer.parseInt(validniData.get(index)) * 8;  // pocet velbloudu je nasoben poctem parametru pro vytvoreni objektu
          index++;
 
@@ -331,12 +339,23 @@ public class VstupDat{
              double maxRychlost = Double.parseDouble(validniData.get(index + 2));
              double minVzdalenost = Double.parseDouble(validniData.get(index + 3));
              double maxVzdalenost = Double.parseDouble(validniData.get(index + 4));
-             double dobaPiti = Double.parseDouble(validniData.get(index + 5));
-             int maxZatizeni = Integer.parseInt(validniData.get(index + 6));
+             double dobaPiti = Math.abs(Double.parseDouble(validniData.get(index + 5)));
+             int maxZatizeni = Math.abs(Integer.parseInt(validniData.get(index + 6)));
              double procentualniPomerDruhu = Double.parseDouble(validniData.get(index + 7));
+
+             // Spatne uvedena rychlost/vzdalenost
+             if(minRychlost > maxRychlost || minVzdalenost > maxVzdalenost){
+                 throw new RuntimeException("Minimum nemuze byt vetsi nez maximum");
+             }
+             sumaPomeru += procentualniPomerDruhu;
 
              VelbloudTyp velbloudTyp = new VelbloudTyp(nazev, minRychlost, maxRychlost, minVzdalenost, maxVzdalenost, dobaPiti, maxZatizeni, procentualniPomerDruhu);
              velbloudi.add(velbloudTyp);
+         }
+
+         // Soucet vsech typu != 1
+         if(Math.abs(sumaPomeru - 1) > epsilon){
+            throw new RuntimeException("Soucet typu velblouda neni 1");
          }
      }
 
@@ -344,7 +363,7 @@ public class VstupDat{
      * Vybere z validních dat požadavky a načte je
      * @param validniData vyparsovaná data ze vstupního souboru
      */
-     private void vytvorPozadavky(List<String> validniData){
+     private void vytvorPozadavky(List<String> validniData) throws RuntimeException{
          int posledniIndexPozadavku = Integer.parseInt(validniData.get(index)) * 4;   // pocet pozadavku je nasoben poctem parametru pro vytvoreni objektu
          index++;
 
@@ -355,10 +374,19 @@ public class VstupDat{
              int pozadavekKosu = Integer.parseInt(validniData.get(index + 2));
              double casDoruceni = Double.parseDouble(validniData.get(index + 3));
 
-             AMisto oaza = getOazy().get(indexOazy - 1);
+             // Cas nemuze byt zaporny
+             if(casPozadavku < 0 || pozadavekKosu < 0 || casDoruceni < 0){
+                 throw new RuntimeException("Cas nemuze byt zaporny");
+             }
 
+             AMisto oaza = getOazy().get(indexOazy - 1);
              Pozadavek pozadavek = new Pozadavek(casPozadavku, oaza, pozadavekKosu, casDoruceni);
              pozadavky.add(pozadavek);
+         }
+
+         // Nevalidni soubor
+         if(validniData.size() > index + 3){
+             throw new RuntimeException("Spatny pocet pozadavku");
          }
      }
 }

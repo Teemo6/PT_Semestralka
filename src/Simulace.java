@@ -15,12 +15,15 @@ public class Simulace {
     private static final VelbloudGenerator velGen = VelbloudGenerator.getInstance();
 
     /** Práce s časem */
-    double simulacniCas;
-    boolean simulaceBezi;
-    Pozadavek neobslouzenyPozadavek = null;
-    PriorityQueue<Pozadavek> frontaPozadavku;
-    PriorityQueue<Sklad> frontaSkladu;
-    PriorityQueue<VelbloudSimulace> frontaVelbloudu;
+    private double simulacniCas;
+    private PriorityQueue<Pozadavek> frontaPozadavku;
+    private PriorityQueue<Sklad> frontaSkladu;
+    private PriorityQueue<VelbloudSimulace> frontaVelbloudu;
+
+    /** Podmínky ukončení simulace */
+    private final static List<Pozadavek> neobslouzenePozadavky = new ArrayList<>();
+    private boolean simulaceBezi;
+    private Pozadavek neobslouzenyPozadavek = null;
 
     /** Pokus o optimalizaci simulace */
     private boolean optimalizace;
@@ -71,6 +74,9 @@ public class Simulace {
         Sklad dalsiSklad;
         VelbloudSimulace dalsiVel;
         double casPozadavek, casSklad, casVel;
+
+        // Podminka ukonceni
+        neobslouzenePozadavky.addAll(data.getPozadavky());
 
         while(simulaceBezi){
             dalsiPozadavek = frontaPozadavku.peek();
@@ -128,6 +134,10 @@ public class Simulace {
         System.out.println("\nRuntime: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.");
     }
 
+    public static void oznacSplnenyPozadavek(Pozadavek p){
+        neobslouzenePozadavky.remove(p);
+    }
+
     //////////////////////
     //* Private metody *//
     //////////////////////
@@ -153,13 +163,11 @@ public class Simulace {
      * @return true pokud jsou splněny všechny požadavky
      */
     private boolean vsechnyPozadavkyObslouzeny(){
-        for(Pozadavek p : data.getPozadavky()){
-            if(!p.jeSplnen()){
-                if(p.getDeadline() < simulacniCas){
-                    neobslouzenyPozadavek = p;
-                }
-                return false;
+        if(neobslouzenePozadavky.size() > 0){
+            if(neobslouzenePozadavky.get(0).getDeadline() < simulacniCas){
+                neobslouzenyPozadavek = neobslouzenePozadavky.get(0);
             }
+            return false;
         }
         return true;
     }

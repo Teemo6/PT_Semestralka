@@ -37,7 +37,8 @@ public class Pozadavek{
      * Označí požadavek jako splněný
      */
     public void setSplnen() {
-        this.jeSplnen = true;
+        jeSplnen = true;
+        Simulace.oznacSplnenyPozadavek(this);
     }
 
     /**

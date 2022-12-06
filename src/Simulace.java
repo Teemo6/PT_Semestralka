@@ -19,6 +19,7 @@ public class Simulace {
     PriorityQueue<Pozadavek> frontaPozadavku;
     PriorityQueue<Sklad> frontaSkladu;
     PriorityQueue<VelbloudSimulace> frontaVelbloudu;
+    PriorityQueue<Sklad> prioritaSkladuKose;
 
     /** Podmínky ukončení simulace */
     private final static List<Pozadavek> neobslouzenePozadavky = new ArrayList<>();
@@ -55,7 +56,7 @@ public class Simulace {
         System.out.println("\nGenerator pripraven: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.\n");
 
         // Má cenu optimalizovat, je málo skladů?
-        optimalizace = data.getSklady().size() < OPTIMALIZACE_SKLADY && data.getMista().size() - OPTIMALIZACE_SKLADY > 0;
+        optimalizace = data.getSklady().size() < OPTIMALIZACE_SKLADY && data.getMista().size() - data.getSklady().size() > 0;
 
         // Simulacni cas
         simulacniCas = 0;
@@ -65,9 +66,12 @@ public class Simulace {
         frontaPozadavku = new PriorityQueue<>(5, Comparator.comparingDouble(Pozadavek::getCasPrichodu).thenComparing(Pozadavek::getDeadline));
         frontaSkladu = new PriorityQueue<>(5, Comparator.comparingDouble(Sklad::getCasDalsiAkce));
         frontaVelbloudu = new PriorityQueue<>(5, Comparator.comparingDouble(VelbloudSimulace::getCasNaAkci));
-
         frontaPozadavku.addAll(data.getPozadavky());
         frontaSkladu.addAll(data.getSklady());
+
+        // Fronta priority kosu
+        prioritaSkladuKose = new PriorityQueue<>(5, Comparator.comparingDouble(Sklad::getCasNalozeni).thenComparing(Sklad::getPocetPozadavku));
+        prioritaSkladuKose.addAll(data.getSklady());
 
         // Zpracovani fronty
         Pozadavek dalsiPozadavek;
@@ -201,10 +205,26 @@ public class Simulace {
         int zaokrouhlenyCas = (int)Math.round(simulacniCas);
         int zaokrouhlenaDeadline = (int)Math.round(dalsiPozadavek.getDeadline());
 
-        // Vyhledej cestu do oázy
+        // Vyhledej cestu z do všech skladů, vyber sklad který splní požadavek
         AMisto pozadavekOaza = dalsiPozadavek.getOaza();
-        AMisto nejblizsiSklad = mapa.najdiNejblizsiSklad(pozadavekOaza, data.getSklady(), velGen.nejvetsiPrumernaVzdalenost(), optimalizace);
-        CestaCasti nejkratsiCesta = mapa.najdiNejkratsiCestuDijkstra(nejblizsiSklad, pozadavekOaza, velGen.nejvetsiPrumernaVzdalenost(), optimalizace);
+        CestaCasti nejkratsiCesta = CestaCasti.nekonecnaCesta();
+        AMisto domaciSklad = prioritaSkladuKose.peek();
+        ArrayList<Sklad> docasnySklady = new ArrayList<>();
+
+        // Smyčka která projde všechny sklady podle priority (koše > požadavky skladu) a najde zvládnutelnou cestu mezi oázou a skladem
+        while(!prioritaSkladuKose.isEmpty()) {
+            domaciSklad = prioritaSkladuKose.poll();
+            if(domaciSklad.getPocetKosu() >= dalsiPozadavek.getPozadavekKosu()) {
+                if (optimalizace) {
+                    nejkratsiCesta = mapa.najdiNejkratsiCestuDijkstra(domaciSklad, pozadavekOaza, velGen.nejvetsiPrumernaVzdalenost());
+                } else {
+                    nejkratsiCesta = mapa.najdiCestuDoKoncovehoBodu(domaciSklad, pozadavekOaza, velGen.nejvetsiPrumernaVzdalenost());
+                }
+                break;
+            }
+            docasnySklady.add((Sklad)domaciSklad);
+        }
+        prioritaSkladuKose.addAll(docasnySklady);
 
         // Cesta je INF (neexistuje)
         if(nejkratsiCesta.getVzdalenost() == Double.MAX_VALUE){
@@ -220,6 +240,7 @@ public class Simulace {
             if(nejdelsiUsekCesty <= vel.getMaxVzdalenost()) {
                 pozadavekPrirazen = zkusPriraditPozadavekVelbloudovi(vel, dalsiPozadavek, nejkratsiCesta);
                 if(pozadavekPrirazen){
+                    ((Sklad) domaciSklad).pridejPozadavek();
                     break;
                 }
             }
@@ -227,7 +248,8 @@ public class Simulace {
 
         // Vyber vhodný druh velblouda, vytvoř ho, přiřaď mu požadavek
         if (!pozadavekPrirazen) {
-            pozadavekPrirazen = zkusPriraditPozadavekVelbloudovi(generujVhodnehoVelblouda(nejkratsiCesta, nejblizsiSklad), dalsiPozadavek, nejkratsiCesta);
+            pozadavekPrirazen = zkusPriraditPozadavekVelbloudovi(generujVhodnehoVelblouda(nejkratsiCesta, domaciSklad), dalsiPozadavek, nejkratsiCesta);
+            ((Sklad) domaciSklad).pridejPozadavek();
         }
 
         // Požadavek nejde přiřadit, simulace bude pokračovat ale časem spadne

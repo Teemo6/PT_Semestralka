@@ -9,7 +9,7 @@ public class Sklad extends AMisto{
     private final double casNalozeni;
 
     private int pocetKosu;
-    private int pocetRezervace;
+    private int pocetPozadavku;
     private double casDalsiAkce;
 
     /**
@@ -24,7 +24,7 @@ public class Sklad extends AMisto{
         this.pocetPrirustek = pocetPrirustek;
         this.casDoplneniSkladu = casDoplneniSkladu;
         this.casNalozeni = casManipulaceKose;
-        this.pocetRezervace = 0;
+        this.pocetPozadavku = 0;
 
         // Sklad se doplní za čas 0 a doplní se o nenulový počet
         if(casDoplneniSkladu <= 0 && pocetPrirustek > 0){
@@ -44,18 +44,22 @@ public class Sklad extends AMisto{
         casDalsiAkce += casDoplneniSkladu;
     }
 
-    // TODO :////////
-    public double kdyBudeNalozenaRezervace(int rezervace){
-        return casDoplneniSkladu * (Math.ceil((rezervace - pocetKosu - pocetRezervace) / (double)pocetPrirustek));
+    /**
+     * Přidá požadavek k počítadlu
+     */
+    public void pridejPozadavek(){
+        pocetPozadavku++;
     }
 
-    public double kolikBudeCelkemKosuVCase(double simCas){
-        return pocetPrirustek * Math.ceil(simCas / casDoplneniSkladu);
+    /**
+     * Odebere požadavek od počítadla
+     */
+    public void odeberPozadavek(){
+        pocetPozadavku--;
     }
 
-
-    public void rezervujKose(int pocet){
-        pocetRezervace += pocet;
+    public int getPocetPozadavku(){
+        return pocetPozadavku;
     }
 
     /**
@@ -63,7 +67,6 @@ public class Sklad extends AMisto{
      */
     public void odeberKos() {
         pocetKosu--;
-        pocetRezervace--;
     }
 
     /**

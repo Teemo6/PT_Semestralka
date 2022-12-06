@@ -151,6 +151,7 @@ public class VelbloudSimulace{
      */
     public void odstranPozadavek(){
         VelbloudPozadavek odstraneny = frontaPozadavku.remove();
+        ((Sklad)odstraneny.getCestaCasti().getZacatek()).odeberPozadavek();
         celkovaVzdalenostFronty -= odstraneny.getCelkovaVzdalenostCesty();
         celkovyCasFronty -= jakDlouhoBudeTrvatCestaTamZpet(odstraneny.getCestaCasti(), odstraneny.getPocetPotrebnychKosu());
     }

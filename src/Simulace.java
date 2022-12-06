@@ -275,16 +275,17 @@ public class Simulace {
             VelbloudTyp dalsiTyp = velGen.dalsiVelbloudPodlePomeru();
 
             vel = velGen.generujVelblouda((Sklad)domovskySklad);
-            frontaVelbloudu.add(vel);
 
             if (dalsiTyp.getVetsiPrumerVzdalenost() >= nejdelsiUsek) {
                 vhodnyTyp = dalsiTyp;
                 if(vel.getMaxVzdalenost() >= nejdelsiUsek){
                     vel.setCasNaAkci(simulacniCas);
+                    frontaVelbloudu.add(vel);
                     return vel;
                 }
             } else {
                 vel.setCasNaAkci(Double.MAX_VALUE);
+                frontaVelbloudu.add(vel);
             }
 
             // Typ je vhodny, jenom se vygeneroval spatny velbloud

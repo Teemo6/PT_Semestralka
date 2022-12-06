@@ -304,9 +304,17 @@ public class VelbloudSimulace{
         return maxVzdalenost;
     }
 
+    /**
+     * Vrátí ID velblouda
+     * @return ID velblouda
+     */
+    public int getID(){
+        return ID;
+    }
+
     @Override
     public String toString() {
-        return "ID=" + ID + ", typ=" + typ.getNazev();
+        return "ID=" + ID + ", cas=" + casNaAkci;
     }
 
     //////////////////////

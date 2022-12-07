@@ -70,7 +70,7 @@ public class Simulace {
         frontaSkladu.addAll(data.getSklady());
 
         // Fronta priority kosu
-        prioritaSkladuKose = new PriorityQueue<>(5, Comparator.comparingDouble(Sklad::getCasNalozeni).thenComparing(Sklad::getPocetPozadavku));
+        prioritaSkladuKose = new PriorityQueue<>(5, Comparator.comparingDouble(Sklad::getPocetRezervace).thenComparing(Sklad::getCasNalozeni));
         prioritaSkladuKose.addAll(data.getSklady());
 
         // Zpracovani fronty
@@ -103,6 +103,9 @@ public class Simulace {
             // Zkontroluj jestli už je možné provést akci
             if(casPozadavek <= simulacniCas){
                 priradPozadavekVelbloudovi();
+                int zaokrouhlenyCas = (int)Math.round(simulacniCas);
+                int zaokrouhlenaDeadline = (int)Math.round(dalsiPozadavek.getDeadline());
+                System.out.println("Prichod pozadavku \t Cas: " + zaokrouhlenyCas + ", Pozadavek: " + dalsiPozadavek.getID() + ", Oaza: " + ((Oaza) dalsiPozadavek.getOaza()).getIDOaza() + ", Pocet kosu: " + dalsiPozadavek.getPozadavekKosu() + ", Deadline: " + zaokrouhlenaDeadline);
                 continue;
             }
             if(casSklad <= simulacniCas){
@@ -202,8 +205,6 @@ public class Simulace {
         Pozadavek dalsiPozadavek = frontaPozadavku.poll();
         assert dalsiPozadavek != null;
         boolean pozadavekPrirazen = false;
-        int zaokrouhlenyCas = (int)Math.round(simulacniCas);
-        int zaokrouhlenaDeadline = (int)Math.round(dalsiPozadavek.getDeadline());
 
         // Vyhledej cestu z do všech skladů, vyber sklad který splní požadavek
         AMisto pozadavekOaza = dalsiPozadavek.getOaza();
@@ -228,8 +229,6 @@ public class Simulace {
 
         // Cesta je INF (neexistuje)
         if(nejkratsiCesta.getVzdalenost() == Double.MAX_VALUE){
-            System.out.println("Pozadavek " + dalsiPozadavek.getID() + " nejde obslouzit, simulace pokracuje");
-            System.out.println("Prichod pozadavku \t Cas: " + zaokrouhlenyCas + ", Pozadavek: " + dalsiPozadavek.getID() + ", Oaza: " + ((Oaza) dalsiPozadavek.getOaza()).getIDOaza() + ", Pocet kosu: " + dalsiPozadavek.getPozadavekKosu() + ", Deadline: " + zaokrouhlenaDeadline);
             return;
         }
 
@@ -240,23 +239,15 @@ public class Simulace {
             if(nejdelsiUsekCesty <= vel.getMaxVzdalenost()) {
                 pozadavekPrirazen = zkusPriraditPozadavekVelbloudovi(vel, dalsiPozadavek, nejkratsiCesta);
                 if(pozadavekPrirazen){
-                    ((Sklad) domaciSklad).pridejPozadavek();
-                    break;
+                    ((Sklad) domaciSklad).pridejRezervaci(dalsiPozadavek.getPozadavekKosu());
+                    return;
                 }
             }
         }
 
         // Vyber vhodný druh velblouda, vytvoř ho, přiřaď mu požadavek
-        if (!pozadavekPrirazen) {
-            pozadavekPrirazen = zkusPriraditPozadavekVelbloudovi(generujVhodnehoVelblouda(nejkratsiCesta, domaciSklad), dalsiPozadavek, nejkratsiCesta);
-            ((Sklad) domaciSklad).pridejPozadavek();
-        }
-
-        // Požadavek nejde přiřadit, simulace bude pokračovat ale časem spadne
-        if (!pozadavekPrirazen) {
-            System.out.println("Pozadavek " + dalsiPozadavek.getID() + " nejde obslouzit, simulace pokracuje");
-        }
-        System.out.println("Prichod pozadavku \t Cas: " + zaokrouhlenyCas + ", Pozadavek: " + dalsiPozadavek.getID() + ", Oaza: " + ((Oaza) dalsiPozadavek.getOaza()).getIDOaza() + ", Pocet kosu: " + dalsiPozadavek.getPozadavekKosu() + ", Deadline: " + zaokrouhlenaDeadline);
+        zkusPriraditPozadavekVelbloudovi(generujVhodnehoVelblouda(nejkratsiCesta, domaciSklad), dalsiPozadavek, nejkratsiCesta);
+        ((Sklad) domaciSklad).pridejRezervaci(dalsiPozadavek.getPozadavekKosu());
     }
 
     /**

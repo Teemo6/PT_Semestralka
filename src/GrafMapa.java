@@ -77,40 +77,57 @@ public class GrafMapa {
     }
 
     /**
-     * Vrátí nejbližší sklad od oázy
-     * @param oaza oáza
-     * @param sklady všechny sklady v grafu
-     * @param omezeni omezení minimální vzdáleností velblouda
-     * @return sklad s nejkratší cestou
+     * Vrátí dostačující (ne nejlepší!) cestu mezi dvěmi vrcholy
+     * @param vychoziBod výchozí bod
+     * @param konecnyBod koncový bod
+     * @param omezeni omezení vzdálenosti
+     * @return dostačující cesta
      */
-    public AMisto najdiNejblizsiSklad(AMisto oaza, List<Sklad> sklady, double omezeni){
-        AMisto sklad = null;
-        double cena;
-        double nejkratsiCesta = Double.MAX_VALUE;
-        LinkedList<GrafVrchol> sousedi = seznamSousednosti.get(oaza);
+    public CestaCasti najdiCestuDoKoncovehoBodu(AMisto vychoziBod, AMisto konecnyBod, double omezeni){
+        CestaCasti cestaSklad = new CestaCasti();
+        Map<AMisto, GrafVrchol> mapaPredchudcu = new HashMap<>();
+        GrafVrchol vychoziVrchol = new GrafVrchol(vychoziBod, 0.0);
 
-        // Pokud nemá sousedy
-        if(sousedi == null){
-            return null;
-        }
-        if(sousedi.isEmpty()){
-            return null;
+        // Naplň mapu předchůdců hodnotou INF
+        for(Map.Entry<AMisto, LinkedList<GrafVrchol>> entry : seznamSousednosti.entrySet()){
+            mapaPredchudcu.put(entry.getKey(), new GrafVrchol(null, Double.MAX_VALUE));
         }
 
-        // Jediný soused oázy je jediný sklad celého datasetu
-        if(sousedi.size() == 1 && sousedi.get(0).getVrchol().getClass().getSimpleName().equals("Sklad") && sklady.size() == 1){
-            return seznamSousednosti.get(oaza).getFirst().getVrchol();
-        }
+        // Zpracovani fronty Dijkstry
+        PriorityQueue<GrafVrchol> fronta = new PriorityQueue<>(Comparator.comparingDouble(GrafVrchol::getVzdalenost));
+        mapaPredchudcu.put(vychoziBod, vychoziVrchol);
+        fronta.add(new GrafVrchol(vychoziBod, 0));
 
-        // Projdi všechny sklady a porovnej cesty
-        for(AMisto s : sklady){
-            cena = najdiNejkratsiCestuDijkstra(s, oaza, omezeni).getVzdalenost();
-            if(cena < nejkratsiCesta){
-                nejkratsiCesta = cena;
-                sklad = s;
+        while (fronta.size() > 0) {
+            AMisto predchudce = fronta.poll().getVrchol();
+            // Ukonči procházení Dijkstry, narazil jsi na koncový bod a má dostačující vzdálenost
+            if(predchudce == konecnyBod){
+                cestaSklad = backtracking(vychoziBod, konecnyBod, mapaPredchudcu);
+                break;
+            }
+
+            // Vychozi misto nema zadne sousedy
+            if(seznamSousednosti.get(predchudce) == null){
+                return CestaCasti.nekonecnaCesta();
+            }
+
+            // Projdi vsechny sousedy
+            for (GrafVrchol sousedniVrchol : seznamSousednosti.get(predchudce)) {
+                AMisto soused = sousedniVrchol.getVrchol();
+                double vzdalenostSouseda = mapaPredchudcu.get(predchudce).getVzdalenost() + sousedniVrchol.getVzdalenost();
+
+                if(sousedniVrchol.getVzdalenost() > omezeni && soused == konecnyBod){
+                    return CestaCasti.nekonecnaCesta();
+                }
+
+                // Pokud je cesta kratsi, zapis souseda jako predchudce
+                if (mapaPredchudcu.get(soused).getVzdalenost() > vzdalenostSouseda) {
+                    mapaPredchudcu.put(soused, new GrafVrchol(predchudce, vzdalenostSouseda));
+                    fronta.add(new GrafVrchol(soused, mapaPredchudcu.get(soused).getVzdalenost()));
+                }
             }
         }
-        return sklad;
+        return cestaSklad;
     }
 
     //////////////////////
@@ -162,61 +179,28 @@ public class GrafMapa {
         return mapaPredchudcu;
     }
 
-    public CestaCasti najdiCestuDoKoncovehoBodu(AMisto vychoziBod, AMisto konecnyBod, double omezeni){
-        CestaCasti cestaSklad = new CestaCasti();
-        AMisto koncovyBodCesty = konecnyBod;
-        Map<AMisto, GrafVrchol> mapaPredchudcu = new HashMap<>();
-        GrafVrchol vychoziVrchol = new GrafVrchol(vychoziBod, 0.0);
+    /**
+     * Vrátí cestu ve správném směru mezi dvěmi body
+     * @param zacatek výchozí bod
+     * @param konec koncový bod
+     * @param mapaPredchudcu mapa kudy se dostat z konce do začátku
+     * @return cesta od začátku do konce
+     */
+    private CestaCasti backtracking(AMisto zacatek, AMisto konec, Map<AMisto, GrafVrchol> mapaPredchudcu){
+        CestaCasti cestaVeSpravnymSmeru = new CestaCasti();
+        AMisto konecClanku = konec;
+        AMisto zacatekClanku = konec;
 
-        // Naplň mapu předchůdců hodnotou INF
-        for(Map.Entry<AMisto, LinkedList<GrafVrchol>> entry : seznamSousednosti.entrySet()){
-            mapaPredchudcu.put(entry.getKey(), new GrafVrchol(null, Double.MAX_VALUE));
-        }
-
-        // Zpracovani fronty Dijkstry
-        PriorityQueue<GrafVrchol> fronta = new PriorityQueue<>(Comparator.comparingDouble(GrafVrchol::getVzdalenost));
-        mapaPredchudcu.put(vychoziBod, vychoziVrchol);
-        fronta.add(new GrafVrchol(vychoziBod, 0));
-
-        while (fronta.size() > 0) {
-            AMisto predchudce = fronta.poll().getVrchol();
-
-            // Ukonči procházení Dijkstry, narazil jsi na koncový bod
-            if(predchudce == konecnyBod){
-                while(true) {
-                    predchudce = mapaPredchudcu.get(koncovyBodCesty).getVrchol();
-                    if(predchudce == null || predchudce == vychoziBod){
-                        break;
-                    }
-                    cestaSklad.pridejCestuNaZacatek(new Cesta(predchudce, koncovyBodCesty));
-                    koncovyBodCesty = predchudce;
-                }
-                cestaSklad.uzavriCestu();
+        while(true) {
+            if(zacatekClanku == null || zacatekClanku == zacatek){
                 break;
             }
-
-            // Vychozi misto nema zadne sousedy
-            if(seznamSousednosti.get(predchudce) == null){
-                return CestaCasti.nekonecnaCesta();
-            }
-
-            // Projdi vsechny sousedy
-            for (GrafVrchol sousedniVrchol : seznamSousednosti.get(predchudce)) {
-                AMisto soused = sousedniVrchol.getVrchol();
-                double vzdalenostSouseda = mapaPredchudcu.get(predchudce).getVzdalenost() + sousedniVrchol.getVzdalenost();
-
-                if(sousedniVrchol.getVzdalenost() > omezeni && soused == konecnyBod){
-                    return CestaCasti.nekonecnaCesta();
-                }
-
-                // Pokud je cesta kratsi, zapis souseda jako predchudce
-                if (mapaPredchudcu.get(soused).getVzdalenost() > vzdalenostSouseda) {
-                    mapaPredchudcu.put(soused, new GrafVrchol(predchudce, vzdalenostSouseda));
-                    fronta.add(new GrafVrchol(soused, mapaPredchudcu.get(soused).getVzdalenost()));
-                }
-            }
+            zacatekClanku = mapaPredchudcu.get(konecClanku).getVrchol();
+            cestaVeSpravnymSmeru.pridejCestuNaZacatek(new Cesta(zacatekClanku, konecClanku));
+            konecClanku = zacatekClanku;
         }
-        return cestaSklad;
+        cestaVeSpravnymSmeru.uzavriCestu();
+        return cestaVeSpravnymSmeru;
     }
 
     /**

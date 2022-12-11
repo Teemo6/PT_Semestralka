@@ -215,6 +215,7 @@ public class Simulace {
         // Smyčka která projde všechny sklady podle priority (koše > požadavky skladu) a najde zvládnutelnou cestu mezi oázou a skladem
         while(!prioritaSkladuKose.isEmpty()) {
             domaciSklad = prioritaSkladuKose.poll();
+            docasnySklady.add((Sklad)domaciSklad);
             if(domaciSklad.getPocetKosu() >= dalsiPozadavek.getPozadavekKosu()) {
                 if (optimalizace) {
                     nejkratsiCesta = mapa.najdiNejkratsiCestuDijkstra(domaciSklad, pozadavekOaza, velGen.nejvetsiPrumernaVzdalenost());
@@ -223,7 +224,6 @@ public class Simulace {
                 }
                 break;
             }
-            docasnySklady.add((Sklad)domaciSklad);
         }
         prioritaSkladuKose.addAll(docasnySklady);
 

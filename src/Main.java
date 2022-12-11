@@ -5,7 +5,7 @@
  */
 public class Main {
     // Testovací spuštění
-    private static final String VSTUP_SOUBORU = "data/centre_cpy.txt";
+    private static final String VSTUP_SOUBORU = "data/tutorial.txt";
     private static final Simulace SIMULACE = Simulace.getInstance();
 
     /**

@@ -135,11 +135,11 @@ public class Simulace {
             simulacniCas = Math.min(Math.min(casPozadavek, casSklad), casVel);
         }
         int pocetPozadavku = data.getPozadavky().size() - neobslouzenePozadavky.size();
-        //System.out.println();
-        //System.out.println("Pocet splnenych pozadavku: " + pocetPozadavku);
-        //System.out.println("Pocet generovanych velbloudu: " + frontaVelbloudu.size());
-        //System.out.println("SimCas: " + simulacniCas);
-        //System.out.println("\nRuntime: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.");
+        System.out.println();
+        System.out.println("Pocet splnenych pozadavku: " + pocetPozadavku);
+        System.out.println("Pocet generovanych velbloudu: " + frontaVelbloudu.size());
+        System.out.println("SimCas: " + simulacniCas);
+        System.out.println("\nRuntime: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.");
     }
 
     /**

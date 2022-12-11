@@ -47,13 +47,13 @@ public class Simulace {
         long casSpusteniSimulace = System.currentTimeMillis();
 
         data.vytvorObjekty(vstupniSoubor);
-        System.out.println("\nData nactena: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.");
+        //System.out.println("\nData nactena: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.");
 
         mapa.vytvorGraf(data.getCesty());
-        System.out.println("\nMapa vytvorena: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.");
+        //System.out.println("\nMapa vytvorena: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.");
 
         velGen.vytvorGenerator(data.getVelbloudi());
-        System.out.println("\nGenerator pripraven: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.\n");
+        //System.out.println("\nGenerator pripraven: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.\n");
 
         // Má cenu optimalizovat, je málo skladů?
         optimalizace = data.getSklady().size() < OPTIMALIZACE_SKLADY && data.getMista().size() - data.getSklady().size() > 0;
@@ -105,7 +105,7 @@ public class Simulace {
                 priradPozadavekVelbloudovi();
                 int zaokrouhlenyCas = (int)Math.round(simulacniCas);
                 int zaokrouhlenaDeadline = (int)Math.round(dalsiPozadavek.getDeadline());
-                System.out.println("Prichod pozadavku \t Cas: " + zaokrouhlenyCas + ", Pozadavek: " + dalsiPozadavek.getID() + ", Oaza: " + ((Oaza) dalsiPozadavek.getOaza()).getIDOaza() + ", Pocet kosu: " + dalsiPozadavek.getPozadavekKosu() + ", Deadline: " + zaokrouhlenaDeadline);
+                System.out.println("Cas: " + zaokrouhlenyCas + ", Pozadavek: " + dalsiPozadavek.getID() + ", Oaza: " + ((Oaza) dalsiPozadavek.getOaza()).getIDOaza() + ", Pocet kosu: " + dalsiPozadavek.getPozadavekKosu() + ", Deadline: " + zaokrouhlenaDeadline);
                 continue;
             }
             if(casSklad <= simulacniCas){
@@ -135,11 +135,11 @@ public class Simulace {
             simulacniCas = Math.min(Math.min(casPozadavek, casSklad), casVel);
         }
         int pocetPozadavku = data.getPozadavky().size() - neobslouzenePozadavky.size();
-        System.out.println();
-        System.out.println("Pocet splnenych pozadavku: " + pocetPozadavku);
-        System.out.println("Pocet generovanych velbloudu: " + frontaVelbloudu.size());
-        System.out.println("SimCas: " + simulacniCas);
-        System.out.println("\nRuntime: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.");
+        //System.out.println();
+        //System.out.println("Pocet splnenych pozadavku: " + pocetPozadavku);
+        //System.out.println("Pocet generovanych velbloudu: " + frontaVelbloudu.size());
+        //System.out.println("SimCas: " + simulacniCas);
+        //System.out.println("\nRuntime: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.");
     }
 
     /**

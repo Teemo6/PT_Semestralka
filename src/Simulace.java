@@ -44,7 +44,7 @@ public class Simulace {
      */
     public void spustSimulaci(String vstupniSoubor){
         // Inicializace simulace
-        long casSpusteniSimulace = System.currentTimeMillis();
+        // long casSpusteniSimulace = System.currentTimeMillis();
 
         data.vytvorObjekty(vstupniSoubor);
         //System.out.println("\nData nactena: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.");
@@ -134,12 +134,12 @@ public class Simulace {
             // Nastav simulační čas na další nejbližsí událost
             simulacniCas = Math.min(Math.min(casPozadavek, casSklad), casVel);
         }
-        int pocetPozadavku = data.getPozadavky().size() - neobslouzenePozadavky.size();
-        System.out.println();
-        System.out.println("Pocet splnenych pozadavku: " + pocetPozadavku);
-        System.out.println("Pocet generovanych velbloudu: " + frontaVelbloudu.size());
-        System.out.println("SimCas: " + simulacniCas);
-        System.out.println("\nRuntime: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.");
+        // int pocetPozadavku = data.getPozadavky().size() - neobslouzenePozadavky.size();
+        // System.out.println();
+        // System.out.println("Pocet splnenych pozadavku: " + pocetPozadavku);
+        // System.out.println("Pocet generovanych velbloudu: " + frontaVelbloudu.size());
+        // System.out.println("SimCas: " + simulacniCas);
+        // System.out.println("\nRuntime: " + (System.currentTimeMillis() - casSpusteniSimulace) + " ms.");
     }
 
     /**
@@ -165,7 +165,7 @@ public class Simulace {
 
         // Zkontroluj podmínky neúspešné simulace
         if(neobslouzenyPozadavek != null){
-            System.out.println("Cas: "+ (int)simulacniCas +", Oaza: "+ ((Oaza)neobslouzenyPozadavek.getOaza()).getIDOaza() +", Vsichni vymreli, Harpagon zkrachoval, Konec simulace");
+            System.out.println("Cas: "+ (int)Math.round(simulacniCas) +", Oaza: "+ ((Oaza)neobslouzenyPozadavek.getOaza()).getIDOaza() +", Vsichni vymreli, Harpagon zkrachoval, Konec simulace");
             simulaceBezi = false;
         }
     }
@@ -236,6 +236,9 @@ public class Simulace {
 
         // Zkus přiřadit požadavek existujícímu velbloudovi
         for (VelbloudSimulace vel : frontaVelbloudu) {
+            if(vel.getDomovskySklad() != domaciSklad){
+                continue;
+            }
             if(nejdelsiUsekCesty <= vel.getMaxVzdalenost()) {
                 pozadavekPrirazen = zkusPriraditPozadavekVelbloudovi(vel, dalsiPozadavek, nejkratsiCesta);
                 if(pozadavekPrirazen){

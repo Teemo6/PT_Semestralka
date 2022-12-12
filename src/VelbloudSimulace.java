@@ -310,6 +310,14 @@ public class VelbloudSimulace{
         return ID;
     }
 
+    /**
+     * Vrátí domácí sklad
+     * @return domácí sklad
+     */
+    public AMisto getDomovskySklad(){
+        return domovskySklad;
+    }
+
     @Override
     public String toString() {
         return "ID=" + ID + ", cas=" + casNaAkci;
